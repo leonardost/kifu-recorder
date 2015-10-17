@@ -1,18 +1,30 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder;
+/**
+ * Existem melhoramentos de código e melhoramentos de funcionalidade, os
+ * segundos são muito, muito mais importantes que os primeiros. Que
+ * funcionalidades ainda precisam ser melhoradas?
+ *
+ * - Detecção do tabuleiro
+ *   - Detecção das bordas
+ *   - Detecção das interseções
+ * - Detecção de pedras no tabuleiro (cuidar de sombras, etc.)
+ *   - Diferenciar as cores do tabuleiro das pedras
+ *     - Clusterização?
+ */
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
 import android.util.Log;
 
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
  * Responsável por processar um frame de imagem da câmera e gerar um objeto
@@ -20,16 +32,7 @@ import java.util.List;
  */
 public class ProcessadorDeImagem {
 
-    private static final String TAG = "RegistradorDePartidas";
-
-    private Scalar mRed = new Scalar(255, 0, 0);
-    private Scalar mGreen = new Scalar(0, 255, 0);
-    private Scalar mBlue = new Scalar(0, 0, 255);
-    private Scalar mWhite = new Scalar(255, 255, 255);
-
-    private Scalar[] colors = new Scalar[] {
-        mRed, mGreen, mBlue, mWhite
-    };
+    public static final String TAG = "RegistradorDePartidas";
 
     private int larguraImagemPreview = 500;
     private int alturaImagemPreview = 500;
@@ -44,40 +47,37 @@ public class ProcessadorDeImagem {
     public Tabuleiro detectarTabuleiro(Mat imagem) {
         Mat original = imagem.clone();
 
-        List<MatOfPoint> contours = null;
-        contours = detectarBordasEContornos(imagem);
-        // Nenhum contorno foi encontrado
-        if (contours == null) {
+        List<MatOfPoint> contornos = detectarBordasEContornos(imagem);
+        if (contornos == null) {
             return null;
         }
 
         // Encontra os quadriláteros entre os contornos obtidos.
-        // Encontra também qual é o maior quadrilátero na imagem, já que ele
-        // provavelmente é a borda do tabuleiro.
         // http://stackoverflow.com/questions/8667818/opencv-c-obj-c-detecting-a-sheet-of-paper-square-detection
-        List<MatOfPoint> squares = new ArrayList<>();
-        MatOfPoint largestSquare = null;
+        List<MatOfPoint> quadrilateros = new ArrayList<>();
+        MatOfPoint maiorQuadrilatero = null;
+        encontrarQuadrilateros(contornos, quadrilateros, maiorQuadrilatero);
+        Log.d(TAG, "Número de quadriláteros encontrados: " + quadrilateros.size());
 
-        encontrarQuadrilateros(contours, squares, largestSquare);
-        Log.d(TAG, "Número de quadriláteros encontrados: " + squares.size());
+        // Constrói a hierarquiaDeQuadrilateros
+        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
 
-        // Constrói a hierarquiaDeQuadrilateros de quadriláteros
-        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(squares);
-
-        MatOfPoint encontrarContornoDoTabuleiro =
+        MatOfPoint contornoDoTabuleiro =
                 encontrarContornoMaisProximoDoTabuleiro(hierarquiaDeQuadrilateros);
 
-        desenhaContornosRelevantes(imagem, hierarquiaDeQuadrilateros, encontrarContornoDoTabuleiro);
+        Desenhista.desenharContornosRelevantes(imagem, hierarquiaDeQuadrilateros, contornoDoTabuleiro);
 
-        if (possivelContornoDoTabuleiroFoiDetectado(hierarquiaDeQuadrilateros, encontrarContornoDoTabuleiro)) {
-            return detectarInterseccoes(imagem, hierarquiaDeQuadrilateros, encontrarContornoDoTabuleiro, original);
+        if (!possivelContornoDoTabuleiroFoiDetectado(hierarquiaDeQuadrilateros, contornoDoTabuleiro)) {
+            return null;
         }
-        return null;
+        return detectarInterseccoes(imagem, hierarquiaDeQuadrilateros, contornoDoTabuleiro, original);
     }
 
     private List<MatOfPoint> detectarBordasEContornos(Mat imagem) {
         Mat mIntermediateMat = new Mat();
+
         // Primeiro, é passado o detector de bordas Canny
+        // TODO: Ajustar esses parâmetros
         //Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
         Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
         Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
@@ -99,18 +99,19 @@ public class ProcessadorDeImagem {
     }
 
     /**
-     * Encontra todos os quadriláteros presentes entre os contornos fornecidos em 'contours'.
-     * Retorna a lista de todos os quadriláteros em 'squares' e o maior quadrilátero em
-     * 'largestSquare'.
+     * Encontra todos os quadriláteros presentes entre os contornos fornecidos em 'contornos'.
+     * Retorna a lista de todos os quadriláteros em 'quadrilateros' e o maior quadrilátero em
+     * 'maiorQuadrilatero'.
      *
-     * @param contours
-     * @param squares
-     * @param largestSquare
+     * @param contornos
+     * @param quadrilateros
+     * @param maiorQuadrilatero
      */
-    private void encontrarQuadrilateros(List<MatOfPoint> contours, List<MatOfPoint> squares, MatOfPoint largestSquare) {
+    private void encontrarQuadrilateros(List<MatOfPoint> contornos, List<MatOfPoint> quadrilateros,
+                                        MatOfPoint maiorQuadrilatero) {
         double largestArea = 0;
 
-        for (MatOfPoint contour : contours) {
+        for (MatOfPoint contour : contornos) {
             MatOfPoint2f contour2f = new MatOfPoint2f();
             MatOfPoint2f approx2f = new MatOfPoint2f();
             contour.convertTo(contour2f, CvType.CV_32FC2);
@@ -128,11 +129,11 @@ public class ProcessadorDeImagem {
                     contourArea > 400 &&
                     Imgproc.isContourConvex(approx)) {
 
-                squares.add(approx);
+                quadrilateros.add(approx);
 
                 if (contourArea > largestArea) {
                     largestArea = Math.abs(Imgproc.contourArea(approx2f));
-                    largestSquare = approx;
+                    maiorQuadrilatero = approx;
                 }
 
             }
@@ -142,6 +143,8 @@ public class ProcessadorDeImagem {
     /**
      * O contorno provavelmente mais próximo do tabuleiro é um quadrilátero
      * externo que tem somente quadriláteros folha dentro de si.
+     *
+     * TODO: Isto poderia ser movido para a classe HierarquiaDeQuadrilateros?
      */
     private MatOfPoint encontrarContornoMaisProximoDoTabuleiro(HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros) {
         MatOfPoint contornoMaisProximoDoTabuleiro = null;
@@ -160,29 +163,6 @@ public class ProcessadorDeImagem {
         return contornoMaisProximoDoTabuleiro;
     }
 
-    private void desenhaContornosRelevantes(Mat imagem, HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
-        // Desenha os quadriláteros folha em verde
-        if (hierarquiaDeQuadrilateros.folhas.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.folhas, -1, mGreen);
-        }
-
-        // Desenha os quadriláteros externos em azul
-        if (hierarquiaDeQuadrilateros.externos.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.externos, -1, mBlue);
-        }
-
-        // Desenha o contorno do tabuleiro em vermelho
-        if (contornoMaisProximoDoTabuleiro != null) {
-            drawContour(imagem, contornoMaisProximoDoTabuleiro, mRed);
-        }
-    }
-
-    private void drawContour(Mat rgbaInnerWindow, MatOfPoint contorno, Scalar color) {
-        List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
-        listaContorno.add(contorno);
-        Imgproc.drawContours(rgbaInnerWindow, listaContorno, -1, color);
-    }
-
     private boolean possivelContornoDoTabuleiroFoiDetectado(HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
         if (hierarquiaDeQuadrilateros.externos.size() == 0 || contornoMaisProximoDoTabuleiro == null) {
             return false;
@@ -190,6 +170,7 @@ public class ProcessadorDeImagem {
         return true;
     }
 
+    // Próxima etapa da detecção do tabuleiro, a detecção das intersecções das linhas encontradas
     private Tabuleiro detectarInterseccoes(Mat imagem, HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro, Mat imagemOriginal) {
         // Encontra as intersecções do tabuleiro
         List<ClusterDeVertices> intersecoesMedias =
@@ -198,10 +179,11 @@ public class ProcessadorDeImagem {
 //        List<Point> cantos = ordenarCantos(contornoMaisProximoDoTabuleiro);
         List<Point> cantos = ordenarCantos2(contornoMaisProximoDoTabuleiro);
 
-        desenhaInterseccoesECantosDoTabuleiro(imagem, intersecoesMedias, cantos);
+        Desenhista.desenhaInterseccoesECantosDoTabuleiro(imagem, intersecoesMedias, cantos);
+
         Mat tabuleiroCorrigido = transformaTabuleiroEDesenhaImagemDePreviewTransformada(imagem, imagemOriginal, cantos);
 
-        return detectarTabuleiroRealmente(tabuleiroCorrigido);
+        return detectarPedrasNoTabuleiro(tabuleiroCorrigido);
     }
 
     private List<ClusterDeVertices> encontrarInterseccoes(HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
@@ -290,19 +272,7 @@ public class ProcessadorDeImagem {
         return cantos;
     }
 
-    private void desenhaInterseccoesECantosDoTabuleiro(Mat imagem, List<ClusterDeVertices> interseccoes, List<Point> cantos) {
-        // Desenha as interseções encontradas
-        for (ClusterDeVertices c : interseccoes) {
-            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
-        }
-
-        // Desenha os 4 cantos do quadrilátero do tabuleiro
-        for (int i = 0; i < 4; ++i) {
-            Log.d(TAG, "Canto " + i + ": " + cantos.get(i));
-            Core.circle(imagem, cantos.get(i), 10, colors[i], -1);
-        }
-    }
-
+    // TODO: Este método faz coisas demais, quebrar as duas funcionalidades dele
     private Mat transformaTabuleiroEDesenhaImagemDePreviewTransformada(Mat imagem, Mat imagemOriginal, List<Point> cantos) {
         Mat tabuleiroCorrigido = imagem.submat(0, alturaImagemPreview + 1, 0, larguraImagemPreview + 1);
 
@@ -332,15 +302,16 @@ public class ProcessadorDeImagem {
      * cada intersecção e detecta se há uma pedra preta, branca, ou nenhuma.
      *
      * Recuperar cores predominantes em cada uma das intersecções.
-     * Usar função gaussiana para dar mais importância para os valores que estõa próximos do centro.
+     * TODO: Usar função gaussiana para dar mais importância para os valores que estõa próximos do
+     *       centro.
      *
-     * @param tabuleiroCorrigido
+     * @param imagemTabuleiroCorrigido
      * @return
      */
-    private Tabuleiro detectarTabuleiroRealmente(Mat tabuleiroCorrigido) {
+    private Tabuleiro detectarPedrasNoTabuleiro(Mat imagemTabuleiroCorrigido) {
         Tabuleiro tabuleiro = new Tabuleiro(9);
 
-        double[] corMediaDoTabuleiro = corMediaDoTabuleiro(tabuleiroCorrigido);
+        double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemTabuleiroCorrigido);
         Log.d(TAG, "Cor média do tabuleiro: (" + corMediaDoTabuleiro[0] + ", " +
                 corMediaDoTabuleiro[1] + ", " +
                 corMediaDoTabuleiro[2] + ")");
@@ -350,7 +321,7 @@ public class ProcessadorDeImagem {
                 double[] color = recuperarCorPredominanteNaPosicao(
                         (i * alturaImagemPreview / 8),
                         (j * larguraImagemPreview / 8),
-                        tabuleiroCorrigido
+                        imagemTabuleiroCorrigido
                 );
                 int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
                 if (hipotese != Tabuleiro.VAZIO) {
@@ -359,11 +330,12 @@ public class ProcessadorDeImagem {
             }
         }
 
-        desenhaLinhasNoPreview(tabuleiroCorrigido, larguraImagemPreview, alturaImagemPreview);
+        Desenhista.desenhaLinhasNoPreview(imagemTabuleiroCorrigido, larguraImagemPreview, alturaImagemPreview);
 
         return tabuleiro;
     }
 
+    // TODO: Transformar hipóteses de recuperação de cor em classes separadas
     private double[] recuperarCorPredominanteNaPosicao(int linha, int coluna, Mat imagem) {
         int hipotese = 2;
         double[] color = new double[4];
@@ -409,18 +381,6 @@ public class ProcessadorDeImagem {
 
     private double distance(int x, int y, int x2, int y2) {
         return Math.sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
-    }
-
-    private void desenhaLinhasNoPreview(Mat tabuleiroCorrigido, int largura, int altura) {
-        // Desenha linhas do tabuleiro na imagem de preview
-        Core.line(tabuleiroCorrigido, new Point(0, 0), new Point(largura, altura), mGreen);
-        Core.line(tabuleiroCorrigido, new Point(largura, 0), new Point(0, altura), mGreen);
-        for (int i = 0; i < 9; ++i) {
-            Core.line(tabuleiroCorrigido, new Point(0, i * altura / 8), new Point(largura, i * altura / 8), mBlue);
-        }
-        for (int i = 0; i < 9; ++i) {
-            Core.line(tabuleiroCorrigido, new Point(i * largura / 8, 0), new Point(i * largura / 8, altura), mBlue);
-        }
     }
 
     /**

@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfPoint;
@@ -45,7 +45,7 @@ public class HierarquiaDeQuadrilateros {
         while (it.hasNext()) {
             Map.Entry par = (Map.Entry) it.next();
             List<MatOfPoint> valor = (List<MatOfPoint>)par.getValue();
-            //~ Log.d("ASDF", "Quadrilátero tem " + valor.size() + " quadriláteros internos.");
+            // Log.d("ASDF", "Quadrilátero tem " + valor.size() + " quadriláteros internos.");
             if (valor.size() == 0) {
                 this.folhas.add((MatOfPoint) par.getKey());
             }

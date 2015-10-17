@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
 import org.opencv.core.Point;
 

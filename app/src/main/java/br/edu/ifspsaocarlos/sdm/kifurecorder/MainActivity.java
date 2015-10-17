@@ -18,6 +18,10 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ProcessadorDeImagem;
+
 /**
  * Created by leo on 30/07/15.
  */
@@ -202,7 +206,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
                 Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(rgbaInnerWindow);
                 if (tabuleiro != null) {
-                    tabuleiro.desenhar(rgbaInnerWindow, 0, 500, 400);
+                    Desenhista.desenharTabuleiro(rgbaInnerWindow, tabuleiro, 0, 500, 400);
                 }
                 rgbaInnerWindow.release();
                 break;
