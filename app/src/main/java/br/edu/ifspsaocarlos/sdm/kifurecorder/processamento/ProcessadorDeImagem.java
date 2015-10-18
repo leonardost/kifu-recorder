@@ -45,6 +45,11 @@ public class ProcessadorDeImagem {
      * @return Objeto Tabuleiro com as pedras detectadas
      */
     public Tabuleiro detectarTabuleiro(Mat imagem) {
+
+        DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+
+
+
         Mat original = imagem.clone();
 
         List<MatOfPoint> contornos = detectarBordasEContornos(imagem);

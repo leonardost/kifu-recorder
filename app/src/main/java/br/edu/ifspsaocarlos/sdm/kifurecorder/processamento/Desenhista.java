@@ -12,6 +12,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
@@ -62,8 +63,14 @@ public class Desenhista {
 
         // Desenha os 4 cantos do quadrilátero do tabuleiro
         for (int i = 0; i < 4; ++i) {
-            Log.d(ProcessadorDeImagem.TAG, "Canto " + i + ": " + cantos.get(i));
+            Log.d(MainActivity.TAG, "Canto " + i + ": " + cantos.get(i));
             Core.circle(imagem, cantos.get(i), 10, colors[i], -1);
+        }
+    }
+
+    public static void desenhaInterseccoes(Mat imagem, List<ClusterDeVertices> intersecoes) {
+        for (ClusterDeVertices c : intersecoes) {
+            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
         }
     }
 

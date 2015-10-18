@@ -1,7 +1,7 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
 /**
- * Representa uma configuração específica de tabuleiro
+ * Representa um estado de tabuleiro
  */
 public class Tabuleiro {
 
@@ -11,8 +11,6 @@ public class Tabuleiro {
 
     private int dimensao;
     private Integer[][] tabuleiro = new Integer[9][9];
-
-    public Tabuleiro() {}
 
     public Tabuleiro(int dimensao) {
         this.dimensao = dimensao;

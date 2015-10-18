@@ -20,30 +20,25 @@ import org.opencv.imgproc.Imgproc;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ProcessadorDeImagem;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 
 /**
  * Created by leo on 30/07/15.
  */
 public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
-    private static final String  TAG                 = "KifuRecorder";
+    public static final String   TAG                 = "KifuRecorder";
 
     public static final int      VIEW_MODE_RGBA      = 0;
-    public static final int      VIEW_MODE_CANNY     = 1;
-    public static final int      VIEW_MODE_HOUGH     = 2;
-    public static final int      VIEW_MODE_LEO       = 3;
+    public static final int      VIEW_MODE_LEO       = 1;
 
-    private MenuItem mItemPreviewRGBA;
-    private MenuItem             mItemPreviewCanny;
-    private MenuItem             mItemPreviewHough;
+    private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewLeo;
     private CameraBridgeViewBase mOpenCvCameraView;
 
-    private Mat                  mLines;
     private Mat                  mIntermediateMat;
-    private Scalar               mRed;
-    private ProcessadorDeImagem processadorDeImagem;
 
     public static int            viewMode = VIEW_MODE_RGBA;
 
@@ -103,9 +98,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         mItemPreviewRGBA  = menu.add("Preview RGBA");
-        mItemPreviewCanny = menu.add("Canny");
-        mItemPreviewHough = menu.add("Hough");
-        mItemPreviewLeo = menu.add("Leo");
+        mItemPreviewLeo = menu.add("Detector");
         return true;
     }
 
@@ -114,20 +107,13 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         Log.i(TAG, "called onOptionsItemSelected; selected item: " + item);
         if (item == mItemPreviewRGBA)
             viewMode = VIEW_MODE_RGBA;
-        else if (item == mItemPreviewCanny)
-            viewMode = VIEW_MODE_CANNY;
-        else if (item == mItemPreviewHough)
-            viewMode = VIEW_MODE_HOUGH;
         else if (item == mItemPreviewLeo)
             viewMode = VIEW_MODE_LEO;
         return true;
     }
 
     public void onCameraViewStarted(int width, int height) {
-        mLines = new Mat();
         mIntermediateMat = new Mat();
-        mRed = new Scalar(255, 0, 0);
-        processadorDeImagem = new ProcessadorDeImagem();
     }
 
     public void onCameraViewStopped() {
@@ -144,56 +130,14 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
         Mat rgbaInnerWindow;
 
-        int rows = (int) sizeRgba.height;
-        int cols = (int) sizeRgba.width;
-
-        int left = cols / 8;
-        int top = rows / 8;
-
-        int width = cols * 3 / 4;
-        int height = rows * 3 / 4;
-
-        int threshould = 50, minLineSize = 50, lineGap = 20;
-
         switch (MainActivity.viewMode) {
             case MainActivity.VIEW_MODE_RGBA:
                 break;
 
-            case MainActivity.VIEW_MODE_CANNY:
-                rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-                Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
-                Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGRA, 4);
-                rgbaInnerWindow.release();
-                break;
-
-            case MainActivity.VIEW_MODE_HOUGH:
-
-                rgbaInnerWindow = rgba.submat(top, top + height, left, left + width);
-                //Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
-                Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 35, 70);
-                Imgproc.HoughLinesP(mIntermediateMat, mLines, 1, Math.PI / 180, threshould, minLineSize, lineGap);
-                Imgproc.cvtColor(mIntermediateMat, rgbaInnerWindow, Imgproc.COLOR_GRAY2BGR, 4);
-
-                for (int x = 0; x < mLines.cols(); x++) {
-                    double[] vec = mLines.get(0, x);
-                    if (vec != null) {
-                        double x1 = vec[0],
-                                y1 = vec[1],
-                                x2 = vec[2],
-                                y2 = vec[3];
-                        Point start = new Point(x1, y1);
-                        Point end = new Point(x2, y2);
-
-                        Core.line(rgbaInnerWindow, start, end, mRed, 5);
-                        //Log.d(TAG, "Line from (" + x1 + ", " + y1 + ") to (" + x2 + ", " + y2 + ")");
-                    }
-                }
-
-                rgbaInnerWindow.release();
-                break;
-
             case MainActivity.VIEW_MODE_LEO:
                 rgbaInnerWindow = rgba.submat(0, (int)sizeRgba.height, 0, (int)sizeRgba.width);
+
+                Mat imagemOriginal = rgbaInnerWindow.clone();
 
                 /*
                 Mat imagem = Highgui.imread("file:///android_asset/raw/imagem1.jpg", Highgui.CV_LOAD_IMAGE_COLOR);
@@ -204,10 +148,36 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 //                Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(imagem);
                 */
 
-                Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(rgbaInnerWindow);
+                DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+                detectorDeTabuleiro.setImagem(rgbaInnerWindow.clone());
+                detectorDeTabuleiro.setImagemDePreview(rgbaInnerWindow);
+                detectorDeTabuleiro.processar();
+
+                if (!detectorDeTabuleiro.isProcessadoComSucesso()) {
+                    break;
+                }
+
+                Mat imagemDoTabuleiroCorrigido =
+                        TransformadorDeTabuleiro.transformar(
+                            imagemOriginal,
+                            detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
+                            null
+                        );
+                imagemDoTabuleiroCorrigido.copyTo(rgbaInnerWindow.rowRange(0, 500).colRange(0, 500));
+
+                DetectorDePedras detectorDePedras = new DetectorDePedras();
+                detectorDePedras.setDimensaoDoTabuleiro(
+                        detectorDeTabuleiro.getDimensaoDoTabuleiro()
+                );
+                detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+
+                Tabuleiro tabuleiro = detectorDePedras.detectar();
+
+                //Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(rgbaInnerWindow.clone());
                 if (tabuleiro != null) {
                     Desenhista.desenharTabuleiro(rgbaInnerWindow, tabuleiro, 0, 500, 400);
                 }
+
                 rgbaInnerWindow.release();
                 break;
 
@@ -252,25 +222,5 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
      *       realizada no formato SGF (se foi uma jogada válida)
      *
      */
-
-    /**
-     * Retorna o ponto de intersecção entre duas retas.
-     * @param a
-     * @param b
-     * @return
-     */
-    private Point computeIntersection(double[] a, double[] b) {
-        double x1 = a[0], y1 = a[1], x2 = a[2], y2 = a[3];
-        double x3 = b[0], y3 = b[1], x4 = b[2], y4 = b[3];
-        double d = (x1-x2) * (y3-y4) - (y1-y2) * (x3-x4);
-        if (d != 0) {
-            Point pt = new Point();
-            pt.x = ((x1*y2 - y1*x2) * (x3-x4) - (x1-x2) * (x3*y4 - y3*x4)) / d;
-            pt.y = ((x1*y2 - y1*x2) * (y3-y4) - (y1-y2) * (x3*y4 - y3*x4)) / d;
-            return pt;
-        }
-        else
-            return new Point(-1, -1);
-    }
 
 }
