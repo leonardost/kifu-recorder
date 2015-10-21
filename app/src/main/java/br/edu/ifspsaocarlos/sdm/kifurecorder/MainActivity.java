@@ -11,12 +11,19 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
@@ -24,21 +31,21 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 
-/**
- * Created by leo on 30/07/15.
- */
 public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     public static final String   TAG                 = "KifuRecorder";
 
     public static final int      VIEW_MODE_RGBA      = 0;
     public static final int      VIEW_MODE_LEO       = 1;
-
+    public static final int      VIEW_MODE_TEST      = 2;
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewLeo;
-    private CameraBridgeViewBase mOpenCvCameraView;
+    private MenuItem             mItemPreviewTest;
 
+    private CameraBridgeViewBase mOpenCvCameraView;
     private Mat                  mIntermediateMat;
+    private Mat                  imagem1;
+    private Mat                  imagem1_8uc4;
 
     public static int            viewMode = VIEW_MODE_RGBA;
 
@@ -97,8 +104,9 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        mItemPreviewRGBA  = menu.add("Preview RGBA");
+        mItemPreviewRGBA = menu.add("Preview RGBA");
         mItemPreviewLeo = menu.add("Detector");
+        mItemPreviewTest = menu.add("Testes");
         return true;
     }
 
@@ -109,6 +117,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             viewMode = VIEW_MODE_RGBA;
         else if (item == mItemPreviewLeo)
             viewMode = VIEW_MODE_LEO;
+        else if (item == mItemPreviewTest)
+            viewMode = VIEW_MODE_TEST;
         return true;
     }
 
@@ -181,46 +191,93 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 rgbaInnerWindow.release();
                 break;
 
+            case MainActivity.VIEW_MODE_TEST:
+                rgbaInnerWindow = rgba.submat(0, (int) sizeRgba.height, 0, (int) sizeRgba.width);
+
+//                imagem1_8uc4 = new Mat();
+                try {
+                    imagem1 = Utils.loadResource(MainActivity.this, R.drawable.imagem1);
+//                    imagem1.convertTo(imagem1_8uc4, CvType.CV_8UC4);
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                Imgproc.cvtColor(imagem1, imagem1, Imgproc.COLOR_BGR2RGB);
+                Mat alpha = new Mat(imagem1.rows(), imagem1.cols(), CvType.CV_8UC1);
+                alpha.setTo(new Scalar(255));
+                Mat imagem8uc4 = new Mat(imagem1.rows(), imagem1.cols(), CvType.CV_8UC4);
+
+//                imagem1.convertTo(imagem8uc4, CvType.CV_8UC4);
+//                Imgproc.cvtColor(imagem1, imagem8uc4, Imgproc.COLOR_BGR2BGRA, 4);
+                List<Mat> src = new ArrayList<>();
+                src.add(imagem1);
+                src.add(alpha);
+                List<Mat> dst = new ArrayList<>();
+                dst.add(imagem8uc4);
+                MatOfInt fromTo = new MatOfInt(0, 0, 1, 1, 2, 2, 3, 3);
+                Core.mixChannels(src, dst, fromTo);
+
+//                Imgproc.cvtColor(imagem8uc4, imagem8uc4, Imgproc.COLOR_BGRA2YUV_IYUV);
+
+                Log.i(TAG, "ASDF " + rgbaInnerWindow.type() + ", " + imagem1.type() + ", " + imagem8uc4.type());
+                Log.i(TAG, "ASDF (" + rgbaInnerWindow.size().width + "x" + rgbaInnerWindow.size().height + ") ("
+                        + imagem1.size().width + "x" + imagem1.size().height + ") ("
+                        + imagem8uc4.size().width + "x" + imagem8uc4.size().height + ")");
+                Log.i(TAG, CvType.CV_8UC4 + ", ----");
+
+//                imagem8uc4.copyTo(rgbaInnerWindow.rowRange(0, 500).colRange(0, 500));
+//                imagem8uc4.copyTo(rgbaInnerWindow);
+
+//                for (int i = 0; i < 1000; ++i) {
+//                    for (int j = 0; j < 1000; ++j) {
+//                        rgbaInnerWindow.put(i, j, imagem8uc4.get(i, j));
+//                    }
+//                }
+
+                Log.i(TAG, "| " + asdf(imagem1.get(0, 0)) + ", " + asdf(imagem1.get(0, 1)) + ", " + asdf(imagem1.get(0, 2)));
+                Log.i(TAG, "| " + asdf(imagem1.get(1, 0)) + ", " + asdf(imagem1.get(1, 1)) + ", " + asdf(imagem1.get(1, 2)));
+                Log.i(TAG, "| " + asdf(imagem1.get(2, 0)) + ", " + asdf(imagem1.get(2, 1)) + ", " + asdf(imagem1.get(2, 2)));
+                Log.i(TAG, "<><><>");
+                Log.i(TAG, "| " + asdf(imagem8uc4.get(0, 0)) + ", " + asdf(imagem8uc4.get(0, 1)) + ", " + asdf(imagem8uc4.get(0, 2)));
+                Log.i(TAG, "| " + asdf(imagem8uc4.get(1, 0)) + ", " + asdf(imagem8uc4.get(1, 1)) + ", " + asdf(imagem8uc4.get(1, 2)));
+                Log.i(TAG, "| " + asdf(imagem8uc4.get(2, 0)) + ", " + asdf(imagem8uc4.get(2, 1)) + ", " + asdf(imagem8uc4.get(2, 2)));
+                Log.i(TAG, "<><><>");
+                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(0, 0)) + ", " + asdf(rgbaInnerWindow.get(0, 1)) + ", " + asdf(rgbaInnerWindow.get(0, 2)));
+                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(1, 0)) + ", " + asdf(rgbaInnerWindow.get(1, 1)) + ", " + asdf(rgbaInnerWindow.get(1, 2)));
+                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(2, 0)) + ", " + asdf(rgbaInnerWindow.get(2, 1)) + ", " + asdf(rgbaInnerWindow.get(2, 2)));
+
+                Size newSize = new Size(rgbaInnerWindow.width(), rgbaInnerWindow.height());
+                Imgproc.resize(imagem8uc4, imagem8uc4, newSize);
+
+                return imagem8uc4;
+/*
+                Scalar mBlue  = new Scalar(  0,   0, 255);
+                Core.circle(rgbaInnerWindow, new Point(100, 100), 50, mBlue);
+                rgbaInnerWindow.release();
+
+                break;*/
         }
 
         return rgba;
     }
 
-    /**
-     * ProcessadorDeImagem: Responsável por processar um frame de imagem e
-     *     por gerar um objeto Tabuleiro correspondente a essa imagem
-     * + ProcessadorDeImagem(hierarquia) - Detecta um tabuleiro com base na
-     *       hierarquia de quadrados fornecida
-     *   OU
-     * + ProcessadorDeImagem(Mat rgbaInnerwindow) ? Deixa a classe tabuleiro
-     *       fazer todo o processamento de imagem. Melhor não, isso fere o
-     *       encapsulamento
-     * + Tabuleiro processar(Mat rgbaInnerWindow) - Processa o frame atual e
-     *       gera um Tabuleiro
-     * Na verdade, acho que é melhor deixar apenas o método processar(). O
-     * Processador pode guardar informações pertinentes a tarefa de processar o
-     * tabuleiro, como timestamp do último frame processado, coordenadas dos
-     * pontos da borda do último tabuleiro encontrado (possivelmente para
-     * comparar com o próximo encontrado e ver se houve modificação na posição
-     * da câmera).
-     *
-     * ProcessadorDeImagem precisa ter uma referência à imagem que esta sendo
-     * processada para poder realizar suas funções.
-     *
-     * Partida: Conjunto de jogadas que formam uma partida
-     * - List<String> Jogadas;
-     * + void adicionarJogada(String jogada);
-     * (depois penso em como fazer jogadas alternativas)
-     *
-     * Tabuleiro: Representa um estado específico do jogo
-     * - int[][] tabuleiro - Guarda uma configuração de tabuleiro
-     * + int getPosicao(linha, coluna) - Retorna 0 se a posição estiver vazia,
-     *       1 se a posição estiver ocupada por uma pedra preta, 2 se a posição
-     *       estiver ocupada por uma pedra branca
-     * + String diferenca(Tabuleiro t2) - Identifica a diferença entre este
-     *       objeto Tabuleiro e outro, retornando a coordenada da jogada que foi
-     *       realizada no formato SGF (se foi uma jogada válida)
-     *
-     */
+    private double[] invert(double[] colors) {
+        double[] colorsInv = new double[4];
+        colorsInv[0] = colors[2];
+        colorsInv[1] = colors[1];
+        colorsInv[2] = colors[2];
+        colorsInv[3] = 255;
+        return colorsInv;
+    }
+
+    private String asdf(double[] array) {
+        StringBuilder retorno = new StringBuilder("(");
+        for (double v : array) {
+            retorno.append(v + ", ");
+        }
+        retorno.append(")");
+        return retorno.toString();
+    }
 
 }

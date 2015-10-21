@@ -3,8 +3,8 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 import android.util.Log;
 
 import org.opencv.core.Mat;
-import org.opencv.imgproc.Imgproc;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
@@ -34,7 +34,7 @@ public class DetectorDePedras {
         Tabuleiro tabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
 
         double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
-        Log.d("kifu-recorder", "Cor média do tabuleiro: (" + corMediaDoTabuleiro[0] + ", " +
+        Log.d(MainActivity.TAG, "Cor média do tabuleiro: (" + corMediaDoTabuleiro[0] + ", " +
                 corMediaDoTabuleiro[1] + ", " +
                 corMediaDoTabuleiro[2] + ")");
 
@@ -69,7 +69,7 @@ public class DetectorDePedras {
                 color = recuperarMediaGaussianaDeCores(imagem, linha, coluna);
                 break;
         }
-        Log.i("kifu-recorder", "Pos(" + linha + ", " + coluna + ") = " + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3]);
+        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3]);
         return color;
     }
 
@@ -120,9 +120,9 @@ public class DetectorDePedras {
         double distanciaParaBranco = distanciaDeCor(cor, branco);
         double distanciaParaCorMedia = distanciaDeCor(cor, corMediaDoTabuleiro);
 
-        Log.d("kifu-recorder", "distancia para preto = " + distanciaParaPreto);
-        Log.d("kifu-recorder", "distancia para branco = " + distanciaParaBranco);
-        Log.d("kifu-recorder", "distancia para media = " + distanciaParaCorMedia);
+        Log.d(MainActivity.TAG, "distancia para preto = " + distanciaParaPreto);
+        Log.d(MainActivity.TAG, "distancia para branco = " + distanciaParaBranco);
+        Log.d(MainActivity.TAG, "distancia para media = " + distanciaParaCorMedia);
 
         // Se a distância para a média for menor que um certo threshold, muito provavelmente é uma
         // intersecção vazia
