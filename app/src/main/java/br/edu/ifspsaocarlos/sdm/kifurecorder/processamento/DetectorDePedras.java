@@ -60,7 +60,7 @@ public class DetectorDePedras {
     // TODO: Transformar hipóteses de recuperação de cor em classes separadas
     private double[] recuperarCorPredominanteNaPosicao(int linha, int coluna, Mat imagem) {
         int hipotese = 2;
-        double[] color = new double[4];
+        double[] color = new double[imagem.channels()];
         switch (hipotese) {
             case 1:
                 color = imagem.get(linha, coluna);
@@ -69,12 +69,15 @@ public class DetectorDePedras {
                 color = recuperarMediaGaussianaDeCores(imagem, linha, coluna);
                 break;
         }
-        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + color[0] + ", " + color[1] + ", " + color[2] + ", " + color[3]);
+        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + color[0] + ", " + color[1] + ", " + color[2]);
         return color;
     }
 
     private double[] recuperarMediaGaussianaDeCores(Mat imagem, int x, int y) {
-        double[] color = new double[] {0.0, 0.0, 0.0, 0.0};
+        double[] color = new double[imagem.channels()];
+        for (int i = 0; i < color.length; ++i) {
+            color[i] = 0;
+        }
         int radius = 10;
         int contador = 0;
 
@@ -84,19 +87,17 @@ public class DetectorDePedras {
                 if (xx < 0 || xx >= imagem.width()) continue;
                 if (distance(xx, yy, x, y) < radius) {
                     double c[] = imagem.get(yy, xx);
-                    color[0] += c[0];
-                    color[1] += c[1];
-                    color[2] += c[2];
-                    color[3] += c[3];
+                    for (int i = 0; i < c.length; ++i) {
+                        color[i] += c[i];
+                    }
                     ++contador;
                 }
             }
         }
 
-        color[0] /= contador;
-        color[1] /= contador;
-        color[2] /= contador;
-        color[3] /= contador;
+        for (int i = 0; i < color.length; ++i) {
+            color[i] /= contador;
+        }
 
         return color;
     }
@@ -150,7 +151,7 @@ public class DetectorDePedras {
 
     private double distanciaDeCor(double[] cor1, double[] cor2) {
         double distancia = 0;
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < Math.min(cor1.length, cor2.length); ++i) {
             distancia += Math.abs(cor1[i] - cor2[i]);
         }
         return distancia;
@@ -163,22 +164,23 @@ public class DetectorDePedras {
      * @return
      */
     private double[] corMediaDoTabuleiro(Mat imagemDoTabuleiro) {
-        double media[] = new double[] {0.0, 0.0, 0.0, 0.0};
+        double media[] = new double[imagemDoTabuleiro.channels()];
+        for (int i = 0; i < media.length; ++i) {
+            media[i] = 0;
+        }
 
         for (int y = 0; y < imagemDoTabuleiro.height(); ++y) {
             for (int x = 0; x < imagemDoTabuleiro.width(); ++x) {
                 double c[] = imagemDoTabuleiro.get(y, x);
-                media[0] += c[0];
-                media[1] += c[1];
-                media[2] += c[2];
-                media[3] += c[3];
+                for (int i = 0; i < c.length; ++i) {
+                    media[i] += c[i];
+                }
             }
         }
 
-        media[0] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
-        media[1] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
-        media[2] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
-        media[3] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
+        for (int i = 0; i < media.length; ++i) {
+            media[i] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
+        }
 
         return media;
     }

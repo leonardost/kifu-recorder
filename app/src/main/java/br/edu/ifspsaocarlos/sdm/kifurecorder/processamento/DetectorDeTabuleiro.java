@@ -12,6 +12,8 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
+
 /**
  * Detecta a posição de um tabuleiro em uma imagem e sua dimensão (9x9, 13x13 ou 19x19)
  */
@@ -31,10 +33,6 @@ public class DetectorDeTabuleiro {
         this.desenharPreview = desenharPreview;
     }
 
-    public boolean isProcessadoComSucesso() {
-        return processadoComSucesso;
-    }
-
     public void setImagem(Mat imagem) {
         this.imagem = imagem;
     }
@@ -43,33 +41,42 @@ public class DetectorDeTabuleiro {
         this.imagemDePreview = imagemDePreview;
     }
 
-    public void processar() {
+    /**
+     * Processa a imagem fornecida. Retorna verdadeiro se o processamento completo ocorreu com
+     * sucesso, ou seja, se um tabuleiro de Go foi detectado na imagem. Retorna falso, caso
+     * contrário.
+     *
+     * @return
+     */
+    public boolean processar() {
         if (imagem == null) {
             // lançar erro
+            return false;
         }
 
         Mat imagemComBordasEmEvidencia = detectarBordas();
         List<MatOfPoint> contornos = detectarContornos(imagemComBordasEmEvidencia);
 
         if (contornos.isEmpty()) {
-            return;
+            Log.i(MainActivity.TAG, "> Processamento de imagem: contornos não foram encontrados.");
+            return false;
         }
 
         List<MatOfPoint> quadrilateros = detectarQuadrilateros(contornos);
 
         if (quadrilateros.isEmpty()) {
-            return;
+            Log.i(MainActivity.TAG, "> Processamento de imagem: quadriláteros não foram encontrados.");
+            return false;
         }
 
         MatOfPoint quadrilateroDoTabuleiro = detectarTabuleiro(quadrilateros);
 
         if (quadrilateroDoTabuleiro == null) {
-            return;
+            Log.i(MainActivity.TAG, "> Processamento de imagem: quadrilátero do tabuleiro não foi encontrado.");
+            return false;
         }
 
         List<ClusterDeVertices> intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
-
-        processadoComSucesso = true;
 
         if (intersecoes.size() > 13 * 13) {
             dimensaoDoTabuleiro = 19;
@@ -93,6 +100,10 @@ public class DetectorDeTabuleiro {
                 (int) cantosDoTabuleiro.get(1).x, (int) cantosDoTabuleiro.get(1).y,
                 (int) cantosDoTabuleiro.get(2).x, (int) cantosDoTabuleiro.get(2).y,
                 (int) cantosDoTabuleiro.get(3).x, (int) cantosDoTabuleiro.get(3).y);
+
+        processadoComSucesso = true;
+
+        return true;
     }
 
     private Mat detectarBordas() {

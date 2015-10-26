@@ -1,29 +1,26 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.EditText;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfInt;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
@@ -36,18 +33,19 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     public static final String   TAG                 = "KifuRecorder";
 
     public static final int      VIEW_MODE_RGBA      = 0;
-    public static final int      VIEW_MODE_LEO       = 1;
+    public static final int      VIEW_MODE_DETECTOR  = 1;
     public static final int      VIEW_MODE_TEST      = 2;
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewLeo;
     private MenuItem             mItemPreviewTest;
 
     private CameraBridgeViewBase mOpenCvCameraView;
-    private Mat                  mIntermediateMat;
-    private Mat                  imagem1;
-    private Mat                  imagem1_8uc4;
+    private Mat                  imagemProcessada;
 
-    public static int            viewMode = VIEW_MODE_RGBA;
+    private static int           viewMode = VIEW_MODE_RGBA;
+    private boolean              jaProcessouAImagemDeTeste = false;
+    private String               numeroDeImagemTeste;
+    private boolean              escolheuImagemTeste = false;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -65,10 +63,9 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     };
 
     public MainActivity() {
-        Log.i(TAG, "Instantiated new " + this);  // .getClass()
+        Log.i(TAG, "Instantiated new " + this);
     }
 
-    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,168 +113,146 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         if (item == mItemPreviewRGBA)
             viewMode = VIEW_MODE_RGBA;
         else if (item == mItemPreviewLeo)
-            viewMode = VIEW_MODE_LEO;
-        else if (item == mItemPreviewTest)
+            viewMode = VIEW_MODE_DETECTOR;
+        else if (item == mItemPreviewTest) {
+            escolheuImagemTeste = false;
+            escolherImagemDeTeste();
+            jaProcessouAImagemDeTeste = false;
             viewMode = VIEW_MODE_TEST;
+        }
         return true;
     }
 
+    private void escolherImagemDeTeste() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Digite um número de imagem (1-18)");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                numeroDeImagemTeste = input.getText().toString();
+                escolheuImagemTeste = true;
+            }
+        });
+
+        builder.show();
+    }
+
     public void onCameraViewStarted(int width, int height) {
-        mIntermediateMat = new Mat();
+//        mIntermediateMat = new Mat();
     }
 
     public void onCameraViewStopped() {
         // Explicitly deallocate Mats
-        if (mIntermediateMat != null)
-            mIntermediateMat.release();
-
-        mIntermediateMat = null;
+//        if (mIntermediateMat != null)
+//            mIntermediateMat.release();
+//        mIntermediateMat = null;
     }
 
+    /**
+     * Método chamado a cada instante em que há um novo frame de preview da câmera.
+     *
+     * @param inputFrame
+     * @return
+     */
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat rgba = inputFrame.rgba();
-        Size sizeRgba = rgba.size();
 
-        Mat rgbaInnerWindow;
+        if (MainActivity.viewMode == VIEW_MODE_RGBA) return rgba;
 
-        switch (MainActivity.viewMode) {
-            case MainActivity.VIEW_MODE_RGBA:
-                break;
+        if (MainActivity.viewMode == VIEW_MODE_TEST && escolheuImagemTeste == false) return rgba;
 
-            case MainActivity.VIEW_MODE_LEO:
-                rgbaInnerWindow = rgba.submat(0, (int)sizeRgba.height, 0, (int)sizeRgba.width);
+        if (MainActivity.viewMode == VIEW_MODE_TEST && jaProcessouAImagemDeTeste) {
+            return imagemProcessada;
+        }
 
-                Mat imagemOriginal = rgbaInnerWindow.clone();
+        Mat imagemLidaDeArquivo = new Mat();
+        if (MainActivity.viewMode == VIEW_MODE_TEST) {
+            imagemLidaDeArquivo = lerImagemDosResourcesAdaptada(resourceSelecionado(numeroDeImagemTeste), rgba.size());
+        };
 
-                /*
-                Mat imagem = Highgui.imread("file:///android_asset/raw/imagem1.jpg", Highgui.CV_LOAD_IMAGE_COLOR);
-                Log.d(TAG, rgba.type() + " " + rgba.depth() + " " + rgba.width());
-                Log.d(TAG, imagem.type() + " " + imagem.depth() + " " + imagem.width());
-                Imgproc.cvtColor(imagem, imagem, Imgproc.COLOR_BGR2YUV, 4);
-                return rgba;
-//                Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(imagem);
-                */
+        Mat imagemFonte = (MainActivity.viewMode == VIEW_MODE_DETECTOR) ?
+                rgba.clone() :
+                imagemLidaDeArquivo.clone();
+        Mat imagemOriginal = imagemFonte.clone();
 
-                DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
-                detectorDeTabuleiro.setImagem(rgbaInnerWindow.clone());
-                detectorDeTabuleiro.setImagemDePreview(rgbaInnerWindow);
-                detectorDeTabuleiro.processar();
+        DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+        detectorDeTabuleiro.setImagem(imagemFonte.clone());
+        detectorDeTabuleiro.setImagemDePreview(imagemFonte);
+        if (!detectorDeTabuleiro.processar()) {
+            return imagemFonte;
+        }
 
-                if (!detectorDeTabuleiro.isProcessadoComSucesso()) {
-                    break;
-                }
-
-                Mat imagemDoTabuleiroCorrigido =
-                        TransformadorDeTabuleiro.transformar(
-                            imagemOriginal,
-                            detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
-                            null
-                        );
-                imagemDoTabuleiroCorrigido.copyTo(rgbaInnerWindow.rowRange(0, 500).colRange(0, 500));
-
-                DetectorDePedras detectorDePedras = new DetectorDePedras();
-                detectorDePedras.setDimensaoDoTabuleiro(
-                        detectorDeTabuleiro.getDimensaoDoTabuleiro()
+        Mat imagemDoTabuleiroCorrigido =
+                TransformadorDeTabuleiro.transformar(
+                    imagemOriginal,
+                    detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
+                    null
                 );
-                detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+        imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
-                Tabuleiro tabuleiro = detectorDePedras.detectar();
+        DetectorDePedras detectorDePedras = new DetectorDePedras();
+        detectorDePedras.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+        detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
-                //Tabuleiro tabuleiro = processadorDeImagem.detectarTabuleiro(rgbaInnerWindow.clone());
-                if (tabuleiro != null) {
-                    Desenhista.desenharTabuleiro(rgbaInnerWindow, tabuleiro, 0, 500, 400);
-                }
-
-                rgbaInnerWindow.release();
-                break;
-
-            case MainActivity.VIEW_MODE_TEST:
-                rgbaInnerWindow = rgba.submat(0, (int) sizeRgba.height, 0, (int) sizeRgba.width);
-
-//                imagem1_8uc4 = new Mat();
-                try {
-                    imagem1 = Utils.loadResource(MainActivity.this, R.drawable.imagem1);
-//                    imagem1.convertTo(imagem1_8uc4, CvType.CV_8UC4);
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                Imgproc.cvtColor(imagem1, imagem1, Imgproc.COLOR_BGR2RGB);
-                Mat alpha = new Mat(imagem1.rows(), imagem1.cols(), CvType.CV_8UC1);
-                alpha.setTo(new Scalar(255));
-                Mat imagem8uc4 = new Mat(imagem1.rows(), imagem1.cols(), CvType.CV_8UC4);
-
-//                imagem1.convertTo(imagem8uc4, CvType.CV_8UC4);
-//                Imgproc.cvtColor(imagem1, imagem8uc4, Imgproc.COLOR_BGR2BGRA, 4);
-                List<Mat> src = new ArrayList<>();
-                src.add(imagem1);
-                src.add(alpha);
-                List<Mat> dst = new ArrayList<>();
-                dst.add(imagem8uc4);
-                MatOfInt fromTo = new MatOfInt(0, 0, 1, 1, 2, 2, 3, 3);
-                Core.mixChannels(src, dst, fromTo);
-
-//                Imgproc.cvtColor(imagem8uc4, imagem8uc4, Imgproc.COLOR_BGRA2YUV_IYUV);
-
-                Log.i(TAG, "ASDF " + rgbaInnerWindow.type() + ", " + imagem1.type() + ", " + imagem8uc4.type());
-                Log.i(TAG, "ASDF (" + rgbaInnerWindow.size().width + "x" + rgbaInnerWindow.size().height + ") ("
-                        + imagem1.size().width + "x" + imagem1.size().height + ") ("
-                        + imagem8uc4.size().width + "x" + imagem8uc4.size().height + ")");
-                Log.i(TAG, CvType.CV_8UC4 + ", ----");
-
-//                imagem8uc4.copyTo(rgbaInnerWindow.rowRange(0, 500).colRange(0, 500));
-//                imagem8uc4.copyTo(rgbaInnerWindow);
-
-//                for (int i = 0; i < 1000; ++i) {
-//                    for (int j = 0; j < 1000; ++j) {
-//                        rgbaInnerWindow.put(i, j, imagem8uc4.get(i, j));
-//                    }
-//                }
-
-                Log.i(TAG, "| " + asdf(imagem1.get(0, 0)) + ", " + asdf(imagem1.get(0, 1)) + ", " + asdf(imagem1.get(0, 2)));
-                Log.i(TAG, "| " + asdf(imagem1.get(1, 0)) + ", " + asdf(imagem1.get(1, 1)) + ", " + asdf(imagem1.get(1, 2)));
-                Log.i(TAG, "| " + asdf(imagem1.get(2, 0)) + ", " + asdf(imagem1.get(2, 1)) + ", " + asdf(imagem1.get(2, 2)));
-                Log.i(TAG, "<><><>");
-                Log.i(TAG, "| " + asdf(imagem8uc4.get(0, 0)) + ", " + asdf(imagem8uc4.get(0, 1)) + ", " + asdf(imagem8uc4.get(0, 2)));
-                Log.i(TAG, "| " + asdf(imagem8uc4.get(1, 0)) + ", " + asdf(imagem8uc4.get(1, 1)) + ", " + asdf(imagem8uc4.get(1, 2)));
-                Log.i(TAG, "| " + asdf(imagem8uc4.get(2, 0)) + ", " + asdf(imagem8uc4.get(2, 1)) + ", " + asdf(imagem8uc4.get(2, 2)));
-                Log.i(TAG, "<><><>");
-                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(0, 0)) + ", " + asdf(rgbaInnerWindow.get(0, 1)) + ", " + asdf(rgbaInnerWindow.get(0, 2)));
-                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(1, 0)) + ", " + asdf(rgbaInnerWindow.get(1, 1)) + ", " + asdf(rgbaInnerWindow.get(1, 2)));
-                Log.i(TAG, "| " + asdf(rgbaInnerWindow.get(2, 0)) + ", " + asdf(rgbaInnerWindow.get(2, 1)) + ", " + asdf(rgbaInnerWindow.get(2, 2)));
-
-                Size newSize = new Size(rgbaInnerWindow.width(), rgbaInnerWindow.height());
-                Imgproc.resize(imagem8uc4, imagem8uc4, newSize);
-
-                return imagem8uc4;
-/*
-                Scalar mBlue  = new Scalar(  0,   0, 255);
-                Core.circle(rgbaInnerWindow, new Point(100, 100), 50, mBlue);
-                rgbaInnerWindow.release();
-
-                break;*/
+        Tabuleiro tabuleiro = detectorDePedras.detectar();
+        if (tabuleiro != null) {
+            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
         }
 
-        return rgba;
+        imagemProcessada = imagemFonte;
+        jaProcessouAImagemDeTeste = true;
+
+        rgba.release();
+        return imagemFonte;
     }
 
-    private double[] invert(double[] colors) {
-        double[] colorsInv = new double[4];
-        colorsInv[0] = colors[2];
-        colorsInv[1] = colors[1];
-        colorsInv[2] = colors[2];
-        colorsInv[3] = 255;
-        return colorsInv;
-    }
-
-    private String asdf(double[] array) {
-        StringBuilder retorno = new StringBuilder("(");
-        for (double v : array) {
-            retorno.append(v + ", ");
+    private int resourceSelecionado(String texto) {
+        switch (texto) {
+            case "1": return R.drawable.imagem1;
+            case "2": return R.drawable.imagem2;
+            case "3": return R.drawable.imagem3;
+            case "4": return R.drawable.imagem4;
+            case "5": return R.drawable.imagem5;
+            case "6": return R.drawable.imagem6;
+            case "7": return R.drawable.imagem7;
+            case "8": return R.drawable.imagem8;
+            case "9": return R.drawable.imagem9;
+            case "10": return R.drawable.imagem10;
+            case "11": return R.drawable.imagem11;
+            case "12": return R.drawable.imagem12;
+            case "13": return R.drawable.imagem13;
+            case "14": return R.drawable.imagem14;
+            case "15": return R.drawable.imagem15;
+            case "16": return R.drawable.imagem16;
+            case "17": return R.drawable.imagem17;
+            case "18": return R.drawable.imagem18;
+            default: return R.drawable.imagem1;
         }
-        retorno.append(")");
-        return retorno.toString();
+    }
+
+    /**
+     * Lê uma imagem dos arquivos de resource do projeto
+     * @param idDaImagemResource
+     * @param tamanhoDaImagem
+     * @return Mat contendo a imagem JPG lida dos arquivos de resource do projeto com o tamanho
+     * especificado
+     */
+    private Mat lerImagemDosResourcesAdaptada(int idDaImagemResource, Size tamanhoDaImagem) {
+        Mat imagemLidaDeArquivo = new Mat();
+        try {
+            imagemLidaDeArquivo = Utils.loadResource(MainActivity.this, idDaImagemResource);
+            // Converte do formato BGR (usado pelo OpenCV) para o RGB
+            Imgproc.cvtColor(imagemLidaDeArquivo, imagemLidaDeArquivo, Imgproc.COLOR_BGR2RGB);
+            Imgproc.resize(imagemLidaDeArquivo, imagemLidaDeArquivo, tamanhoDaImagem);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return imagemLidaDeArquivo;
     }
 
 }
