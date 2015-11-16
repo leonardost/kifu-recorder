@@ -55,6 +55,8 @@ public class DetectorDeTabuleiro {
         }
 
         Mat imagemComBordasEmEvidencia = detectarBordas();
+        // Se quiser ver a saída do detector de bordas Cammy
+        //Imgproc.cvtColor(imagemComBordasEmEvidencia, imagemDePreview, Imgproc.COLOR_GRAY2BGR, 4); if (true) return false;
         List<MatOfPoint> contornos = detectarContornos(imagemComBordasEmEvidencia);
 
         if (contornos.isEmpty()) {
@@ -75,6 +77,9 @@ public class DetectorDeTabuleiro {
             Log.i(MainActivity.TAG, "> Processamento de imagem: quadrilátero do tabuleiro não foi encontrado.");
             return false;
         }
+
+        // Se quiser ver a saída do detector de quadriláteros
+        //if (true) return false;
 
         List<ClusterDeVertices> intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
 
@@ -109,8 +114,9 @@ public class DetectorDeTabuleiro {
     private Mat detectarBordas() {
         Mat mIntermediateMat = new Mat();
         //Imgproc.Canny(imagem, mIntermediateMat, 80, 90);
-        Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
-
+        //Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
+        Imgproc.Canny(imagem, mIntermediateMat, 30, 90);
+        Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
         Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
         return mIntermediateMat;
     }
