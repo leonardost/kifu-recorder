@@ -28,21 +28,20 @@ public class DetectorDePedras {
 
     public Tabuleiro detectar() {
 
-        int larguraImagemPreview = (int)imagemDoTabuleiro.size().width;
-        int alturaImagemPreview = (int)imagemDoTabuleiro.size().height;
+        int larguraImagem = (int)imagemDoTabuleiro.size().width;
+        int alturaImagem = (int)imagemDoTabuleiro.size().height;
 
         Tabuleiro tabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
 
         double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
-        Log.d(MainActivity.TAG, "Cor média do tabuleiro: (" + corMediaDoTabuleiro[0] + ", " +
-                corMediaDoTabuleiro[1] + ", " +
-                corMediaDoTabuleiro[2] + ")");
+
+        Log.d(MainActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
                 double[] color = recuperarCorPredominanteNaPosicao(
-                        (i * alturaImagemPreview / (dimensaoDoTabuleiro - 1)),
-                        (j * larguraImagemPreview / (dimensaoDoTabuleiro - 1)),
+                        (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        (j * larguraImagem / (dimensaoDoTabuleiro - 1)),
                         imagemDoTabuleiro
                 );
                 int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
@@ -52,9 +51,17 @@ public class DetectorDePedras {
             }
         }
 
-        Desenhista.desenhaLinhasNoPreview(imagemDoTabuleiro, larguraImagemPreview, alturaImagemPreview);
+        Desenhista.desenhaLinhasNoPreview(imagemDoTabuleiro, larguraImagem, alturaImagem);
 
         return tabuleiro;
+    }
+
+    private String printColor(double color[]) {
+        StringBuilder saida = new StringBuilder("(");
+        for (int i = 0; i < color.length; ++i) {
+            saida.append(color[i] + ", ");
+        }
+        return saida.toString();
     }
 
     // TODO: Transformar hipóteses de recuperação de cor em classes separadas
@@ -63,17 +70,18 @@ public class DetectorDePedras {
         double[] color = new double[imagem.channels()];
         switch (hipotese) {
             case 1:
+
                 color = imagem.get(linha, coluna);
                 break;
             case 2:
                 color = recuperarMediaGaussianaDeCores(imagem, linha, coluna);
                 break;
         }
-        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + color[0] + ", " + color[1] + ", " + color[2]);
+//        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + printColor(color));
         return color;
     }
 
-    private double[] recuperarMediaGaussianaDeCores(Mat imagem, int x, int y) {
+    private double[] recuperarMediaGaussianaDeCores(Mat imagem, int y, int x) {
         double[] color = new double[imagem.channels()];
         for (int i = 0; i < color.length; ++i) {
             color[i] = 0;

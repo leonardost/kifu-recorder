@@ -46,7 +46,7 @@ public class DetectorDeTabuleiro {
      * sucesso, ou seja, se um tabuleiro de Go foi detectado na imagem. Retorna falso, caso
      * contrário.
      *
-     * @return
+     * @return boolean
      */
     public boolean processar() {
         if (imagem == null) {
@@ -108,8 +108,9 @@ public class DetectorDeTabuleiro {
 
     private Mat detectarBordas() {
         Mat mIntermediateMat = new Mat();
-        //Imgproc.Canny(rgbaInnerWindow, mIntermediateMat, 80, 90);
+        //Imgproc.Canny(imagem, mIntermediateMat, 80, 90);
         Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
+
         Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
         return mIntermediateMat;
     }
@@ -124,6 +125,9 @@ public class DetectorDeTabuleiro {
         // A imagem é convertida para um formato colorido novamente
 //        imagemComBordasEmEvidencia.release();
         Imgproc.cvtColor(imagemComBordasEmEvidencia, imagem, Imgproc.COLOR_GRAY2BGR, 4);
+//        if (desenharPreview) {
+//            imagemDePreview = imagem.clone();
+//        }
         return contornos;
     }
 

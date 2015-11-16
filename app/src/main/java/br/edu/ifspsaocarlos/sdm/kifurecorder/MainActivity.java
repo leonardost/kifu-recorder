@@ -20,24 +20,32 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
 
 public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
-    public static final String   TAG                 = "KifuRecorder";
+    public static final String   TAG                      = "KifuRecorder";
 
-    public static final int      VIEW_MODE_RGBA      = 0;
-    public static final int      VIEW_MODE_DETECTOR  = 1;
-    public static final int      VIEW_MODE_TEST      = 2;
+    public static final int      VIEW_MODE_RGBA           = 0;
+    public static final int      VIEW_MODE_DETECTOR       = 1;
+    public static final int      VIEW_MODE_TEST           = 2;
+    public static final int      VIEW_MODE_AUTOMATIC_TEST = 3;
     private MenuItem             mItemPreviewRGBA;
     private MenuItem             mItemPreviewLeo;
     private MenuItem             mItemPreviewTest;
+    private MenuItem             mItemPreviewAutomaticTest;
 
     private CameraBridgeViewBase mOpenCvCameraView;
     private Mat                  imagemProcessada;
@@ -46,6 +54,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private boolean              jaProcessouAImagemDeTeste = false;
     private String               numeroDeImagemTeste;
     private boolean              escolheuImagemTeste = false;
+    private CasoDeTeste[]        casosDeTeste;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -75,6 +84,64 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_surface_view);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        loadTestCases();
+    }
+
+    private void loadTestCases() {
+        casosDeTeste = new CasoDeTeste[35];
+        int currentTestCase = 0;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(getResources().openRawResource(R.raw.images_outputs)));
+        String line;
+        Pattern p = Pattern.compile("^(\\d+)#(\\d+)$");
+        int dimensaoDoTabuleiro;
+        int linhaAtual = 0;
+
+        try {
+            while ((line = reader.readLine()) != null) {
+                if (line.contains("#")) {
+                    Log.i(TAG, "!@#$!@#$ " + line);
+                    Matcher m = p.matcher(line);
+                    if (!m.matches()) {
+                        break;
+                    }
+                    String numeroDaImagem = m.group(1);
+                    String dimensao = m.group(2);
+
+                    currentTestCase++;
+                    casosDeTeste[currentTestCase - 1] = new CasoDeTeste();
+                    casosDeTeste[currentTestCase - 1].setNumeroDaImagem(Integer.valueOf(numeroDaImagem));
+                    dimensaoDoTabuleiro = Integer.valueOf(dimensao);
+                    casosDeTeste[currentTestCase - 1].criarTabuleiroComDimensao(dimensaoDoTabuleiro);
+                    linhaAtual = 0;
+                }
+                else {
+                    for (int i = 0; i < line.length(); ++i) {
+                        int valor = Tabuleiro.VAZIO;
+                        if (line.charAt(i) == 'P') {
+                            valor = Tabuleiro.PEDRA_PRETA;
+                        }
+                        else if (line.charAt(i) == 'B') {
+                            valor = Tabuleiro.PEDRA_BRANCA;
+                        }
+                        if (valor != Tabuleiro.VAZIO) {
+                            casosDeTeste[currentTestCase - 1].getTabuleiro().colocarPedra(linhaAtual, i, valor);
+                        }
+                    }
+                    linhaAtual++;
+                }
+            }
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (int i = 0; i < casosDeTeste.length; ++i) {
+            Log.i(TAG, "Tabuleiro correspondente à imagem " + (i + 1) + ": ");
+            if (casosDeTeste[i] != null) {
+                Log.i(TAG, "" + casosDeTeste[i].getTabuleiro());
+            }
+        }
     }
 
     @Override
@@ -104,6 +171,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         mItemPreviewRGBA = menu.add("Preview RGBA");
         mItemPreviewLeo = menu.add("Detector");
         mItemPreviewTest = menu.add("Testes");
+        mItemPreviewAutomaticTest = menu.add("Testes automáticos");
         return true;
     }
 
@@ -120,12 +188,15 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             jaProcessouAImagemDeTeste = false;
             viewMode = VIEW_MODE_TEST;
         }
+        else if (item == mItemPreviewAutomaticTest) {
+            viewMode = VIEW_MODE_AUTOMATIC_TEST;
+        }
         return true;
     }
 
     private void escolherImagemDeTeste() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Digite um número de imagem (1-18)");
+        builder.setTitle("Digite um número de imagem (1-35)");
 
         final EditText input = new EditText(this);
         input.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -170,6 +241,53 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             return imagemProcessada;
         }
 
+        if (MainActivity.viewMode == VIEW_MODE_AUTOMATIC_TEST) {
+
+            for (int indiceImagem = 1; indiceImagem <= 35; ++indiceImagem) {
+                Mat imagemLidaDeArquivo = lerImagemDosResourcesAdaptada(
+                        resourceSelecionado(new Integer(indiceImagem).toString()), rgba.size());
+                Mat imagemFonte = imagemLidaDeArquivo.clone();
+                Mat imagemOriginal = imagemFonte.clone();
+
+                // Detecção do tabuleiro
+                DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+                detectorDeTabuleiro.setImagem(imagemFonte.clone());
+                detectorDeTabuleiro.setImagemDePreview(imagemFonte);
+                if (!detectorDeTabuleiro.processar()) {
+                    return imagemFonte;
+                }
+
+                // Transformação da imagem do tabuleiro para a posição ortogonal
+                Mat imagemDoTabuleiroCorrigido =
+                        TransformadorDeTabuleiro.transformar(
+                                imagemOriginal,
+                                detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
+                                null
+                        );
+                imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
+
+                // Detecção das pedras
+                DetectorDePedras detectorDePedras = new DetectorDePedras();
+                detectorDePedras.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+                detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+
+                Tabuleiro tabuleiro = detectorDePedras.detectar();
+                if (tabuleiro != null && tabuleiro.equals(casosDeTeste[indiceImagem - 1].getTabuleiro())) {
+//                    Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
+                }
+                else {
+//                    Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " falhou:");
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + tabuleiro);
+                    Log.i(TAG, "não bateu com");
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + casosDeTeste[indiceImagem - 1].getTabuleiro());
+                }
+            }
+            rgba.release();
+            return rgba;
+        }
+
         Mat imagemLidaDeArquivo = new Mat();
         if (MainActivity.viewMode == VIEW_MODE_TEST) {
             imagemLidaDeArquivo = lerImagemDosResourcesAdaptada(resourceSelecionado(numeroDeImagemTeste), rgba.size());
@@ -180,6 +298,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 imagemLidaDeArquivo.clone();
         Mat imagemOriginal = imagemFonte.clone();
 
+        // Detecção do tabuleiro
         DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
         detectorDeTabuleiro.setImagem(imagemFonte.clone());
         detectorDeTabuleiro.setImagemDePreview(imagemFonte);
@@ -187,6 +306,9 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             return imagemFonte;
         }
 
+        // Transformação da imagem do tabuleiro para a posição ortogonal
+//        Mat imagemOriginalPretoEBranco = new Mat();
+//        Imgproc.cvtColor(imagemOriginal, imagemOriginalPretoEBranco, Imgproc.COLOR_BGR2GRAY);
         Mat imagemDoTabuleiroCorrigido =
                 TransformadorDeTabuleiro.transformar(
                     imagemOriginal,
@@ -195,6 +317,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 );
         imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
+        // Detecção das pedras
         DetectorDePedras detectorDePedras = new DetectorDePedras();
         detectorDePedras.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
         detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
@@ -231,6 +354,23 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             case "16": return R.drawable.imagem16;
             case "17": return R.drawable.imagem17;
             case "18": return R.drawable.imagem18;
+            case "19": return R.drawable.imagem19;
+            case "20": return R.drawable.imagem20;
+            case "21": return R.drawable.imagem21;
+            case "22": return R.drawable.imagem22;
+            case "23": return R.drawable.imagem23;
+            case "24": return R.drawable.imagem24;
+            case "25": return R.drawable.imagem25;
+            case "26": return R.drawable.imagem26;
+            case "27": return R.drawable.imagem27;
+            case "28": return R.drawable.imagem28;
+            case "29": return R.drawable.imagem29;
+            case "30": return R.drawable.imagem30;
+            case "31": return R.drawable.imagem31;
+            case "32": return R.drawable.imagem32;
+            case "33": return R.drawable.imagem33;
+            case "34": return R.drawable.imagem34;
+            case "35": return R.drawable.imagem35;
             default: return R.drawable.imagem1;
         }
     }

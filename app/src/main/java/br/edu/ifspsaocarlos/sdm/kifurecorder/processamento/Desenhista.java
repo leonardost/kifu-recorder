@@ -16,8 +16,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
- * Created by leo on 07/10/15.
- *
  * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
  */
 public class Desenhista {
@@ -89,7 +87,8 @@ public class Desenhista {
 
     /**
      * Desenha o tabuleiro sobre a matriz 'imagem' com a origem nas coordenadas 'x' e 'y' passadas
-     * como parâmetro e com tamanho 'tamanhoImagem'.
+     * como parâmetro e com tamanho 'tamanhoImagem'. O desenho é feito respeitando a dimensão do
+     * tabuleiro, ou seja, se o tabuleiro é maior, o preview fica menor.
      *
      * @param imagem
      * @param tabuleiro
@@ -100,6 +99,8 @@ public class Desenhista {
     public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem) {
         Point p1 = new Point();
         Point p2 = new Point();
+        double distanciaEntreLinhas = tamanhoImagem / (tabuleiro.getDimensao() + 1);
+        int raioDaPedra = 29 - tabuleiro.getDimensao(); // estava usando tamanhoImagem / 20 para o 9x9
         p1.x = x;
         p1.y = y;
         p2.x = x + tamanhoImagem;
@@ -107,36 +108,39 @@ public class Desenhista {
 
         Core.rectangle(imagem, p1, p2, mWhite, -1);
 
+        // Desenha linhas horizontais
         for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
-            inicio.x = x + (tamanhoImagem / 10);
-            inicio.y = y + (tamanhoImagem / 10) + (tamanhoImagem / 10) * i;
+            inicio.x = x + distanciaEntreLinhas;
+            inicio.y = y + distanciaEntreLinhas + distanciaEntreLinhas * i;
             fim.x = x + (tamanhoImagem * 0.9);
-            fim.y = y + (tamanhoImagem / 10) + (tamanhoImagem / 10) * i;
+            fim.y = inicio.y;
             Core.line(imagem, inicio, fim, mBlack);
         }
 
+        // Desenha linhas verticais
         for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
-            inicio.x = x + (tamanhoImagem / 10) + (tamanhoImagem / 10) * i;
-            inicio.y = y + (tamanhoImagem / 10);
-            fim.x = x + (tamanhoImagem / 10) + (tamanhoImagem / 10) * i;
+            inicio.x = x + distanciaEntreLinhas + distanciaEntreLinhas * i;
+            inicio.y = y + distanciaEntreLinhas;
+            fim.x = inicio.x;
             fim.y = y + (tamanhoImagem * 0.9);
             Core.line(imagem, inicio, fim, mBlack);
         }
 
+        // Desenha pedras
         for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
             for (int j = 0; j < tabuleiro.getDimensao(); ++j) {
                 Point centro = new Point();
-                centro.x = x + (tamanhoImagem / 10) + i * (tamanhoImagem / 10);
-                centro.y = y + (tamanhoImagem / 10) + j * (tamanhoImagem / 10);
+                centro.x = x + distanciaEntreLinhas + j * distanciaEntreLinhas;
+                centro.y = y + distanciaEntreLinhas + i * distanciaEntreLinhas;
                 if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_PRETA) {
-                    Core.circle(imagem, centro, (tamanhoImagem / 20), mBlack, -1);
+                    Core.circle(imagem, centro, raioDaPedra, mBlack, -1);
                 } else if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_BRANCA) {
-                    Core.circle(imagem, centro, (tamanhoImagem / 20), mWhite, -1);
-                    Core.circle(imagem, centro, (tamanhoImagem / 20), mBlack);
+                    Core.circle(imagem, centro, raioDaPedra, mWhite, -1);
+                    Core.circle(imagem, centro, raioDaPedra, mBlack);
                 }
             }
         }

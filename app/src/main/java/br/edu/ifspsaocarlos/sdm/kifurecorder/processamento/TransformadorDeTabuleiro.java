@@ -5,7 +5,7 @@ import org.opencv.core.Mat;
 import org.opencv.imgproc.Imgproc;
 
 /**
- * Created by leo on 18/10/15.
+ * Responsável por fazer a transformação ortogonal da imagem do tabuleiro.
  */
 public class TransformadorDeTabuleiro {
 
