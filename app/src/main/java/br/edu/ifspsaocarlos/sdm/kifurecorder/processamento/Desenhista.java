@@ -33,12 +33,12 @@ public class Desenhista {
     public static void desenharContornosRelevantes(Mat imagem, HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
         // Desenha os quadriláteros folha em verde
         if (hierarquiaDeQuadrilateros.folhas.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.folhas, -1, mGreen);
+            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.folhas, -1, mGreen, 2);
         }
 
         // Desenha os quadriláteros externos em azul
         if (hierarquiaDeQuadrilateros.externos.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.externos, -1, mBlue);
+            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.externos, -1, mBlue, 2);
         }
 
         // Desenha o contorno do tabuleiro em vermelho
@@ -50,7 +50,7 @@ public class Desenhista {
     private static void desenharContorno(Mat imagem, MatOfPoint contorno, Scalar cor) {
         List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
         listaContorno.add(contorno);
-        Imgproc.drawContours(imagem, listaContorno, -1, cor);
+        Imgproc.drawContours(imagem, listaContorno, -1, cor, 2);
     }
 
     public static void desenhaInterseccoesECantosDoTabuleiro(Mat imagem, List<ClusterDeVertices> intersecoes, List<Point> cantos) {

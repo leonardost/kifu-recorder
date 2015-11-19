@@ -7,9 +7,11 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
@@ -55,14 +57,20 @@ public class DetectorDeTabuleiro {
         }
 
         Mat imagemComBordasEmEvidencia = detectarBordas();
+
         // Se quiser ver a saída do detector de bordas Cammy
         //Imgproc.cvtColor(imagemComBordasEmEvidencia, imagemDePreview, Imgproc.COLOR_GRAY2BGR, 4); if (true) return false;
+//        imagemDePreview = imagemComBordasEmEvidencia; if (true) return false;
+
         List<MatOfPoint> contornos = detectarContornos(imagemComBordasEmEvidencia);
 
         if (contornos.isEmpty()) {
             Log.i(MainActivity.TAG, "> Processamento de imagem: contornos não foram encontrados.");
             return false;
         }
+
+        // Se quiser ver a saída do detector de contornos
+        //Imgproc.drawContours(imagemDePreview, contornos, -1, new Scalar(0, 0, 255), 2); if (true) return false;
 
         List<MatOfPoint> quadrilateros = detectarQuadrilateros(contornos);
 
@@ -71,6 +79,9 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
+        //Se quiser ver a saída do detector de quadriláteros
+        //for (MatOfPoint quadrilatero : quadrilateros) { List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>(); listaContorno.add(quadrilatero); Imgproc.drawContours(imagemDePreview, listaContorno, -1, new Scalar(255, 0, 0), 3); } if (true) return false;
+
         MatOfPoint quadrilateroDoTabuleiro = detectarTabuleiro(quadrilateros);
 
         if (quadrilateroDoTabuleiro == null) {
@@ -78,11 +89,31 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
-        // Se quiser ver a saída do detector de quadriláteros
-        //if (true) return false;
-
         List<ClusterDeVertices> intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
 
+        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
+        double areaMedia = 0;
+        for (MatOfPoint quadrilatero : hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro)) {
+            areaMedia += Imgproc.contourArea(quadrilatero);
+        }
+        areaMedia /= hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro).size();
+        double areaDoTabuleiro = Imgproc.contourArea(quadrilateroDoTabuleiro);
+        double razao = areaMedia / areaDoTabuleiro;
+        Log.d(MainActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
+
+        // Determina a dimensão do tabuleiro de acordo com a razão da área dos quadrados internos
+        // com a área do quadrado do tabuleiro
+        if (razao <= 1.0 / 324.0) {     // 18 quadrados por 18
+            dimensaoDoTabuleiro = 19;
+        }
+        else if (razao <= 1.0 / 144.0) {
+            dimensaoDoTabuleiro = 13;   // 12 quadrados por 12
+        }
+        else {
+            dimensaoDoTabuleiro = 9;
+        }
+
+        /*
         if (intersecoes.size() > 13 * 13) {
             dimensaoDoTabuleiro = 19;
         }
@@ -92,6 +123,7 @@ public class DetectorDeTabuleiro {
         else {
             dimensaoDoTabuleiro = 9;
         }
+        */
 
         List<Point> cantosDoTabuleiro = ordenarCantos(quadrilateroDoTabuleiro);
 
@@ -112,13 +144,28 @@ public class DetectorDeTabuleiro {
     }
 
     private Mat detectarBordas() {
-        Mat mIntermediateMat = new Mat();
+        Mat imagemIntermediaria = new Mat();
         //Imgproc.Canny(imagem, mIntermediateMat, 80, 90);
         //Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
-        Imgproc.Canny(imagem, mIntermediateMat, 30, 90);
-        Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
-        Imgproc.dilate(mIntermediateMat, mIntermediateMat, new Mat());
-        return mIntermediateMat;
+        //Imgproc.Canny(imagem, mIntermediateMat, 30, 90);
+
+        // Não parece que o filtro gaussiano ajudou muito a diminuir os ruídos das imagens
+//        Size size = new Size(5, 5);
+//        Imgproc.GaussianBlur(imagem, mIntermediateMat, size, 2);
+
+        Imgproc.Canny(imagem, imagemIntermediaria, 30, 100);
+//        Imgproc.Canny(imagem, mIntermediateMat, 30, 100);
+        //Imgproc.Canny(imagem, mIntermediateMat, 45, 100);
+        //Imgproc.Canny(imagem, mIntermediateMat, 50, 100);   // Melhores resultados até agora
+        //Imgproc.Canny(imagem, mIntermediateMat, 100, 200);    // Fica bem limpo, mas perde alguns contornos válidos
+        //Imgproc.Canny(imagem, mIntermediateMat, 75, 150); // Ainda perde alguns contornos
+        //Imgproc.Canny(imagem, mIntermediateMat, 65, 130);
+
+//        Imgproc.Canny(imagem, imagemIntermediaria, 40, 110);
+
+        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, new Mat());
+//        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, new Mat());
+        return imagemIntermediaria;
     }
 
     private List<MatOfPoint> detectarContornos(Mat imagemComBordasEmEvidencia) {
@@ -128,12 +175,19 @@ public class DetectorDeTabuleiro {
         Imgproc.findContours(imagemComBordasEmEvidencia, contornos, hierarquia, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
         Log.d("kifu-recorder", "Número de contornos encontrados: " + contornos.size());
 
+        // Remove os contornos muito pequenos, que provavelmente são ruído
+        for (Iterator<MatOfPoint> it = contornos.iterator(); it.hasNext();) {
+            MatOfPoint contorno = it.next();
+            // Com 1000 já perde os quadrados menores no tabuleiro 19x19
+            // O ideal seria fazer isto aqui como uma razão sobre a área da imagem
+            if (Imgproc.contourArea(contorno) < 700) {
+                it.remove();
+            }
+        }
+
         // A imagem é convertida para um formato colorido novamente
-//        imagemComBordasEmEvidencia.release();
         Imgproc.cvtColor(imagemComBordasEmEvidencia, imagem, Imgproc.COLOR_GRAY2BGR, 4);
-//        if (desenharPreview) {
-//            imagemDePreview = imagem.clone();
-//        }
+        imagemComBordasEmEvidencia.release();
         return contornos;
     }
 
@@ -147,7 +201,12 @@ public class DetectorDeTabuleiro {
             // * 0.02 e * 0.03 também têm resultados interessantes
             // Aparentemente, quanto maior o epsilon, mais curvas que não se encaixam perfeitamente nos contornos
             // são consideradas. Contudo, esse parâmetro parece ser bastante sensível.
-            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.04, true);
+            //Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.04, true);
+//            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.008, true);  // perde muitos quadrados
+//            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.01, true);  // borda do tabuleiro encontrada bem, mas quadrados internos sofrem. Talvez seja melhor usar este por detectar melhor o quadrado externo
+//            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.015, true);  // melhores resultados até agora
+            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.012, true);
+//            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.008, true);
 
             MatOfPoint approx = new MatOfPoint();
             approx2f.convertTo(approx, CvType.CV_32S);
