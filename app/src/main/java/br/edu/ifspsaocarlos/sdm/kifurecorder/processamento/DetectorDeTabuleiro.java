@@ -89,7 +89,8 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
-        List<ClusterDeVertices> intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
+        List<ClusterDeVertices> intersecoes = null;
+//        intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
 
         HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
         double areaMedia = 0;
@@ -99,7 +100,7 @@ public class DetectorDeTabuleiro {
         areaMedia /= hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro).size();
         double areaDoTabuleiro = Imgproc.contourArea(quadrilateroDoTabuleiro);
         double razao = areaMedia / areaDoTabuleiro;
-        Log.d(MainActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
+//        Log.d(MainActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
 
         // Determina a dimensão do tabuleiro de acordo com a razão da área dos quadrados internos
         // com a área do quadrado do tabuleiro
@@ -112,18 +113,6 @@ public class DetectorDeTabuleiro {
         else {
             dimensaoDoTabuleiro = 9;
         }
-
-        /*
-        if (intersecoes.size() > 13 * 13) {
-            dimensaoDoTabuleiro = 19;
-        }
-        else if (intersecoes.size() > 9 * 9) {
-            dimensaoDoTabuleiro = 13;
-        }
-        else {
-            dimensaoDoTabuleiro = 9;
-        }
-        */
 
         List<Point> cantosDoTabuleiro = ordenarCantos(quadrilateroDoTabuleiro);
 
@@ -163,7 +152,7 @@ public class DetectorDeTabuleiro {
 
 //        Imgproc.Canny(imagem, imagemIntermediaria, 40, 110);
 
-        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, new Mat());
+        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, Mat.ones(3, 3, CvType.CV_32F));
 //        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, new Mat());
         return imagemIntermediaria;
     }

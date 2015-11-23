@@ -55,9 +55,9 @@ public class Desenhista {
 
     public static void desenhaInterseccoesECantosDoTabuleiro(Mat imagem, List<ClusterDeVertices> intersecoes, List<Point> cantos) {
         // Desenha as interseções encontradas
-        for (ClusterDeVertices c : intersecoes) {
-            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
-        }
+//        for (ClusterDeVertices c : intersecoes) {
+//            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
+//        }
 
         // Desenha os 4 cantos do quadrilátero do tabuleiro
         for (int i = 0; i < 4; ++i) {
@@ -100,6 +100,7 @@ public class Desenhista {
         Point p1 = new Point();
         Point p2 = new Point();
         double distanciaEntreLinhas = tamanhoImagem / (tabuleiro.getDimensao() + 1);
+        double fimDasLinhas = tamanhoImagem - distanciaEntreLinhas;
         int raioDaPedra = 29 - tabuleiro.getDimensao(); // estava usando tamanhoImagem / 20 para o 9x9
         p1.x = x;
         p1.y = y;
@@ -114,7 +115,7 @@ public class Desenhista {
             Point fim = new Point();
             inicio.x = x + distanciaEntreLinhas;
             inicio.y = y + distanciaEntreLinhas + distanciaEntreLinhas * i;
-            fim.x = x + (tamanhoImagem * 0.9);
+            fim.x = x + fimDasLinhas;
             fim.y = inicio.y;
             Core.line(imagem, inicio, fim, mBlack);
         }
@@ -126,7 +127,7 @@ public class Desenhista {
             inicio.x = x + distanciaEntreLinhas + distanciaEntreLinhas * i;
             inicio.y = y + distanciaEntreLinhas;
             fim.x = inicio.x;
-            fim.y = y + (tamanhoImagem * 0.9);
+            fim.y = y + fimDasLinhas;
             Core.line(imagem, inicio, fim, mBlack);
         }
 

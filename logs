@@ -182,3 +182,245 @@ Caso de teste #33
     ...PB.BBPPB..P.BB..
     ..PBB.B.BP.....P...
     .......BBP.........
+
+
+
+
+
+
+----------
+
+Utilizando a componente azul para determinar pedras brancas:
+
+11-23 02:07:14.572  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #1 passou!
+11-23 02:07:18.372  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #2 passou!
+11-23 02:07:22.162  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #3 passou!
+11-23 02:07:27.722  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #5 passou!
+11-23 02:07:31.282  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #6 passou!
+11-23 02:07:35.012  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #7 passou!
+11-23 02:07:38.862  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #8 passou!
+11-23 02:07:42.812  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #9 falhou:
+11-23 02:07:42.812  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #9
+    .........
+    .........
+    ..P......
+    .........
+    .........
+    .........
+    .........
+    .........
+    .........
+11-23 02:07:42.812  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #9
+    .........
+    .........
+    .........
+    .........
+    .........
+    .........
+    .........
+    .........
+    .........
+11-23 02:07:46.102  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #10 passou!
+11-23 02:07:49.732  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #11 passou!
+11-23 02:07:53.222  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #12 passou!
+11-23 02:07:57.052  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #13 passou!
+11-23 02:08:01.002  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #14 falhou:
+11-23 02:08:01.002  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #14
+    .........
+    .........
+    .........
+    ..B......
+    ....P....
+    .........
+    ......PPP
+    .......PP
+    .....PPPP
+11-23 02:08:01.002  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #14
+    .........
+    .........
+    .....B...
+    .........
+    ....P....
+    .........
+    .........
+    .........
+    .........
+11-23 02:08:04.972  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #15 passou!
+11-23 02:08:08.962  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #16 passou!
+11-23 02:08:12.972  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #17 passou!
+11-23 02:08:17.192  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #18 passou!
+11-23 02:08:21.572  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #19 passou!
+11-23 02:08:25.922  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #20 passou!
+11-23 02:08:30.302  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #21 passou!
+11-23 02:08:34.412  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #22 passou!
+11-23 02:08:38.762  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #23 passou!
+11-23 02:08:42.802  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #24 passou!
+11-23 02:08:46.992  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #25 passou!
+11-23 02:08:51.032  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #26 passou!
+11-23 02:08:54.882  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #27 passou!
+11-23 02:08:58.952  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #28 passou!
+11-23 02:09:02.892  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #29 passou!
+11-23 02:09:07.222  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #30 passou!
+11-23 02:09:13.692  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #32 passou!
+11-23 02:09:19.502  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #33 falhou:
+11-23 02:09:19.502  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #33
+    .P.P.P.B..B........
+    .BP.PPB.BB.BP......
+    .BBPPPPBBPBPBP.....
+    ..BBPBBP.P.P..P.P..
+    ..BPBPBP..B.P......
+    ...PB.BP.P......B..
+    .BBPB.B............
+    .PBPB..............
+    .BPPB...........B..
+    .BP.PBB............
+    .PPPBBP..P.........
+    PBBBP..............
+    PPPBBB.............
+    .BBP............B..
+    ..PP....P....P.....
+    ..P..PPP...........
+    ...PB.BBPPB..P.BB..
+    ..PBB.B.BP.....P...
+    .......BBP.........
+11-23 02:09:19.512  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #33
+    .........PBB.......
+    ...P.....PB.B.BBP..
+    ..BB.P..BPPBB.BP...
+    ...........PPP..P..
+    .....P....P....PP..
+    ..B............PBB.
+    .............BBBPPP
+    ..............PBBBP
+    .........P..PBBPPP.
+    ............BBP.PB.
+    ..B...........BPPB.
+    ..............BPBP.
+    ............B.BPBB.
+    ..B......P.PB.BP...
+    ......P.B..PBPBPB..
+    ..P.P..P...PBBPBB..
+    .....PBPB.BBPPPPBB.
+    ......PB.BB.BPP.PB.
+    ........B..B.P.P.P.
+11-23 02:09:24.152  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34 falhou:
+11-23 02:09:24.152  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34
+    .........PBB.......
+    ...P.....PB.B.BBP..
+    ..BB.P..BPPBB.BP...
+    ...........PPP..P..
+    .....P....P....PP..
+    ..B............PBB.
+    .............BBBPPP
+    ..............PBBBP
+    ............PBBPPP.
+    ............BBP.PB.
+    ..B...........BPPB.
+    ..............BPBP.
+    ............B.BPBB.
+    ..B......P.PB.BP...
+    ......P.B..PBPBPB..
+    ..P.P..P...PBBPBB..
+    .....PBPB.BBPPPPBB.
+    ......PB.BB.BPP.PB.
+    ........B..B.P.P.P.
+11-23 02:09:24.152  24785-24907/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34
+    .........PBB.......
+    ...P.....PB.B.BBP..
+    ..BB.P..BPPBB.BP...
+    ...........PPP..P..
+    .....P....P....PP..
+    ..B............PBB.
+    .............BBBPPP
+    ..............PBBBP
+    .........P..PBBPPP.
+    ............BBP.PB.
+    ..B...........BPPB.
+    ..............BPBP.
+    ............B.BPBB.
+    ..B......P.PB.BP...
+    ......P.B..PBPBPB..
+    ..P.P..P...PBBPBB..
+    .....PBPB.BBPPPPBB.
+    ......PB.BB.BPP.PB.
+    ........B..B.P.P.P.
+
+
+
+
+----
+
+Depois de alguns ajustes nas hipóteses de detecção de pedras:
+
+11-23 02:29:40.652  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #1 passou!
+11-23 02:29:43.032  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #2 passou!
+11-23 02:29:45.442  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #3 passou!
+11-23 02:29:48.682  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #5 passou!
+11-23 02:29:50.992  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #6 passou!
+11-23 02:29:53.502  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #7 passou!
+11-23 02:29:56.052  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #8 passou!
+11-23 02:29:58.502  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #9 passou!
+11-23 02:30:00.972  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #10 passou!
+11-23 02:30:04.292  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #11 passou!
+11-23 02:30:06.762  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #12 passou!
+11-23 02:30:09.052  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #13 passou!
+11-23 02:30:11.152  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #14 passou!
+11-23 02:30:13.462  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #15 passou!
+11-23 02:30:15.852  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #16 passou!
+11-23 02:30:18.472  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #17 passou!
+11-23 02:30:20.702  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #18 passou!
+11-23 02:30:23.232  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #19 passou!
+11-23 02:30:25.882  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #20 passou!
+11-23 02:30:28.382  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #21 passou!
+11-23 02:30:30.582  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #22 passou!
+11-23 02:30:33.052  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #23 passou!
+11-23 02:30:36.612  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #24 passou!
+11-23 02:30:40.552  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #25 passou!
+11-23 02:30:44.642  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #26 passou!
+11-23 02:30:48.812  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #27 passou!
+11-23 02:30:52.792  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #28 passou!
+11-23 02:30:56.902  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #29 passou!
+11-23 02:31:00.852  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #30 passou!
+11-23 02:31:07.442  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #32 passou!
+11-23 02:31:13.592  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #33 passou!
+11-23 02:31:18.062  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34 falhou:
+11-23 02:31:18.062  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34
+    .........PBB.......
+    ...P.....PB.B.BBP..
+    ..BB.P..BPPBB.BP...
+    ...........PPP..P..
+    .....P....P....PP..
+    ..B............PBB.
+    .............BBBPPP
+    ..............PBBBP
+    ............PBBPPP.
+    ............BBP.PB.
+    ..B...........BPPB.
+    ..............BPBP.
+    ............B.BPBB.
+    ..B......P.PB.BP...
+    ......P.B..PBPBPB..
+    ..P.P..P...PBBPBB..
+    .....PBPB.BBPPPPBB.
+    ......PB.BB.BPP.PB.
+    ........B..B.P.P.P.
+11-23 02:31:18.062  13391-13566/br.edu.ifspsaocarlos.sdm.kifurecorder I/KifuRecorder﹕ Caso de teste #34
+    .........PBB.......
+    ...P.....PB.B.BBP..
+    ..BB.P..BPPBB.BP...
+    ...........PPP..P..
+    .....P....P....PP..
+    ..B............PBB.
+    .............BBBPPP
+    ..............PBBBP
+    .........P..PBBPPP.
+    ............BBP.PB.
+    ..B...........BPPB.
+    ..............BPBP.
+    ............B.BPBB.
+    ..B......P.PB.BP...
+    ......P.B..PBPBPB..
+    ..P.P..P...PBBPBB..
+    .....PBPB.BBPPPPBB.
+    ......PB.BB.BPP.PB.
+    ........B..B.P.P.P.

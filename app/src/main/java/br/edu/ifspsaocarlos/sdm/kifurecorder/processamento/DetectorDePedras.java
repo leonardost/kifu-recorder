@@ -44,6 +44,9 @@ public class DetectorDePedras {
                         (j * larguraImagem / (dimensaoDoTabuleiro - 1)),
                         imagemDoTabuleiro
                 );
+
+                Log.i(MainActivity.TAG, "Pos(" + i + ", " + j + ") = ");
+
                 int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
                 if (hipotese != Tabuleiro.VAZIO) {
                     tabuleiro.colocarPedra(i, j, hipotese);
@@ -70,14 +73,12 @@ public class DetectorDePedras {
         double[] color = new double[imagem.channels()];
         switch (hipotese) {
             case 1:
-
                 color = imagem.get(linha, coluna);
                 break;
             case 2:
                 color = recuperarMediaGaussianaDeCores(imagem, linha, coluna);
                 break;
         }
-//        Log.i(MainActivity.TAG, "Pos(" + linha + ", " + coluna + ") = " + printColor(color));
         return color;
     }
 
@@ -107,6 +108,8 @@ public class DetectorDePedras {
             color[i] /= contador;
         }
 
+        Log.i(MainActivity.TAG, printColor(color));
+
         return color;
     }
 
@@ -132,6 +135,17 @@ public class DetectorDePedras {
         Log.d(MainActivity.TAG, "distancia para preto = " + distanciaParaPreto);
         Log.d(MainActivity.TAG, "distancia para branco = " + distanciaParaBranco);
         Log.d(MainActivity.TAG, "distancia para media = " + distanciaParaCorMedia);
+
+        // Testando outras hipóteses
+        if (distanciaParaPreto < 80 || distanciaParaPreto < distanciaParaCorMedia) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        else if (cor[2] >= 150) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        else if (true) {
+            return Tabuleiro.VAZIO;
+        }
 
         // Se a distância para a média for menor que um certo threshold, muito provavelmente é uma
         // intersecção vazia
@@ -161,6 +175,16 @@ public class DetectorDePedras {
         double distancia = 0;
         for (int i = 0; i < Math.min(cor1.length, cor2.length); ++i) {
             distancia += Math.abs(cor1[i] - cor2[i]);
+        }
+        return distancia;
+    }
+
+    // Só considera a distância para a componente azul
+    private double distanciaDeCor2(double[] cor1, double[] cor2) {
+        double distancia = 0;
+        for (int i = 0; i < Math.min(cor1.length, cor2.length); ++i) {
+        //for (int i = 0; i < 3; ++i) {
+            distancia += Math.abs(cor1[2] - cor2[2]);
         }
         return distancia;
     }

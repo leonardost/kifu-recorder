@@ -16,7 +16,11 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.android.Utils;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint3f;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -24,6 +28,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -254,7 +259,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
                 detectorDeTabuleiro.setImagem(imagemFonte.clone());
                 detectorDeTabuleiro.setImagemDePreview(imagemFonte);
                 if (!detectorDeTabuleiro.processar()) {
-                    return imagemFonte;
+//                    return imagemFonte;
+                    continue;
                 }
 
                 // Transformação da imagem do tabuleiro para a posição ortogonal
@@ -306,15 +312,35 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             return imagemFonte;
         }
 
+        // Cria uma cópia da imagem em preto e branco
+        Mat imagemOriginalPretoEBranco = imagemOriginal.clone();
+        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_RGB2GRAY);
+        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_GRAY2RGB);
+
         // Transformação da imagem do tabuleiro para a posição ortogonal
-//        Mat imagemOriginalPretoEBranco = new Mat();
-//        Imgproc.cvtColor(imagemOriginal, imagemOriginalPretoEBranco, Imgproc.COLOR_BGR2GRAY);
         Mat imagemDoTabuleiroCorrigido =
                 TransformadorDeTabuleiro.transformar(
                     imagemOriginal,
+//                    imagemOriginalPretoEBranco,
                     detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
                     null
                 );
+
+        /*
+        Imgproc.cvtColor(imagemDoTabuleiroCorrigido, imagemDoTabuleiroCorrigido, Imgproc.COLOR_RGB2GRAY);
+        MaTomatet circulos = new Mat();
+        Imgproc.HoughCircles(imagemDoTabuleiroCorrigido, circulos, Imgproc.CV_HOUGH_GRADIENT, 1, 10, 200, 100, 0, 0);
+        float circle[] = new float[3];
+        for (int i = 0; i < circulos.cols(); ++i) {
+            circulos.get(0, i, circle);
+            Point center = new Point();
+            center.x = circle[0];
+            center.y = circle[1];
+            Core.circle(imagemDoTabuleiroCorrigido, center, (int)circle[2], new Scalar(255, 255, 0), 3);
+        }
+        Imgproc.cvtColor(imagemDoTabuleiroCorrigido, imagemDoTabuleiroCorrigido, Imgproc.COLOR_GRAY2RGB);
+*/
+
         imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
         // Detecção das pedras
@@ -388,6 +414,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             imagemLidaDeArquivo = Utils.loadResource(MainActivity.this, idDaImagemResource);
             // Converte do formato BGR (usado pelo OpenCV) para o RGB
             Imgproc.cvtColor(imagemLidaDeArquivo, imagemLidaDeArquivo, Imgproc.COLOR_BGR2RGB);
+            Log.d(TAG, "Tamanho da imagem = " + tamanhoDaImagem.height + "x" + tamanhoDaImagem.width);
             Imgproc.resize(imagemLidaDeArquivo, imagemLidaDeArquivo, tamanhoDaImagem);
         } catch (IOException e) {
             e.printStackTrace();
