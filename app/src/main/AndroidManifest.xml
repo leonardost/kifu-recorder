@@ -1,25 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="br.edu.ifspsaocarlos.sdm.kifurecorder">
+    package="br.edu.ifspsaocarlos.sdm.kifurecorder" >
 
     <uses-sdk android:minSdkVersion="8" />
 
     <uses-permission android:name="android.permission.CAMERA" />
 
-    <uses-feature android:name="android.hardware.camera" android:required="true" />
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.autofocus"
+        android:required="false" />
+
+    <uses-permission android:name="ANDROID.PERMISSION.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="ANDROID.PERMISSION.READ_PHONE_STATE" />
 
     <application
-        android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
-
-        <activity android:name="br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity"
-            android:screenOrientation="landscape"
-            android:configChanges="keyboardHidden|orientation">
+        android:label="@string/app_name"
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
+        <activity
+            android:name=".TelaInicialActivity"
+            android:label="@string/title_activity_tela_inicial" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".InformacoesDaPartidaActivity"
+            android:label="@string/title_activity_informacoes_da_partida" >
+        </activity>
+        <activity
+            android:name=".DetectarTabuleiroActivity"
+            android:label="@string/title_activity_detectar_tabuleiro"
+            android:screenOrientation="landscape">
         </activity>
     </application>
 

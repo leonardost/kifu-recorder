@@ -53,6 +53,12 @@ public class Desenhista {
         Imgproc.drawContours(imagem, listaContorno, -1, cor, 2);
     }
 
+    public static void desenharContornoDoTabuleiro(Mat imagem, MatOfPoint contornoDoTabuleiro) {
+        List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
+        listaContorno.add(contornoDoTabuleiro);
+        Imgproc.drawContours(imagem, listaContorno, -1, mRed, 6);
+    }
+
     public static void desenhaInterseccoesECantosDoTabuleiro(Mat imagem, List<ClusterDeVertices> intersecoes, List<Point> cantos) {
         // Desenha as interseções encontradas
 //        for (ClusterDeVertices c : intersecoes) {

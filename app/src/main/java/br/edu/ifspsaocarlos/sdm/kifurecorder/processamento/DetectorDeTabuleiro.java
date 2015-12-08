@@ -89,7 +89,7 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
-        List<ClusterDeVertices> intersecoes = null;
+//        List<ClusterDeVertices> intersecoes = null;
 //        intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
 
         HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
@@ -117,7 +117,8 @@ public class DetectorDeTabuleiro {
         List<Point> cantosDoTabuleiro = ordenarCantos(quadrilateroDoTabuleiro);
 
         if (desenharPreview) {
-            Desenhista.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
+//            Desenhista.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
+            Desenhista.desenharContornoDoTabuleiro(imagemDePreview, quadrilateroDoTabuleiro);
         }
 
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
@@ -229,9 +230,9 @@ public class DetectorDeTabuleiro {
             }
         }
 
-        if (desenharPreview) {
-            Desenhista.desenharContornosRelevantes(imagemDePreview, hierarquiaDeQuadrilateros, contornoMaisProximoDoTabuleiro);
-        }
+//        if (desenharPreview) {
+//            Desenhista.desenharContornosRelevantes(imagemDePreview, hierarquiaDeQuadrilateros, contornoMaisProximoDoTabuleiro);
+//        }
 
         return contornoMaisProximoDoTabuleiro;
     }
