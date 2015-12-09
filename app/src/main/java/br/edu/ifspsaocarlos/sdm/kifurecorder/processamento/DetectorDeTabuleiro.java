@@ -128,6 +128,15 @@ public class DetectorDeTabuleiro {
                 (int) cantosDoTabuleiro.get(2).x, (int) cantosDoTabuleiro.get(2).y,
                 (int) cantosDoTabuleiro.get(3).x, (int) cantosDoTabuleiro.get(3).y);
 
+        /*
+        for (int i = 0; i < posicaoDoTabuleiroNaImagem.rows(); ++i) {
+            for (int j = 0; j < posicaoDoTabuleiroNaImagem.cols(); ++j) {
+                double[] valor = posicaoDoTabuleiroNaImagem.get(i, j);
+                Log.d(MainActivity.TAG, "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
+            }
+        }
+        */
+
         processadoComSucesso = true;
 
         return true;

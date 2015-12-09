@@ -3,6 +3,7 @@
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
     <string name="title_activity_detectar_tabuleiro">DetectarTabuleiroActivity</string>
+    <string name="title_activity_registrar_partida">RegistrarPartidaActivity</string>
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
@@ -14,7 +15,12 @@
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
     <string name="lbl_komi">Komi</string>
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
-    <string name="btn_fixar_tabuleiro">Fixar tabuleiro</string>
+    <string name="btn_fixar_tabuleiro">Fixar tabuleiro e iniciar registro</string>
+
+    <string name="btn_pausar">Pausar</string>
+    <string name="btn_finalizar_registro">Finalizar</string>
+    <string name="btn_visualizar_registro">Visualizar registro</string>
+
 
 
 </resources>
