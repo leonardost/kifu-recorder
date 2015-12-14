@@ -15,6 +15,8 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
@@ -29,7 +31,9 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     private CameraBridgeViewBase mOpenCvCameraView;
     private Button btnFixarTabuleiro;
     private Mat posicaoDoTabuleiroNaImagem = null;
+    private MatOfPoint contornoDoTabuleiro;
     private int dimensaoDoTabuleiro;
+    DetectorDeTabuleiro detectorDeTabuleiro;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -57,11 +61,12 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_surface_view1);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        detectorDeTabuleiro = new DetectorDeTabuleiro(true);
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
@@ -69,8 +74,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
     }
@@ -92,18 +96,29 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat imagemFonte = inputFrame.rgba();
 
-        // Detecção do tabuleiro
-        DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
         detectorDeTabuleiro.setImagem(imagemFonte.clone());
         detectorDeTabuleiro.setImagemDePreview(imagemFonte);
         if (detectorDeTabuleiro.processar()) {
             posicaoDoTabuleiroNaImagem =
                     detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem();
-            //Desenhista.desenharContornoDoTabuleiro(imagemFonte, posicaoDoTabuleiroNaImagem);
+            contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
             dimensaoDoTabuleiro = detectorDeTabuleiro.getDimensaoDoTabuleiro();
+        }
+        else if (contornoDoTabuleiro != null) {
+            Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         }
 
         return imagemFonte;
+    }
+
+    private MatOfPoint converterParaMatOfPoint(Mat posicaoDoTabuleiroNaImagem) {
+        Point[] cantos = { new Point(posicaoDoTabuleiroNaImagem.get(0, 0)[0], posicaoDoTabuleiroNaImagem.get(0, 0)[1]),
+                new Point(posicaoDoTabuleiroNaImagem.get(1, 0)[0], posicaoDoTabuleiroNaImagem.get(1, 0)[1]),
+                new Point(posicaoDoTabuleiroNaImagem.get(2, 0)[0], posicaoDoTabuleiroNaImagem.get(2, 0)[1]),
+                new Point(posicaoDoTabuleiroNaImagem.get(3, 0)[0], posicaoDoTabuleiroNaImagem.get(3, 0)[1])
+        };
+        contornoDoTabuleiro = new MatOfPoint(cantos);
+        return contornoDoTabuleiro;
     }
 
     public void onClick(View v) {

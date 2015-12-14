@@ -5,11 +5,9 @@
     <string name="title_activity_detectar_tabuleiro">DetectarTabuleiroActivity</string>
     <string name="title_activity_registrar_partida">RegistrarPartidaActivity</string>
 
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
-
     <string name="titulo">Kifu Recorder</string>
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
+    <string name="btn_testes">Testes</string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>

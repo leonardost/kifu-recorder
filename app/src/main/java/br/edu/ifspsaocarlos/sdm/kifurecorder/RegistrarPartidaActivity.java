@@ -15,6 +15,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
@@ -27,8 +28,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     Mat posicaoDoTabuleiroNaImagem;
     int dimensaoDoTabuleiro;
-
     MatOfPoint contornoDoTabuleiro;
+    DetectorDePedras detectorDePedras = new DetectorDePedras();
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -62,6 +63,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 cantosDoTabuleiro[4], cantosDoTabuleiro[5],
                 cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
 
+        Point[] cantos = { new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]),
+                new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]),
+                new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]),
+                new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7])
+        };
+        contornoDoTabuleiro = new MatOfPoint(cantos);
+
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
         mOpenCvCameraView.setCvCameraViewListener(this);
     }
@@ -88,28 +96,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             mOpenCvCameraView.disableView();
     }
 
-/*    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_registrar_partida, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
-
     public void onCameraViewStarted(int width, int height) {
 
     }
@@ -121,15 +107,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat imagemFonte = inputFrame.rgba();
 
-//        Desenhista.desenharContornoDoTabuleiro(imagemFonte, );
-
         Mat tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
-        DetectorDePedras detectorDePedras = new DetectorDePedras();
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
         Tabuleiro tabuleiro = detectorDePedras.detectar();
+
+        Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
 
         return imagemFonte;

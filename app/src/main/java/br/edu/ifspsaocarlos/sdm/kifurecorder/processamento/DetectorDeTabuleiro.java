@@ -246,13 +246,6 @@ public class DetectorDeTabuleiro {
         return contornoMaisProximoDoTabuleiro;
     }
 
-    private boolean possivelContornoDoTabuleiroFoiDetectado(HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
-        if (hierarquiaDeQuadrilateros.externos.size() == 0 || contornoMaisProximoDoTabuleiro == null) {
-            return false;
-        }
-        return true;
-    }
-
     private List<ClusterDeVertices> detectarIntersecoes(List<MatOfPoint> quadrilateros, MatOfPoint quadrilateroDoTabuleiro) {
         HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
         List<ClusterDeVertices> intersecoes = new ArrayList<>();

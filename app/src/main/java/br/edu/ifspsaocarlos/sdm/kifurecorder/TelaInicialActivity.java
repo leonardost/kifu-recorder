@@ -18,14 +18,21 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
         setContentView(R.layout.activity_tela_inicial);
 
         Button btnIniciarRegistro = (Button) findViewById(R.id.btnIniciarRegistro);
+        Button btnTestes = (Button) findViewById(R.id.btnTestes);
         btnIniciarRegistro.setOnClickListener(this);
+        btnTestes.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
+        Intent i;
         switch (v.getId()) {
             case R.id.btnIniciarRegistro:
-                Intent i = new Intent(this, InformacoesDaPartidaActivity.class);
+                i = new Intent(this, InformacoesDaPartidaActivity.class);
+                startActivity(i);
+                break;
+            case R.id.btnTestes:
+                i = new Intent(this, MainActivity.class);
                 startActivity(i);
                 break;
         }

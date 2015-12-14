@@ -32,7 +32,4 @@
             android:text="@string/btn_visualizar_registro" />
     </LinearLayout>
 
-    <TextView android:text="@string/hello_world" android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
 </FrameLayout>

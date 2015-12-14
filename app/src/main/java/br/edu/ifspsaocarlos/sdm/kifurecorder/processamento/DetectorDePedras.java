@@ -2,7 +2,10 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
 import android.util.Log;
 
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
@@ -72,17 +75,21 @@ public class DetectorDePedras {
         int hipotese = 2;
         double[] color = new double[imagem.channels()];
         switch (hipotese) {
-            case 1:
+            case 1:   // Cor pontual exatamente sobre o ponto de intersecção
                 color = imagem.get(linha, coluna);
                 break;
-            case 2:
+            case 2:   // Está funcionando bem, exceto para pedras branacs nas bordas
+                color = recuperarMediaDeCores(imagem, linha, coluna);
+                break;
+            case 3:
                 color = recuperarMediaGaussianaDeCores(imagem, linha, coluna);
                 break;
         }
         return color;
     }
 
-    private double[] recuperarMediaGaussianaDeCores(Mat imagem, int y, int x) {
+    // TODO: Refatorar este método pra usar o Core.mean
+    private double[] recuperarMediaDeCores(Mat imagem, int y, int x) {
         double[] color = new double[imagem.channels()];
         for (int i = 0; i < color.length; ++i) {
             color[i] = 0;
@@ -94,12 +101,13 @@ public class DetectorDePedras {
             if (yy < 0 || yy >= imagem.height()) continue;
             for (int xx = x - radius; xx <= x + radius; ++xx) {
                 if (xx < 0 || xx >= imagem.width()) continue;
-                if (distance(xx, yy, x, y) < radius) {
+                double distancia = distance(xx, yy, x, y);
+                if (distancia < radius) {
                     double c[] = imagem.get(yy, xx);
                     for (int i = 0; i < c.length; ++i) {
                         color[i] += c[i];
                     }
-                    ++contador;
+                    contador++;
                 }
             }
         }
@@ -112,6 +120,40 @@ public class DetectorDePedras {
 
         return color;
     }
+
+    private double[] recuperarMediaGaussianaDeCores(Mat imagem, int y, int x) {
+        double[] color = new double[imagem.channels()];
+        for (int i = 0; i < color.length; ++i) {
+            color[i] = 0;
+        }
+        int radius = 10;
+        double contador = 0;
+
+        for (int yy = y - radius; yy <= y + radius; ++yy) {
+            if (yy < 0 || yy >= imagem.height()) continue;
+            for (int xx = x - radius; xx <= x + radius; ++xx) {
+                if (xx < 0 || xx >= imagem.width()) continue;
+                double distancia = distance(xx, yy, x, y);
+                if (distancia < radius) {
+                    double c[] = imagem.get(yy, xx);
+                    double peso = 1 / (distancia / 2 + 0.1);
+                    for (int i = 0; i < c.length; ++i) {
+                        color[i] += c[i] * peso;
+                    }
+                    contador += peso;
+                }
+            }
+        }
+
+        for (int i = 0; i < color.length; ++i) {
+            color[i] /= contador;
+        }
+
+        Log.i(MainActivity.TAG, printColor(color));
+
+        return color;
+    }
+
 
     private double distance(int x, int y, int x2, int y2) {
         return Math.sqrt((x - x2) * (x - x2) + (y - y2) * (y - y2));
@@ -140,7 +182,8 @@ public class DetectorDePedras {
         if (distanciaParaPreto < 80 || distanciaParaPreto < distanciaParaCorMedia) {
             return Tabuleiro.PEDRA_PRETA;
         }
-        else if (cor[2] >= 150) {
+//        else if (cor[2] >= 150) {
+        else if (cor[2] >= corMediaDoTabuleiro[2] * 1.35) {
             return Tabuleiro.PEDRA_BRANCA;
         }
         else if (true) {
@@ -190,28 +233,17 @@ public class DetectorDePedras {
     }
 
     /**
-     * Retorna a cor media do tabuleiro. Deve haver uma forma melhor de fazer isso.
+     * Retorna a cor media do tabuleiro.
      *
      * @param imagemDoTabuleiro
      * @return
      */
     private double[] corMediaDoTabuleiro(Mat imagemDoTabuleiro) {
-        double media[] = new double[imagemDoTabuleiro.channels()];
-        for (int i = 0; i < media.length; ++i) {
-            media[i] = 0;
-        }
+        Scalar mediaScalar = Core.mean(imagemDoTabuleiro);
+        double[] media = new double[imagemDoTabuleiro.channels()];
 
-        for (int y = 0; y < imagemDoTabuleiro.height(); ++y) {
-            for (int x = 0; x < imagemDoTabuleiro.width(); ++x) {
-                double c[] = imagemDoTabuleiro.get(y, x);
-                for (int i = 0; i < c.length; ++i) {
-                    media[i] += c[i];
-                }
-            }
-        }
-
-        for (int i = 0; i < media.length; ++i) {
-            media[i] /= imagemDoTabuleiro.height() * imagemDoTabuleiro.width();
+        for (int i = 0; i < mediaScalar.val.length; ++i) {
+            media[i] = mediaScalar.val[i];
         }
 
         return media;
