@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -17,14 +15,9 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.imgproc.Imgproc;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
-
 
 public class DetectarTabuleiroActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -56,11 +49,12 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_detectar_tabuleiro);
 
-        btnFixarTabuleiro = (Button) findViewById(R.id.btnFixarTabuleiro);
-        btnFixarTabuleiro.setOnClickListener(this);
-
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_surface_view1);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        btnFixarTabuleiro = (Button) findViewById(R.id.btnFixarTabuleiro);
+        btnFixarTabuleiro.setOnClickListener(this);
+        btnFixarTabuleiro.setEnabled(false);
 
         detectorDeTabuleiro = new DetectorDeTabuleiro(true);
     }
@@ -103,6 +97,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
                     detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem();
             contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
             dimensaoDoTabuleiro = detectorDeTabuleiro.getDimensaoDoTabuleiro();
+            btnFixarTabuleiro.setEnabled(true);
         }
         else if (contornoDoTabuleiro != null) {
             Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);

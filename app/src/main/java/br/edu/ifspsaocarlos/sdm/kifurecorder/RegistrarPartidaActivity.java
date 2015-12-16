@@ -1,10 +1,13 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -33,6 +36,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     Tabuleiro ultimoTabuleiro;
     Partida partida;
 
+    Button btnVoltarUltimaJogada;
+
     private CameraBridgeViewBase mOpenCvCameraView;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -55,6 +60,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar_partida);
 
+        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
+        mOpenCvCameraView.setCvCameraViewListener(this);
+
         dimensaoDoTabuleiro = getIntent().getExtras().getInt("dimensaoDoTabuleiro");
         int[] cantosDoTabuleiro = getIntent().getExtras().getIntArray("posicaoDoTabuleiroNaImagem");
 
@@ -72,13 +80,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         };
         contornoDoTabuleiro = new MatOfPoint(cantos);
 
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
-        mOpenCvCameraView.setCvCameraViewListener(this);
-
         partida = new Partida(dimensaoDoTabuleiro);
+        ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
-        ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
+
+        btnVoltarUltimaJogada = (Button) findViewById(R.id.btnVoltarUltimaJogada);
+        btnVoltarUltimaJogada.setEnabled(false);
     }
 
     @Override
@@ -121,13 +129,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Tabuleiro tabuleiro = detectorDePedras.detectar();
 
-        long tempoLimite = 3000;
+        long tempoLimite = 2000;
 
         if (ultimoTabuleiro.equals(tabuleiro)) {
             tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
             momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
             if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
                 partida.adicionarJogadaSeForValida(tabuleiro);
+                if (partida.numeroDeJogadasFeitas() > 0) {
+                    btnVoltarUltimaJogada.setEnabled(true);
+                }
             }
         }
         else {
@@ -144,6 +155,39 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     public void onClick(View v) {
-
+        switch (v.getId()) {
+            case R.id.btnVoltarUltimaJogada:
+                temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
+                break;
+            case R.id.btnFinalizar:
+                salvarArquivoESair();
+                break;
+        }
     }
+
+    private void temCertezaQueDesejaVoltarAUltimaJogada(String mensagem) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_tem_certeza)
+                .setMessage(mensagem)
+                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        partida.voltarUltimaJogada();
+                        if (partida.numeroDeJogadasFeitas() == 0) {
+                            btnVoltarUltimaJogada.setEnabled(false);
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.nao, null)
+                .show();
+    }
+
+    private void salvarArquivoESair() {
+        String nomeArquivo = "jogoTeste.sgf";
+        String conteudoDaPartida = partida.exportarParaSGF();
+        // TODO: abrir arquivo no sistema de arquivos e salvar conteúdo
+        Log.d(MainActivity.TAG, "Partida salva: " + nomeArquivo + " com conteúdo " + conteudoDaPartida);
+    }
+
+
 }

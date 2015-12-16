@@ -16,6 +16,10 @@
         android:layout_marginRight="6dp"
         android:layout_gravity="center_vertical|right" >
         <Button
+            android:id="@+id/btnVoltarUltimaJogada"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
             android:id="@+id/btnPausar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

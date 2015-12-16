@@ -15,10 +15,16 @@
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
     <string name="btn_fixar_tabuleiro">Fixar tabuleiro e iniciar registro</string>
 
+    <string name="btn_voltar_ultima_jogada">Voltar</string>
     <string name="btn_pausar">Pausar</string>
     <string name="btn_finalizar_registro">Finalizar</string>
     <string name="btn_visualizar_registro">Visualizar registro</string>
 
 
+    <string name="dialog_tem_certeza">Tem certeza?</string>
+    <string name="dialog_voltar_ultima_jogada">Deseja voltar a última jogada?</string>
+
+    <string name="sim">Sim</string>
+    <string name="nao">Não</string>
 
 </resources>

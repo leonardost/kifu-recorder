@@ -35,6 +35,19 @@ public class Partida {
         return tabuleiros.get(tabuleiros.size() - 1);
     }
 
+    /**
+     * Desconsidera a última jogada feita
+     */
+    public void voltarUltimaJogada() {
+        if (tabuleiros.size() == 1) {
+            return;
+        }
+        tabuleiros.remove(tabuleiros.size() - 1);
+    }
+
+    public int numeroDeJogadasFeitas() {
+        return tabuleiros.size() - 1;
+    }
 
     public String exportarParaSGF() {
         // TODO: Implementar
