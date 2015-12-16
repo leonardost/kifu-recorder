@@ -14,7 +14,7 @@ public class Tabuleiro {
     public final static int PEDRA_BRANCA = 2;
 
     private int dimensao;
-    private Integer[][] tabuleiro = new Integer[9][9];
+    private Integer[][] tabuleiro;
 
     public Tabuleiro(int dimensao) {
         this.dimensao = dimensao;
@@ -122,6 +122,72 @@ public class Tabuleiro {
         }
 
         return false;
+    }
+
+    /**
+     * Verifica se este tabuleiro pode ter vindo de um tabuleiro anterior com a adiçao de uma pedra
+     * de uma cor especifica.
+     *
+     * @param tabuleiroAnterior Estado anterior
+     * @return
+     */
+    public boolean podeVirDe(Tabuleiro tabuleiroAnterior, int pedra) {
+        if (numeroDePedras(pedra) - tabuleiroAnterior.numeroDePedras(pedra) != 1) {
+            return false;
+        }
+
+        Jogada jogadaQueFoiFeita = diferenca(tabuleiroAnterior, pedra);
+
+        int outraPedra = pedra == Tabuleiro.PEDRA_PRETA ?
+                Tabuleiro.PEDRA_BRANCA :
+                Tabuleiro.PEDRA_PRETA;
+
+        // Verificar se houve alguma captura, e, se houve, se ela faz sentido
+        if (!capturaFazSentido(tabuleiroAnterior, jogadaQueFoiFeita)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror,
+     * considerando uma pedra de determinada cor.
+     *
+     * @param tabuleiroAnterior
+     * @return
+     */
+    private Jogada diferenca(Tabuleiro tabuleiroAnterior, int pedra) {
+        if (numeroDePedras(pedra) - tabuleiroAnterior.numeroDePedras(pedra) != 1) {
+            return null;
+        }
+
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                if (getPosicao(i, j) != tabuleiroAnterior.getPosicao(i, j)) {
+                    return new Jogada(i, j, pedra);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private int numeroDePedras(int pedra) {
+        int numeroDePedras = 0;
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                if (getPosicao(i, j) == pedra) {
+                    ++numeroDePedras;
+                }
+            }
+        }
+        return numeroDePedras;
+    }
+
+    // TODO: Implementar
+    private boolean capturaFazSentido(Tabuleiro tabuleiroAnterior, Jogada queFoiFeita) {
+        return true;
     }
 
 }

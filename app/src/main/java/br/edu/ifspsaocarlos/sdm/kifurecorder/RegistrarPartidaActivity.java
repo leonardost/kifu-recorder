@@ -1,11 +1,9 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -17,10 +15,10 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 
 
@@ -30,6 +28,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     int dimensaoDoTabuleiro;
     MatOfPoint contornoDoTabuleiro;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
+    long momentoDaUltimaDeteccaoDeTabuleiro;
+    long tempoDesdeUltimaMudancaDeTabuleiro;
+    Tabuleiro ultimoTabuleiro;
+    Partida partida;
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -72,6 +74,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        partida = new Partida(dimensaoDoTabuleiro);
+        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
+        tempoDesdeUltimaMudancaDeTabuleiro = 0;
+        ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
     }
 
     @Override
@@ -114,8 +121,24 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Tabuleiro tabuleiro = detectorDePedras.detectar();
 
+        long tempoLimite = 3000;
+
+        if (ultimoTabuleiro.equals(tabuleiro)) {
+            tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
+            momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
+            if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
+                partida.adicionarJogadaSeForValida(tabuleiro);
+            }
+        }
+        else {
+            tempoDesdeUltimaMudancaDeTabuleiro = 0;
+            momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
+        }
+        ultimoTabuleiro = tabuleiro;
+
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
-        Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+//        Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+        Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400);
 
         return imagemFonte;
     }
