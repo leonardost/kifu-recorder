@@ -137,6 +137,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
                 partida.adicionarJogadaSeForValida(tabuleiro);
                 if (partida.numeroDeJogadasFeitas() > 0) {
+                    // TODO: Fazer isto rodar na thread da UI, verificar outras modificações na interface também
                     btnVoltarUltimaJogada.setEnabled(true);
                 }
             }

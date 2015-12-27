@@ -41,7 +41,12 @@ proguard/
 .idea/modules.xml
 .idea/scopes/scope_settings.xml
 .idea/vcs.xml
+.idea/runConfigurations.xml
 *.iml
 
 # External library
 openCVLibrary2411/
+openCVLibrary310/
+
+
+import-summary.txt

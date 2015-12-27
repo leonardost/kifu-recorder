@@ -160,12 +160,11 @@ public class DetectorDePedras {
     }
 
     /**
-     * Verifica se a cor esta mais proxima de preto ou branco. Este metodo vai precisar de um
-     * parametro de ajuste por causa da cor do tabuleiro e das condiçoes de iluminaçao do local.
-     * O parametro poderia ser a cor media do tabuleiro todo.
+     * Verifica se uma determinada cor está mais próxima de uma pedra preta ou branca.
      *
-     * @param cor
-     * @return
+     * @param cor Cor a ser verificada
+     * @param corMediaDoTabuleiro Cor média da imagem do tabuleiro
+     * @return Pedra preta, branca, ou vazio
      */
     private int hipoteseDeCor(double[] cor, double[] corMediaDoTabuleiro) {
         double[] preto = {0.0, 0.0, 0.0, 255.0};

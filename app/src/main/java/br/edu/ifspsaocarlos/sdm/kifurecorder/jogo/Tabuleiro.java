@@ -136,7 +136,8 @@ public class Tabuleiro {
             return false;
         }
 
-        Jogada jogadaQueFoiFeita = diferenca(tabuleiroAnterior, pedra);
+        Jogada jogadaQueFoiFeita = null;
+//        Jogada jogadaQueFoiFeita = diferenca(tabuleiroAnterior, pedra);
 
         int outraPedra = pedra == Tabuleiro.PEDRA_PRETA ?
                 Tabuleiro.PEDRA_BRANCA :
@@ -151,14 +152,19 @@ public class Tabuleiro {
     }
 
     /**
-     * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror,
-     * considerando uma pedra de determinada cor.
+     * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror.
      *
      * @param tabuleiroAnterior
      * @return
      */
-    private Jogada diferenca(Tabuleiro tabuleiroAnterior, int pedra) {
-        if (numeroDePedras(pedra) - tabuleiroAnterior.numeroDePedras(pedra) != 1) {
+    public Jogada diferenca(Tabuleiro tabuleiroAnterior) {
+        int pedraJogada = -1;
+        int pedra = 123412312;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO: Continuar aqui, parei no meio
+
+        if (numeroDePedras(Tabuleiro.PEDRA_PRETA) - tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_PRETA) == 1) {
             return null;
         }
 
@@ -173,11 +179,14 @@ public class Tabuleiro {
         return null;
     }
 
+    /**
+     * Retorna a quantidade de determinada pedra (preta ou branca) neste tabuleiro.
+     */
     private int numeroDePedras(int pedra) {
         int numeroDePedras = 0;
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (getPosicao(i, j) == pedra) {
+                if (tabuleiro[i][j] == pedra) {
                     ++numeroDePedras;
                 }
             }

@@ -356,7 +356,8 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
 
     private int resourceSelecionado(String texto) {
         switch (texto) {
-            case "1": return R.drawable.imagem1;
+            default: return 0;
+            /*case "1": return R.drawable.imagem1;
             case "2": return R.drawable.imagem2;
             case "3": return R.drawable.imagem3;
             case "4": return R.drawable.imagem4;
@@ -391,7 +392,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
             case "33": return R.drawable.imagem33;
             case "34": return R.drawable.imagem34;
             case "35": return R.drawable.imagem35;
-            default: return R.drawable.imagem1;
+            default: return R.drawable.imagem1;*/
         }
     }
 
