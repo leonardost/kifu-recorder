@@ -137,8 +137,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
                 partida.adicionarJogadaSeForValida(tabuleiro);
                 if (partida.numeroDeJogadasFeitas() > 0) {
-                    // TODO: Fazer isto rodar na thread da UI, verificar outras modificações na interface também
-                    btnVoltarUltimaJogada.setEnabled(true);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            btnVoltarUltimaJogada.setEnabled(true);
+                        }
+                    });
                 }
             }
         }
@@ -175,7 +179,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     public void onClick(DialogInterface dialog, int which) {
                         partida.voltarUltimaJogada();
                         if (partida.numeroDeJogadasFeitas() == 0) {
-                            btnVoltarUltimaJogada.setEnabled(false);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    btnVoltarUltimaJogada.setEnabled(false);
+                                }
+                            });
                         }
                     }
                 })
@@ -185,7 +194,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private void salvarArquivoESair() {
         String nomeArquivo = "jogoTeste.sgf";
-        String conteudoDaPartida = partida.exportarParaSGF();
+        String conteudoDaPartida = partida.sgf();
         // TODO: abrir arquivo no sistema de arquivos e salvar conteúdo
         Log.d(MainActivity.TAG, "Partida salva: " + nomeArquivo + " com conteúdo " + conteudoDaPartida);
     }

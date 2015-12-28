@@ -23,9 +23,10 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
 
     private CameraBridgeViewBase mOpenCvCameraView;
     private Button btnFixarTabuleiro;
+
+    private int dimensaoDoTabuleiro;
     private Mat posicaoDoTabuleiroNaImagem = null;
     private MatOfPoint contornoDoTabuleiro;
-    private int dimensaoDoTabuleiro;
     DetectorDeTabuleiro detectorDeTabuleiro;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -97,7 +98,12 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
                     detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem();
             contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
             dimensaoDoTabuleiro = detectorDeTabuleiro.getDimensaoDoTabuleiro();
-            btnFixarTabuleiro.setEnabled(true);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    btnFixarTabuleiro.setEnabled(true);
+                }
+            });
         }
         else if (contornoDoTabuleiro != null) {
             Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
@@ -119,7 +125,6 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnFixarTabuleiro:
-
                 int[] matriz = new int[8];
                 matriz[0] = (int)posicaoDoTabuleiroNaImagem.get(0, 0)[0];
                 matriz[1] = (int)posicaoDoTabuleiroNaImagem.get(0, 0)[1];

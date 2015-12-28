@@ -2,6 +2,9 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
 import android.util.Log;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 
 /**
@@ -26,6 +29,10 @@ public class Tabuleiro {
         }
     }
 
+    public int getDimensao() {
+        return dimensao;
+    }
+
     public void colocarPedra(int linha, int coluna, int pedra) {
         if (pedra != PEDRA_PRETA && pedra != PEDRA_BRANCA) {
             // Problema
@@ -39,10 +46,6 @@ public class Tabuleiro {
 
     public int getPosicao(int linha, int coluna) {
         return tabuleiro[linha][coluna];
-    }
-
-    public int getDimensao() {
-        return dimensao;
     }
 
     public String toString() {
@@ -105,7 +108,13 @@ public class Tabuleiro {
      * @return Verdadeiro se os dois tabuleiros são iguais, falso caso
      *         contrário
      */
-    public boolean equals(Tabuleiro outroTabuleiro) {
+    @Override
+    public boolean equals(Object objeto) {
+        if (!(objeto instanceof Tabuleiro)) {
+            return false;
+        }
+        Tabuleiro outroTabuleiro = (Tabuleiro)objeto;
+
         if (dimensao != outroTabuleiro.dimensao) {
             return false;
         }
@@ -125,57 +134,77 @@ public class Tabuleiro {
     }
 
     /**
-     * Verifica se este tabuleiro pode ter vindo de um tabuleiro anterior com a adiçao de uma pedra
-     * de uma cor especifica.
-     *
-     * @param tabuleiroAnterior Estado anterior
-     * @return
-     */
-    public boolean podeVirDe(Tabuleiro tabuleiroAnterior, int pedra) {
-        if (numeroDePedras(pedra) - tabuleiroAnterior.numeroDePedras(pedra) != 1) {
-            return false;
-        }
-
-        Jogada jogadaQueFoiFeita = null;
-//        Jogada jogadaQueFoiFeita = diferenca(tabuleiroAnterior, pedra);
-
-        int outraPedra = pedra == Tabuleiro.PEDRA_PRETA ?
-                Tabuleiro.PEDRA_BRANCA :
-                Tabuleiro.PEDRA_PRETA;
-
-        // Verificar se houve alguma captura, e, se houve, se ela faz sentido
-        if (!capturaFazSentido(tabuleiroAnterior, jogadaQueFoiFeita)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror.
+     * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror. Se houver mais de
+     * uma jogada de diferença, retorna nulo.
+     * TODO: TESTAR!
      *
      * @param tabuleiroAnterior
      * @return
      */
     public Jogada diferenca(Tabuleiro tabuleiroAnterior) {
-        int pedraJogada = -1;
-        int pedra = 123412312;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// TODO: Continuar aqui, parei no meio
+        int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_PRETA);
+        int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_BRANCA);
+        int numeroDePedrasPretasDepois = numeroDePedras(Tabuleiro.PEDRA_PRETA);
+        int numeroDePedrasBrancasDepois = numeroDePedras(Tabuleiro.PEDRA_BRANCA);
+        int diferencaDePedrasPretas = numeroDePedrasPretasDepois - numeroDePedrasPretasAntes;
+        int diferencaDePedrasBrancas = numeroDePedrasBrancasDepois - numeroDePedrasBrancasAntes;
 
-        if (numeroDePedras(Tabuleiro.PEDRA_PRETA) - tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_PRETA) == 1) {
+        // Ha mais de uma jogada de diferença
+        if (diferencaDePedrasPretas >= 1 && diferencaDePedrasBrancas >= 1) {
             return null;
         }
 
+        // Verifica se todos os grupos do tabuleiro tem pelo menos uma liberdade
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (getPosicao(i, j) != tabuleiroAnterior.getPosicao(i, j)) {
-                    return new Jogada(i, j, pedra);
+                Grupo grupo = grupoEm(i, j);
+                if (grupo != null && grupo.getLiberdades().size() == 0) {
+                    return null;
                 }
             }
         }
 
+        // Jogada das pretas
+        if (diferencaDePedrasPretas == 1) {
+            Jogada jogadaFeita = pedraDiferente(tabuleiroAnterior, Tabuleiro.PEDRA_PRETA);
+
+            // Não houve captura
+            if (diferencaDePedrasBrancas == 0) {
+                if (!estaTudoNoMesmoLugar(tabuleiroAnterior)) {
+                    return null;
+                }
+            }
+            // Houve captura
+            else if (diferencaDePedrasBrancas < 0) {
+                if (!capturaFoiValida(jogadaFeita, tabuleiroAnterior)) {
+                    return null;
+                }
+            }
+            return jogadaFeita;
+
+        }
+        // Jogada das brancas
+        else if (diferencaDePedrasBrancas == 1) {
+            Jogada jogadaFeita = pedraDiferente(tabuleiroAnterior, Tabuleiro.PEDRA_BRANCA);
+
+            // Não houve captura
+            if (diferencaDePedrasPretas == 0) {
+                if (!estaTudoNoMesmoLugar(tabuleiroAnterior)) {
+                    return null;
+                }
+            }
+            // Houve captura
+            else if (diferencaDePedrasPretas < 0) {
+                if (!capturaFoiValida(jogadaFeita, tabuleiroAnterior)) {
+                    return null;
+                }
+            }
+            return jogadaFeita;
+
+        }
+
+        // Se nao entrou em nenhuma condiçao, ha mais de uma jogada de diferença
         return null;
     }
 
@@ -194,9 +223,154 @@ public class Tabuleiro {
         return numeroDePedras;
     }
 
-    // TODO: Implementar
-    private boolean capturaFazSentido(Tabuleiro tabuleiroAnterior, Jogada queFoiFeita) {
+    /**
+     * Veifica se todas as pedras do tabuleiro antigo estão no novo.
+     * @param anterior
+     * @return
+     */
+    private boolean estaTudoNoMesmoLugar(Tabuleiro anterior) {
+        for (int i = 0; i < anterior.getDimensao(); ++i) {
+            for (int j = 0; j < anterior.getDimensao(); ++j) {
+                int posicaoAntiga = anterior.getPosicao(i, j);
+                if (posicaoAntiga != Tabuleiro.VAZIO && posicaoAntiga != tabuleiro[i][j]) {
+                    return false;
+                }
+            }
+        }
         return true;
+    }
+
+    /**
+     * Retorna a primeira pedra diferente da cor especificada encontrada entre os dois tabuleiros.
+     * @param anterior
+     * @return
+     */
+    private Jogada pedraDiferente(Tabuleiro anterior, int cor) {
+        for (int i = 0; i < anterior.getDimensao(); ++i) {
+            for (int j = 0; j < anterior.getDimensao(); ++j) {
+                if (tabuleiro[i][j] == cor &&
+                        anterior.getPosicao(i, j) != tabuleiro[i][j]) {
+                    return new Jogada(i, j, cor);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Verifica se a jogada que foi feita sobre o tabuleiro anterior condiz com o tabuleiro atual.
+     * @param feita
+     * @param anterior
+     * @return
+     */
+    private boolean capturaFoiValida(Jogada feita, Tabuleiro anterior) {
+        Set<Grupo> devemSerCapturados = new HashSet<>();
+        Set<Posicao> posicoes = new HashSet<>();
+        posicoes.add(new Posicao(feita.linha - 1, feita.coluna));
+        posicoes.add(new Posicao(feita.linha + 1, feita.coluna));
+        posicoes.add(new Posicao(feita.linha, feita.coluna - 1));
+        posicoes.add(new Posicao(feita.linha, feita.coluna + 1));
+
+        // Recupera os grupos que estavam em atari (com apenas uma liberdade) ao redor da jogada que
+        // foi feita
+        for (Posicao posicao : posicoes) {
+            Grupo grupo = anterior.grupoEm(posicao);
+            if (grupo == null) continue;
+            Set<Posicao> liberdades = grupo.getLiberdades();
+            if (liberdades.size() == 1 && liberdades.contains(feita.posicao())) {
+                devemSerCapturados.add(grupo);
+            }
+        }
+
+        // Verifica se esses grupos foram efetivamente capturados
+        for (Grupo grupo : devemSerCapturados) {
+            for (Posicao posicao : grupo.getPosicoes()) {
+                // Se alguma das posições ocupadas anteriormente pelo grupo não estiver vazia, a
+                // captura não foi feita corretamente
+                if (tabuleiro[posicao.linha][posicao.coluna] != Tabuleiro.VAZIO) {
+                    return false;
+                }
+            }
+        }
+
+        Set<Posicao> posicoesQueDevemEstarVazias = new HashSet<>();
+        for (Grupo grupo : devemSerCapturados) {
+            posicoesQueDevemEstarVazias.addAll(grupo.getPosicoes());
+        }
+
+        // Verifica se todas as demais pedras, com exceção das que foram capturadas e da jogada que
+        // foi feita, estão nos mesmos lugares
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                // Estas posições já foram verificadas
+                if (posicoesQueDevemEstarVazias.contains(new Posicao(i, j))) continue;
+
+                if (i == feita.linha && j == feita.coluna && tabuleiro[i][j] != feita.cor) {
+                    return false;
+                }
+
+                if (tabuleiro[i][j] != anterior.getPosicao(i, j)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Retorna o grupo que está em determinada posição do tabuleiro ou nulo caso não haja nenhum
+     * grupo.
+     * TODO: TESTAR!
+     * @param linha
+     * @param coluna
+     * @return
+     */
+    public Grupo grupoEm(int linha, int coluna) {
+        if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) {
+            return null;
+        }
+        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
+            return null;
+        }
+
+        boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                posicoesVisitadas[i][j] = false;
+            }
+        }
+
+        int cor = tabuleiro[linha][coluna];
+        Grupo grupo = new Grupo(cor);
+        delimitarGrupo(linha, coluna, posicoesVisitadas, grupo);
+        return grupo;
+    }
+
+    public Grupo grupoEm(Posicao posicao) {
+        return grupoEm(posicao.linha, posicao.coluna);
+    }
+
+    private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Grupo grupo) {
+        if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) return;
+        if (posicoesVisitadas[linha][coluna]) return;
+
+        posicoesVisitadas[linha][coluna] = true;
+
+        // Encontrou uma das liberdades do grupo
+        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
+            grupo.adicionarLiberdade(new Posicao(linha, coluna));
+        }
+        // Encontrou uma extensão do grupo
+        else if (tabuleiro[linha][coluna] == grupo.getCor()) {
+            grupo.adicionarPosicao(new Posicao(linha, coluna));
+
+            delimitarGrupo(linha - 1, coluna, posicoesVisitadas, grupo);
+            delimitarGrupo(linha + 1, coluna, posicoesVisitadas, grupo);
+            delimitarGrupo(linha, coluna - 1, posicoesVisitadas, grupo);
+            delimitarGrupo(linha, coluna + 1, posicoesVisitadas, grupo);
+        }
+        // Se não entrou em nenhuma das condições, encontrou uma pedra de cor diferente da do grupo
     }
 
 }

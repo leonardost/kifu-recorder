@@ -22,17 +22,27 @@ public class Partida {
     }
 
     public void adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
-        // TODO: Implementar
-        int pedra = tabuleiros.size() % 2 == 0 ? Tabuleiro.PEDRA_BRANCA : Tabuleiro.PEDRA_PRETA;
+        Jogada jogadaFeita = tabuleiro.diferenca(ultimoTabuleiro());
 
-        if (tabuleiro.podeVirDe(ultimoTabuleiro(), pedra)) {
-            tabuleiros.add(tabuleiro);
-            Log.d(MainActivity.TAG, "Adicioanndo tabuleiro " + tabuleiro + " à partida.");
-        }
+        if (jogadaFeita == null) return;
+        if (repeteEstadoAnterior(tabuleiro)) return;
+
+        tabuleiros.add(tabuleiro);
+        jogadas.add(jogadaFeita);
+        Log.d(MainActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " à partida.");
     }
 
     public Tabuleiro ultimoTabuleiro() {
         return tabuleiros.get(tabuleiros.size() - 1);
+    }
+
+    private boolean repeteEstadoAnterior(Tabuleiro tabuleiroNovo) {
+        for (Tabuleiro tabuleiro : tabuleiros) {
+            if (tabuleiro.equals(tabuleiroNovo)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -43,15 +53,21 @@ public class Partida {
             return;
         }
         tabuleiros.remove(tabuleiros.size() - 1);
+        jogadas.remove(jogadas.size() - 1);
     }
 
     public int numeroDeJogadasFeitas() {
         return tabuleiros.size() - 1;
     }
 
-    public String exportarParaSGF() {
-        // TODO: Implementar
-        return "";
+    public String sgf() {
+        StringBuilder sgf = new StringBuilder();
+        // TODO: Escrever cabeçalho
+        for (Jogada jogada : jogadas) {
+            sgf.append(jogada.sgf());
+        }
+        // TODO: Escrever finalização (se hovuer)
+        return sgf.toString();
     }
 
 }
