@@ -44,17 +44,20 @@
         </activity>
         <activity
             android:name=".InformacoesDaPartidaActivity"
-            android:label="@string/title_activity_informacoes_da_partida" >
+            android:label="@string/title_activity_informacoes_da_partida"
+            android:noHistory="true">
         </activity>
         <activity
             android:name=".DetectarTabuleiroActivity"
             android:label="@string/title_activity_detectar_tabuleiro"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:noHistory="true">
         </activity>
         <activity
             android:name=".RegistrarPartidaActivity"
             android:label="@string/title_activity_registrar_partida"
-            android:screenOrientation="landscape" >
+            android:screenOrientation="landscape"
+            android:noHistory="true">
         </activity>
     </application>
 

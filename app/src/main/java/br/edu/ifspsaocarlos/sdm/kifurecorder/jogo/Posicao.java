@@ -17,7 +17,9 @@ public class Posicao {
     @Override
     public String toString() {
         // TODO: Implementar
-        return "aa";
+        int l = 'a' + linha + (linha >= 8 ? 1 : 0);
+        int c = 'a' + coluna + (coluna >= 8 ? 1 : 0);
+        return "[" + (char)l + (char)c + "]";
     }
 
     @Override

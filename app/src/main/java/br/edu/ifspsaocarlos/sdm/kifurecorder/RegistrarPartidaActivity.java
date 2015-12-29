@@ -126,7 +126,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
-
         Tabuleiro tabuleiro = detectorDePedras.detectar();
 
         long tempoLimite = 2000;

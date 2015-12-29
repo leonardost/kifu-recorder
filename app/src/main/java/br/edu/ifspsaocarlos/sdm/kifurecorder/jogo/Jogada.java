@@ -31,6 +31,7 @@ public class Jogada {
 
     // TODO: Testar
     public String sgf() {
+        // TODO: Verificar se é um passe ou não
         // Se a linha ou coluna forem maiores que 8 (coluna i), adiciona um porque não se usa o i.
         int l = 'a' + linha + (linha >= 8 ? 1 : 0);
         int c = 'a' + coluna + (coluna >= 8 ? 1 : 0);

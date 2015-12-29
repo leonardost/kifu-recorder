@@ -22,4 +22,6 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':openCVLibrary2411')
+    // Unit testing dependencies
+    testCompile 'junit:junit:4.12'
 }

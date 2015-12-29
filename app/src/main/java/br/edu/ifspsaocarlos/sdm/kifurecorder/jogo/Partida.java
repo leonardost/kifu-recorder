@@ -16,6 +16,7 @@ public class Partida {
     List<Tabuleiro> tabuleiros;
 
     public Partida(int dimensaoDoTabuleiro) {
+        jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
         Tabuleiro vazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(vazio);
@@ -29,7 +30,7 @@ public class Partida {
 
         tabuleiros.add(tabuleiro);
         jogadas.add(jogadaFeita);
-        Log.d(MainActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " à partida.");
+        Log.i(MainActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
     }
 
     public Tabuleiro ultimoTabuleiro() {

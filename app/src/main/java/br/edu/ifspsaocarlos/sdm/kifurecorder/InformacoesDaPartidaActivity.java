@@ -13,7 +13,6 @@ import android.widget.EditText;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 
-
 public class InformacoesDaPartidaActivity extends Activity implements View.OnClickListener {
 
     EditText edtJogadorPretas;
@@ -50,39 +49,10 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
                     edtkomi.requestFocus();
                     return;
                 }
-
                 // TODO: Guardar informações da partida em algum lugar persistente
-
                 Intent i = new Intent(this, DetectarTabuleiroActivity.class);
                 startActivity(i);
-
-                // TODO: Remover esta activity da pilha de activities
-
                 break;
         }
     }
-
-
-
-/*    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_informacoes_da_partida, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
 }

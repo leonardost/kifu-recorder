@@ -139,7 +139,6 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
                 i.putExtra("posicaoDoTabuleiroNaImagem", matriz);
                 i.putExtra("dimensaoDoTabuleiro", dimensaoDoTabuleiro);
                 startActivity(i);
-                // TODO: Remover esta activity da stack
                 break;
         }
     }

@@ -123,7 +123,7 @@ public class Tabuleiro {
         Tabuleiro rotacao2 = rotacao1.rotacionarEmSentidoHorario();
         Tabuleiro rotacao3 = rotacao2.rotacionarEmSentidoHorario();
 
-        Log.d(MainActivity.TAG, "Comparando tabuleiro " + this + " com tabuleiros " + outroTabuleiro + ", " + rotacao1 + ", " + rotacao2 + " e " + rotacao3);
+//        Log.d(MainActivity.TAG, "Comparando tabuleiro " + this + " com tabuleiros " + outroTabuleiro + ", " + rotacao1 + ", " + rotacao2 + " e " + rotacao3);
 
         if (this.identico(outroTabuleiro) || this.identico(rotacao1)
                 || this.identico(rotacao2) || this.identico(rotacao3)) {
@@ -259,26 +259,27 @@ public class Tabuleiro {
 
     /**
      * Verifica se a jogada que foi feita sobre o tabuleiro anterior condiz com o tabuleiro atual.
-     * @param feita
+     * @param jogadaFeita
      * @param anterior
      * @return
      */
-    private boolean capturaFoiValida(Jogada feita, Tabuleiro anterior) {
+    private boolean capturaFoiValida(Jogada jogadaFeita, Tabuleiro anterior) {
         Set<Grupo> devemSerCapturados = new HashSet<>();
         Set<Posicao> posicoes = new HashSet<>();
-        posicoes.add(new Posicao(feita.linha - 1, feita.coluna));
-        posicoes.add(new Posicao(feita.linha + 1, feita.coluna));
-        posicoes.add(new Posicao(feita.linha, feita.coluna - 1));
-        posicoes.add(new Posicao(feita.linha, feita.coluna + 1));
+        posicoes.add(new Posicao(jogadaFeita.linha - 1, jogadaFeita.coluna));
+        posicoes.add(new Posicao(jogadaFeita.linha + 1, jogadaFeita.coluna));
+        posicoes.add(new Posicao(jogadaFeita.linha, jogadaFeita.coluna - 1));
+        posicoes.add(new Posicao(jogadaFeita.linha, jogadaFeita.coluna + 1));
 
-        // Recupera os grupos que estavam em atari (com apenas uma liberdade) ao redor da jogada que
-        // foi feita
+        // Recupera os grupos do adversário que estavam em atari (com apenas uma liberdade) ao redor
+        // da jogada que foi feita
         for (Posicao posicao : posicoes) {
             Grupo grupo = anterior.grupoEm(posicao);
-            if (grupo == null) continue;
+            if (grupo == null || grupo.getCor() == jogadaFeita.cor) continue;
             Set<Posicao> liberdades = grupo.getLiberdades();
-            if (liberdades.size() == 1 && liberdades.contains(feita.posicao())) {
+            if (liberdades.size() == 1 && liberdades.contains(jogadaFeita.posicao())) {
                 devemSerCapturados.add(grupo);
+                Log.i(MainActivity.TAG, "Grupo " + grupo + " será capturado.");
             }
         }
 
@@ -288,6 +289,7 @@ public class Tabuleiro {
                 // Se alguma das posições ocupadas anteriormente pelo grupo não estiver vazia, a
                 // captura não foi feita corretamente
                 if (tabuleiro[posicao.linha][posicao.coluna] != Tabuleiro.VAZIO) {
+                    Log.i(MainActivity.TAG, "Captura não foi feita corretamente na posição " + posicao);
                     return false;
                 }
             }
@@ -297,6 +299,10 @@ public class Tabuleiro {
         for (Grupo grupo : devemSerCapturados) {
             posicoesQueDevemEstarVazias.addAll(grupo.getPosicoes());
         }
+        Log.i(MainActivity.TAG, "Posições que devem estar vazias:");
+        for (Posicao posicao : posicoesQueDevemEstarVazias) {
+            Log.i(MainActivity.TAG, "" + posicao);
+        }
 
         // Verifica se todas as demais pedras, com exceção das que foram capturadas e da jogada que
         // foi feita, estão nos mesmos lugares
@@ -305,11 +311,16 @@ public class Tabuleiro {
                 // Estas posições já foram verificadas
                 if (posicoesQueDevemEstarVazias.contains(new Posicao(i, j))) continue;
 
-                if (i == feita.linha && j == feita.coluna && tabuleiro[i][j] != feita.cor) {
-                    return false;
+                if (i == jogadaFeita.linha && j == jogadaFeita.coluna) {
+                    if (tabuleiro[i][j] != jogadaFeita.cor) {
+                        Log.i(MainActivity.TAG, "Jogada feita não está no tabuleiro novo");
+                        return false;
+                    }
+                    continue;
                 }
 
                 if (tabuleiro[i][j] != anterior.getPosicao(i, j)) {
+                    Log.i(MainActivity.TAG, "Problema na posição (" + i + ", " + j + ")");
                     return false;
                 }
             }

@@ -5,7 +5,6 @@ import android.util.Log;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-import org.opencv.highgui.Highgui;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
@@ -38,7 +37,7 @@ public class DetectorDePedras {
 
         double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
 
-        Log.d(MainActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
+//        Log.d(MainActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
@@ -48,7 +47,7 @@ public class DetectorDePedras {
                         imagemDoTabuleiro
                 );
 
-                Log.i(MainActivity.TAG, "Pos(" + i + ", " + j + ") = ");
+//                Log.i(MainActivity.TAG, "Pos(" + i + ", " + j + ") = ");
 
                 int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
                 if (hipotese != Tabuleiro.VAZIO) {
@@ -116,7 +115,7 @@ public class DetectorDePedras {
             color[i] /= contador;
         }
 
-        Log.i(MainActivity.TAG, printColor(color));
+//        Log.i(MainActivity.TAG, printColor(color));
 
         return color;
     }
@@ -149,7 +148,7 @@ public class DetectorDePedras {
             color[i] /= contador;
         }
 
-        Log.i(MainActivity.TAG, printColor(color));
+//        Log.i(MainActivity.TAG, printColor(color));
 
         return color;
     }
@@ -173,9 +172,9 @@ public class DetectorDePedras {
         double distanciaParaBranco = distanciaDeCor(cor, branco);
         double distanciaParaCorMedia = distanciaDeCor(cor, corMediaDoTabuleiro);
 
-        Log.d(MainActivity.TAG, "distancia para preto = " + distanciaParaPreto);
-        Log.d(MainActivity.TAG, "distancia para branco = " + distanciaParaBranco);
-        Log.d(MainActivity.TAG, "distancia para media = " + distanciaParaCorMedia);
+//        Log.d(MainActivity.TAG, "distancia para preto = " + distanciaParaPreto);
+//        Log.d(MainActivity.TAG, "distancia para branco = " + distanciaParaBranco);
+//        Log.d(MainActivity.TAG, "distancia para media = " + distanciaParaCorMedia);
 
         // Testando outras hipóteses
         if (distanciaParaPreto < 80 || distanciaParaPreto < distanciaParaCorMedia) {

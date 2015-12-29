@@ -25,10 +25,6 @@ public class Grupo {
         return cor;
     }
 
-    public void setCor(int cor) {
-        this.cor = cor;
-    }
-
     public Set<Posicao> getPosicoes() {
         return posicoes;
     }
@@ -61,4 +57,15 @@ public class Grupo {
     public int hashCode() {
         return cor + posicoes.hashCode() + liberdades.hashCode();
     }
+
+    @Override
+    public String toString() {
+        StringBuilder string = new StringBuilder();
+        string.append("Grupo de cor " + cor + ": ");
+        for (Posicao posicao : posicoes) {
+            string.append(posicao);
+        }
+        return string.toString();
+    }
+
 }
