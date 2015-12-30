@@ -37,6 +37,12 @@ public class Partida {
         return tabuleiros.get(tabuleiros.size() - 1);
     }
 
+    /**
+     * Retorna verdadeiro se o tabuleiroNovo repete algum dos tabuleiros anteriores da partida
+     * (regra do superko).
+     * @param tabuleiroNovo
+     * @return
+     */
     private boolean repeteEstadoAnterior(Tabuleiro tabuleiroNovo) {
         for (Tabuleiro tabuleiro : tabuleiros) {
             if (tabuleiro.equals(tabuleiroNovo)) {
@@ -69,6 +75,31 @@ public class Partida {
         }
         // TODO: Escrever finalização (se hovuer)
         return sgf.toString();
+    }
+
+    /**
+     * Rotaciona todos os tabuleiros desta partida em sentido horário (direcao = 1) ou em sentido
+     * anti-horário (direcao = -1).
+     * TODO: TESTAR ESTE MÉTODO!
+     * @param direcao
+     */
+    public void rotacionar(int direcao) {
+        if (direcao != -1 && direcao != 1) return;
+
+        List<Tabuleiro> tabuleirosRotacionados = new ArrayList<>();
+        List<Jogada> jogadasRotacionadas = new ArrayList<>();
+
+        for (Tabuleiro tabuleiro : tabuleiros) {
+            tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
+            if (tabuleirosRotacionados.size() >= 2) {
+                jogadasRotacionadas.add(tabuleiro.rotacionar(direcao).diferenca(
+                        tabuleirosRotacionados.get(tabuleirosRotacionados.size() - 1)
+                ));
+            }
+        }
+
+        tabuleiros = tabuleirosRotacionados;
+        jogadas = jogadasRotacionadas;
     }
 
 }

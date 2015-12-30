@@ -18,7 +18,18 @@
         <Button
             android:id="@+id/btnVoltarUltimaJogada"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:text="@string/btn_voltar_ultima_jogada" />
+        <Button
+            android:id="@+id/btnRotacionarEsquerda"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_rotacionar_esquerda" />
+        <Button
+            android:id="@+id/btnRotacionarDireita"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_rotacionar_direita" />
         <Button
             android:id="@+id/btnPausar"
             android:layout_width="wrap_content"
@@ -29,11 +40,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_finalizar_registro" />
-        <Button
+        <!--<Button
             android:id="@+id/btnVisualizarRegistro"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_visualizar_registro" />
+            android:text="@string/btn_visualizar_registro" />-->
     </LinearLayout>
 
 </FrameLayout>

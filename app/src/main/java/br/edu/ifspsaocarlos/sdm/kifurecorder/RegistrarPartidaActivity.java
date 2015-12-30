@@ -29,6 +29,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     Mat posicaoDoTabuleiroNaImagem;
     int dimensaoDoTabuleiro;
+    Point[] cantos;
     MatOfPoint contornoDoTabuleiro;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     long momentoDaUltimaDeteccaoDeTabuleiro;
@@ -37,6 +38,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     Partida partida;
 
     Button btnVoltarUltimaJogada;
+    Button btnRotacionarEsquerda;
+    Button btnRotacionarDireita;
+    Button btnPausar;
+
+    boolean pausado = false;
 
     private CameraBridgeViewBase mOpenCvCameraView;
 
@@ -73,11 +79,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 cantosDoTabuleiro[4], cantosDoTabuleiro[5],
                 cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
 
-        Point[] cantos = { new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]),
-                new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]),
-                new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]),
-                new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7])
-        };
+        cantos = new Point[4];
+        cantos[0] = new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]);
+        cantos[1] = new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]);
+        cantos[2] = new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]);
+        cantos[3] = new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
         contornoDoTabuleiro = new MatOfPoint(cantos);
 
         partida = new Partida(dimensaoDoTabuleiro);
@@ -86,7 +92,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
 
         btnVoltarUltimaJogada = (Button) findViewById(R.id.btnVoltarUltimaJogada);
+        btnVoltarUltimaJogada.setOnClickListener(this);
         btnVoltarUltimaJogada.setEnabled(false);
+        btnRotacionarEsquerda = (Button) findViewById(R.id.btnRotacionarEsquerda);
+        btnRotacionarEsquerda.setOnClickListener(this);
+        btnRotacionarDireita = (Button) findViewById(R.id.btnRotacionarDireita);
+        btnRotacionarDireita.setOnClickListener(this);
+        btnPausar = (Button) findViewById(R.id.btnPausar);
+        btnPausar.setOnClickListener(this);
     }
 
     @Override
@@ -130,30 +143,38 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         long tempoLimite = 2000;
 
-        if (ultimoTabuleiro.equals(tabuleiro)) {
-            tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
-            momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-            if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
-                partida.adicionarJogadaSeForValida(tabuleiro);
-                if (partida.numeroDeJogadasFeitas() > 0) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            btnVoltarUltimaJogada.setEnabled(true);
-                        }
-                    });
+        if (!pausado) {
+
+            if (ultimoTabuleiro.equals(tabuleiro)) {
+                tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
+                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
+                if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
+                    partida.adicionarJogadaSeForValida(tabuleiro);
+                    if (partida.numeroDeJogadasFeitas() > 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                btnVoltarUltimaJogada.setEnabled(true);
+                            }
+                        });
+                    }
                 }
+            } else {
+                tempoDesdeUltimaMudancaDeTabuleiro = 0;
+                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
             }
+
         }
-        else {
-            tempoDesdeUltimaMudancaDeTabuleiro = 0;
-            momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-        }
+
         ultimoTabuleiro = tabuleiro;
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
-//        Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
-        Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400);
+        if (pausado) {
+            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+        }
+        else {
+            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400);
+        }
 
         return imagemFonte;
     }
@@ -162,6 +183,25 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         switch (v.getId()) {
             case R.id.btnVoltarUltimaJogada:
                 temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
+                break;
+            case R.id.btnRotacionarEsquerda:
+                rotacionar(-1);
+                break;
+            case R.id.btnRotacionarDireita:
+                rotacionar(1);
+                break;
+            case R.id.btnPausar:
+                pausado = !pausado;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (pausado) {
+                            btnPausar.setText(getString(R.string.btn_pausar_continuar));
+                        } else {
+                            btnPausar.setText(getString(R.string.btn_pausar));
+                        }
+                    }
+                });
                 break;
             case R.id.btnFinalizar:
                 salvarArquivoESair();
@@ -191,12 +231,40 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .show();
     }
 
+    private void rotacionar(int direcao) {
+        Point[] cantosRotacionados = new Point[4];
+        // Anti-horário
+        if (direcao == -1) {
+            cantosRotacionados[0] = cantos[1];
+            cantosRotacionados[1] = cantos[2];
+            cantosRotacionados[2] = cantos[3];
+            cantosRotacionados[3] = cantos[0];
+        }
+        // Horário
+        else if (direcao == 1) {
+            cantosRotacionados[0] = cantos[3];
+            cantosRotacionados[1] = cantos[0];
+            cantosRotacionados[2] = cantos[1];
+            cantosRotacionados[3] = cantos[2];
+        }
+        contornoDoTabuleiro = new MatOfPoint(cantosRotacionados);
+        cantos = cantosRotacionados;
+
+        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
+        posicaoDoTabuleiroNaImagem.put(0, 0,
+                cantos[0].x, cantos[0].y,
+                cantos[1].x, cantos[1].y,
+                cantos[2].x, cantos[2].y,
+                cantos[3].x, cantos[3].y);
+
+        partida.rotacionar(direcao);
+    }
+
     private void salvarArquivoESair() {
         String nomeArquivo = "jogoTeste.sgf";
         String conteudoDaPartida = partida.sgf();
         // TODO: abrir arquivo no sistema de arquivos e salvar conteúdo
         Log.d(MainActivity.TAG, "Partida salva: " + nomeArquivo + " com conteúdo " + conteudoDaPartida);
     }
-
 
 }

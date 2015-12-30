@@ -35,7 +35,6 @@ public class Tabuleiro {
 
     public void colocarPedra(int linha, int coluna, int pedra) {
         if (pedra != PEDRA_PRETA && pedra != PEDRA_BRANCA) {
-            // Problema
             throw new RuntimeException("Pedra inválida!");
         }
         if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) {
@@ -69,12 +68,40 @@ public class Tabuleiro {
         return saida.toString();
     }
 
-    public Tabuleiro rotacionarEmSentidoHorario() {
+    /**
+     * Retorna um novo tabuleiro que correponde ao tabuleiro atual rotacionado em sentido horário
+     * (direcao = 1) ou anti-horário (direcao = -1).
+     * @param direcao
+     * @return Novo tabuleiro rotacionado.
+     */
+    public Tabuleiro rotacionar(int direcao) {
+        if (direcao == -1) {
+            return rotacionarEmSentidoAntihorario();
+        }
+        else if (direcao == 1) {
+            return rotacionarEmSentidoHorario();
+        }
+        throw new RuntimeException("Direção de rotação inválida!");
+    }
+
+    private Tabuleiro rotacionarEmSentidoHorario() {
         Tabuleiro tabuleiroRotacionado = new Tabuleiro(dimensao);
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
                 if (tabuleiro[dimensao - 1 - j][i] != Tabuleiro.VAZIO) {
                     tabuleiroRotacionado.colocarPedra(i, j, tabuleiro[dimensao - 1 - j][i]);
+                }
+            }
+        }
+        return tabuleiroRotacionado;
+    }
+
+    private Tabuleiro rotacionarEmSentidoAntihorario() {
+        Tabuleiro tabuleiroRotacionado = new Tabuleiro(dimensao);
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                if (tabuleiro[j][dimensao - 1 - i] != Tabuleiro.VAZIO) {
+                    tabuleiroRotacionado.colocarPedra(i, j, tabuleiro[j][dimensao - 1 - i]);
                 }
             }
         }
@@ -88,9 +115,8 @@ public class Tabuleiro {
      *         caso contrário
      */
     public boolean identico(Tabuleiro outroTabuleiro) {
-        if (dimensao != outroTabuleiro.dimensao) {
-            return false;
-        }
+        if (dimensao != outroTabuleiro.dimensao) return false;
+
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
                 if (getPosicao(i, j) != outroTabuleiro.getPosicao(i, j)) {
@@ -98,6 +124,7 @@ public class Tabuleiro {
                 }
             }
         }
+
         return true;
     }
 
