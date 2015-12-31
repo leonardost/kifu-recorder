@@ -15,26 +15,26 @@
         android:layout_height="fill_parent"
         android:layout_marginRight="6dp"
         android:layout_gravity="center_vertical|right" >
-        <Button
+        <ImageButton
             android:id="@+id/btnVoltarUltimaJogada"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_voltar_ultima_jogada" />
-        <Button
+            android:src="@drawable/undo" />
+        <ImageButton
             android:id="@+id/btnRotacionarEsquerda"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_rotacionar_esquerda" />
-        <Button
+            android:src="@drawable/rotate_left" />
+        <ImageButton
             android:id="@+id/btnRotacionarDireita"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_rotacionar_direita" />
-        <Button
+            android:src="@drawable/rotate_right" />
+        <ImageButton
             android:id="@+id/btnPausar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_pausar" />
+            android:src="@drawable/pause" />
         <Button
             android:id="@+id/btnFinalizar"
             android:layout_width="wrap_content"

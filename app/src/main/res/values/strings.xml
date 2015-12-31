@@ -13,7 +13,9 @@
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
     <string name="lbl_komi">Komi</string>
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
-    <string name="btn_fixar_tabuleiro">Fixar tabuleiro e iniciar registro</string>
+    <!--<string name="btn_fixar_tabuleiro">Fixar tabuleiro e iniciar registro</string>-->
+    <string name="lbl_instrucoes">Quando o tabuleiro estiver enquadrado, toque em OK</string>
+    <string name="btn_fixar_tabuleiro">OK</string>
 
     <string name="btn_voltar_ultima_jogada">Voltar</string>
     <string name="btn_pausar">Pausar</string>
@@ -25,6 +27,7 @@
 
     <string name="dialog_tem_certeza">Tem certeza?</string>
     <string name="dialog_voltar_ultima_jogada">Deseja voltar a última jogada?</string>
+    <string name="dialog_finalizar_registro">Deseja finalizar o registro da partida?</string>
 
     <string name="sim">Sim</string>
     <string name="nao">Não</string>

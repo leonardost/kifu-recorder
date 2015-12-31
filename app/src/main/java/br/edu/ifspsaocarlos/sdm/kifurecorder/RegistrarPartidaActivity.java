@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -37,10 +38,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     Tabuleiro ultimoTabuleiro;
     Partida partida;
 
-    Button btnVoltarUltimaJogada;
-    Button btnRotacionarEsquerda;
-    Button btnRotacionarDireita;
-    Button btnPausar;
+    ImageButton btnVoltarUltimaJogada;
+    ImageButton btnRotacionarEsquerda;
+    ImageButton btnRotacionarDireita;
+    ImageButton btnPausar;
+    Button btnFinalizar;
 
     boolean pausado = false;
 
@@ -91,15 +93,17 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
 
-        btnVoltarUltimaJogada = (Button) findViewById(R.id.btnVoltarUltimaJogada);
+        btnVoltarUltimaJogada = (ImageButton) findViewById(R.id.btnVoltarUltimaJogada);
         btnVoltarUltimaJogada.setOnClickListener(this);
         btnVoltarUltimaJogada.setEnabled(false);
-        btnRotacionarEsquerda = (Button) findViewById(R.id.btnRotacionarEsquerda);
+        btnRotacionarEsquerda = (ImageButton) findViewById(R.id.btnRotacionarEsquerda);
         btnRotacionarEsquerda.setOnClickListener(this);
-        btnRotacionarDireita = (Button) findViewById(R.id.btnRotacionarDireita);
+        btnRotacionarDireita = (ImageButton) findViewById(R.id.btnRotacionarDireita);
         btnRotacionarDireita.setOnClickListener(this);
-        btnPausar = (Button) findViewById(R.id.btnPausar);
+        btnPausar = (ImageButton) findViewById(R.id.btnPausar);
         btnPausar.setOnClickListener(this);
+        btnFinalizar = (Button) findViewById(R.id.btnFinalizar);
+        btnFinalizar.setOnClickListener(this);
     }
 
     @Override
@@ -196,15 +200,17 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     @Override
                     public void run() {
                         if (pausado) {
-                            btnPausar.setText(getString(R.string.btn_pausar_continuar));
+                            btnPausar.setImageResource(R.drawable.play);
+//                            btnPausar.setText(getString(R.string.btn_pausar_continuar));
                         } else {
-                            btnPausar.setText(getString(R.string.btn_pausar));
+                            btnPausar.setImageResource(R.drawable.pause);
+//                            btnPausar.setText(getString(R.string.btn_pausar));
                         }
                     }
                 });
                 break;
             case R.id.btnFinalizar:
-                salvarArquivoESair();
+                temCertezaQueDesejaFinalizarORegisro();
                 break;
         }
     }
@@ -260,11 +266,41 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         partida.rotacionar(direcao);
     }
 
+    private void temCertezaQueDesejaFinalizarORegisro() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_tem_certeza)
+                .setMessage(getString(R.string.dialog_finalizar_registro))
+                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        salvarArquivoESair();
+                    }
+                })
+                .setNegativeButton(R.string.nao, null)
+                .show();
+    }
+
     private void salvarArquivoESair() {
         String nomeArquivo = "jogoTeste.sgf";
         String conteudoDaPartida = partida.sgf();
         // TODO: abrir arquivo no sistema de arquivos e salvar conteúdo
         Log.d(MainActivity.TAG, "Partida salva: " + nomeArquivo + " com conteúdo " + conteudoDaPartida);
+        // TODO: Mostrar Toast com mensagem indicando onde o arquivo foi salvo
+    }
+
+    @Override
+    public void onBackPressed() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_tem_certeza)
+                .setMessage(getString(R.string.dialog_finalizar_registro))
+                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        salvarArquivoESair();
+                    }
+                })
+                .setNegativeButton(R.string.nao, null)
+                .show();
     }
 
 }
