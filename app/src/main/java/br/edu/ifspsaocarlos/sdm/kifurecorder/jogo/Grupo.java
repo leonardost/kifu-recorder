@@ -3,6 +3,9 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Representa um grupo em um tabuleiro.
+ */
 public class Grupo {
 
     private int cor;

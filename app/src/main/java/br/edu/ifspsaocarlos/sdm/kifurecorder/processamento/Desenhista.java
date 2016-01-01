@@ -25,6 +25,7 @@ public class Desenhista {
     private static Scalar mRed   = new Scalar(255,   0,   0);
     private static Scalar mGreen = new Scalar(  0, 255,   0);
     private static Scalar mBlue  = new Scalar(  0,   0, 255);
+    private static Scalar mBoardBrown = new Scalar(219, 176, 105);
 
     private static Scalar[] colors = new Scalar[] {
             mRed, mGreen, mBlue, mWhite
@@ -94,7 +95,7 @@ public class Desenhista {
     /**
      * Desenha o tabuleiro sobre a matriz 'imagem' com a origem nas coordenadas 'x' e 'y' passadas
      * como parâmetro e com tamanho 'tamanhoImagem'. O desenho é feito respeitando a dimensão do
-     * tabuleiro, ou seja, se o tabuleiro é maior, o preview fica menor.
+     * tabuleiro, ou seja, se o tabuleiro tem dimensão maior, o preview fica menor.
      *
      * @param imagem
      * @param tabuleiro
@@ -113,7 +114,7 @@ public class Desenhista {
         p2.x = x + tamanhoImagem;
         p2.y = y + tamanhoImagem;
 
-        Core.rectangle(imagem, p1, p2, mWhite, -1);
+        Core.rectangle(imagem, p1, p2, mBoardBrown, -1);
 
         // Desenha linhas horizontais
         for (int i = 0; i < tabuleiro.getDimensao(); ++i) {

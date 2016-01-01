@@ -49,8 +49,15 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
                     edtkomi.requestFocus();
                     return;
                 }
-                // TODO: Guardar informações da partida em algum lugar persistente
+
+                String jogadorDePretas = edtJogadorPretas.getText().toString();
+                String jogadorDeBrancas = edtJogadorBrancas.getText().toString();
+                String komi = edtkomi.getText().toString();
+
                 Intent i = new Intent(this, DetectarTabuleiroActivity.class);
+                i.putExtra("jogadorDePretas", jogadorDePretas);
+                i.putExtra("jogadorDeBrancas", jogadorDeBrancas);
+                i.putExtra("komi", komi);
                 startActivity(i);
                 break;
         }

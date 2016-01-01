@@ -4,11 +4,6 @@ public class Posicao {
     public int linha;
     public int coluna;
 
-    public Posicao() {
-        linha = -1;
-        coluna = -1;
-    }
-
     public Posicao(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
@@ -16,7 +11,6 @@ public class Posicao {
 
     @Override
     public String toString() {
-        // TODO: Implementar
         int l = 'a' + linha + (linha >= 8 ? 1 : 0);
         int c = 'a' + coluna + (coluna >= 8 ? 1 : 0);
         return "[" + (char)l + (char)c + "]";

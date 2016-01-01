@@ -29,6 +29,10 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     private MatOfPoint contornoDoTabuleiro;
     DetectorDeTabuleiro detectorDeTabuleiro;
 
+    private String jogadorDePretas;
+    private String jogadorDeBrancas;
+    private String komi;
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -58,6 +62,11 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
         btnFixarTabuleiro.setEnabled(false);
 
         detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+
+        Intent i = getIntent();
+        jogadorDePretas = i.getStringExtra("jogadorDePretas");
+        jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
+        komi = i.getStringExtra("komi");
     }
 
     @Override
@@ -136,6 +145,9 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
                 matriz[7] = (int)posicaoDoTabuleiroNaImagem.get(3, 0)[1];
 
                 Intent i = new Intent(this, RegistrarPartidaActivity.class);
+                i.putExtra("jogadorDePretas", jogadorDePretas);
+                i.putExtra("jogadorDeBrancas", jogadorDeBrancas);
+                i.putExtra("komi", komi);
                 i.putExtra("posicaoDoTabuleiroNaImagem", matriz);
                 i.putExtra("dimensaoDoTabuleiro", dimensaoDoTabuleiro);
                 startActivity(i);

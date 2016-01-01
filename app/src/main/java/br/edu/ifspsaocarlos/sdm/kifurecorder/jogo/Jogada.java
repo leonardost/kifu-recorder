@@ -1,13 +1,14 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
+/**
+ * Representa uma jogada feita em um jogo.
+ */
 public class Jogada {
 
     public boolean ehPasse;
     public int linha;
     public int coluna;
     public int cor;
-
-    public Jogada() {}
 
     public Jogada(int linha, int coluna, int cor) {
         this.ehPasse = false;

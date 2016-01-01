@@ -2,13 +2,18 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -19,6 +24,14 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
@@ -27,6 +40,10 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
+
+    private String jogadorDePretas;
+    private String jogadorDeBrancas;
+    private String komi;
 
     Mat posicaoDoTabuleiroNaImagem;
     int dimensaoDoTabuleiro;
@@ -71,8 +88,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
-        dimensaoDoTabuleiro = getIntent().getExtras().getInt("dimensaoDoTabuleiro");
-        int[] cantosDoTabuleiro = getIntent().getExtras().getIntArray("posicaoDoTabuleiroNaImagem");
+        Intent i = getIntent();
+        jogadorDePretas = i.getStringExtra("jogadorDePretas");
+        jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
+        komi = i.getStringExtra("komi");
+        dimensaoDoTabuleiro = i.getIntExtra("dimensaoDoTabuleiro", -1);
+        int[] cantosDoTabuleiro = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
         posicaoDoTabuleiroNaImagem.put(0, 0,
@@ -201,10 +222,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     public void run() {
                         if (pausado) {
                             btnPausar.setImageResource(R.drawable.play);
-//                            btnPausar.setText(getString(R.string.btn_pausar_continuar));
                         } else {
                             btnPausar.setImageResource(R.drawable.pause);
-//                            btnPausar.setText(getString(R.string.btn_pausar));
                         }
                     }
                 });
@@ -281,26 +300,79 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void salvarArquivoESair() {
-        String nomeArquivo = "jogoTeste.sgf";
+        String nomeArquivo = gerarNomeDeArquivo();
         String conteudoDaPartida = partida.sgf();
-        // TODO: abrir arquivo no sistema de arquivos e salvar conteúdo
-        Log.d(MainActivity.TAG, "Partida salva: " + nomeArquivo + " com conteúdo " + conteudoDaPartida);
-        // TODO: Mostrar Toast com mensagem indicando onde o arquivo foi salvo
+
+        if (isExternalStorageWritable()) {
+            File arquivo = getFile(nomeArquivo);
+            try {
+                FileOutputStream fos = new FileOutputStream(arquivo);
+                fos.write(conteudoDaPartida.getBytes());
+                fos.flush();
+                fos.close();
+                Toast.makeText(RegistrarPartidaActivity.this,
+                        "Partida salva no arquivo: " + arquivo.getName() + ".",
+                        Toast.LENGTH_LONG).show();
+                Log.i(MainActivity.TAG, "Partida salva: " + arquivo.getName() + " com conteúdo " + conteudoDaPartida);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            finally {
+                finish();
+            }
+        }
+        else {
+            Log.i(MainActivity.TAG, "ERRO: Armazenamento externo não disponível.");
+        }
+    }
+
+    private boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(state);
+    }
+
+    private File getFile(String filename) {
+        File pasta = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        if (!pasta.exists()) {
+            if (!pasta.mkdirs()) {
+                Toast.makeText(
+                        RegistrarPartidaActivity.this,
+                        "ERRO: Diretório " + pasta.toString() + " não criado.",
+                        Toast.LENGTH_LONG).show();
+                Log.i(MainActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criada.");
+            }
+        }
+
+        File arquivo = new File(pasta, filename);
+        int contador = 1;
+        while (arquivo.exists()) {
+            String newFilename = filename + "(" + contador + ")";
+            arquivo = new File(pasta, newFilename);
+            contador++;
+        }
+
+        return arquivo;
+    }
+
+    private String gerarNomeDeArquivo() {
+        StringBuilder string = new StringBuilder();
+        // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        Calendar c = Calendar.getInstance();
+
+        string.append(jogadorDeBrancas)
+                .append("-")
+                .append(jogadorDePretas)
+                .append("_")
+                .append(sdf.format(new Date(c.getTimeInMillis())))
+                .append(".sgf");
+        return string.toString();
     }
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_tem_certeza)
-                .setMessage(getString(R.string.dialog_finalizar_registro))
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        salvarArquivoESair();
-                    }
-                })
-                .setNegativeButton(R.string.nao, null)
-                .show();
+        temCertezaQueDesejaFinalizarORegisro();
     }
 
 }
