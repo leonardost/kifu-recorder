@@ -7,14 +7,13 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
-import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
  * Detecta a posição de um tabuleiro em uma imagem e sua dimensão (9x9, 13x13 ou 19x19)
@@ -65,7 +64,7 @@ public class DetectorDeTabuleiro {
         List<MatOfPoint> contornos = detectarContornos(imagemComBordasEmEvidencia);
 
         if (contornos.isEmpty()) {
-            Log.i(MainActivity.TAG, "> Processamento de imagem: contornos não foram encontrados.");
+            Log.i(TestesActivity.TAG, "> Processamento de imagem: contornos não foram encontrados.");
             return false;
         }
 
@@ -75,7 +74,7 @@ public class DetectorDeTabuleiro {
         List<MatOfPoint> quadrilateros = detectarQuadrilateros(contornos);
 
         if (quadrilateros.isEmpty()) {
-            Log.i(MainActivity.TAG, "> Processamento de imagem: quadriláteros não foram encontrados.");
+            Log.i(TestesActivity.TAG, "> Processamento de imagem: quadriláteros não foram encontrados.");
             return false;
         }
 
@@ -85,7 +84,7 @@ public class DetectorDeTabuleiro {
         MatOfPoint quadrilateroDoTabuleiro = detectarTabuleiro(quadrilateros);
 
         if (quadrilateroDoTabuleiro == null) {
-            Log.i(MainActivity.TAG, "> Processamento de imagem: quadrilátero do tabuleiro não foi encontrado.");
+            Log.i(TestesActivity.TAG, "> Processamento de imagem: quadrilátero do tabuleiro não foi encontrado.");
             return false;
         }
 
@@ -100,7 +99,7 @@ public class DetectorDeTabuleiro {
         areaMedia /= hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro).size();
         double areaDoTabuleiro = Imgproc.contourArea(quadrilateroDoTabuleiro);
         double razao = areaMedia / areaDoTabuleiro;
-//        Log.d(MainActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
+//        Log.d(TestesActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
 
         // Determina a dimensão do tabuleiro de acordo com a razão da área dos quadrados internos
         // com a área do quadrado do tabuleiro
@@ -132,7 +131,7 @@ public class DetectorDeTabuleiro {
         for (int i = 0; i < posicaoDoTabuleiroNaImagem.rows(); ++i) {
             for (int j = 0; j < posicaoDoTabuleiroNaImagem.cols(); ++j) {
                 double[] valor = posicaoDoTabuleiroNaImagem.get(i, j);
-                Log.d(MainActivity.TAG, "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
+                Log.d(TestesActivity.TAG, "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
             }
         }
         */

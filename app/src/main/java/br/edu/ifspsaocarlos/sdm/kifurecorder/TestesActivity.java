@@ -33,7 +33,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
 
-public class MainActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
+public class TestesActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {
 
     public static final String   TAG                      = "KifuRecorder";
 
@@ -70,7 +70,7 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         }
     };
 
-    public MainActivity() {
+    public TestesActivity() {
         Log.i(TAG, "Instantiated new " + this);
     }
 
@@ -99,7 +99,6 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         try {
             while ((line = reader.readLine()) != null) {
                 if (line.contains("#")) {
-                    Log.i(TAG, "!@#$!@#$ " + line);
                     Matcher m = p.matcher(line);
                     if (!m.matches()) {
                         break;
@@ -213,14 +212,11 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     }
 
     public void onCameraViewStarted(int width, int height) {
-//        mIntermediateMat = new Mat();
+
     }
 
     public void onCameraViewStopped() {
-        // Explicitly deallocate Mats
-//        if (mIntermediateMat != null)
-//            mIntermediateMat.release();
-//        mIntermediateMat = null;
+
     }
 
     /**
@@ -232,15 +228,15 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat rgba = inputFrame.rgba();
 
-        if (MainActivity.viewMode == VIEW_MODE_RGBA) return rgba;
+        if (TestesActivity.viewMode == VIEW_MODE_RGBA) return rgba;
 
-        if (MainActivity.viewMode == VIEW_MODE_TEST && escolheuImagemTeste == false) return rgba;
+        if (TestesActivity.viewMode == VIEW_MODE_TEST && escolheuImagemTeste == false) return rgba;
 
-        if (MainActivity.viewMode == VIEW_MODE_TEST && jaProcessouAImagemDeTeste) {
+        if (TestesActivity.viewMode == VIEW_MODE_TEST && jaProcessouAImagemDeTeste) {
             return imagemProcessada;
         }
 
-        if (MainActivity.viewMode == VIEW_MODE_AUTOMATIC_TEST) {
+        if (TestesActivity.viewMode == VIEW_MODE_AUTOMATIC_TEST) {
 
             for (int indiceImagem = 1; indiceImagem <= 35; ++indiceImagem) {
                 Mat imagemLidaDeArquivo = lerImagemDosResourcesAdaptada(
@@ -289,11 +285,11 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         }
 
         Mat imagemLidaDeArquivo = new Mat();
-        if (MainActivity.viewMode == VIEW_MODE_TEST) {
+        if (TestesActivity.viewMode == VIEW_MODE_TEST) {
             imagemLidaDeArquivo = lerImagemDosResourcesAdaptada(resourceSelecionado(numeroDeImagemTeste), rgba.size());
         };
 
-        Mat imagemFonte = (MainActivity.viewMode == VIEW_MODE_DETECTOR) ?
+        Mat imagemFonte = (TestesActivity.viewMode == VIEW_MODE_DETECTOR) ?
                 rgba.clone() :
                 imagemLidaDeArquivo.clone();
         Mat imagemOriginal = imagemFonte.clone();
@@ -307,9 +303,9 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
         }
 
         // Cria uma cópia da imagem em preto e branco
-        Mat imagemOriginalPretoEBranco = imagemOriginal.clone();
-        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_RGB2GRAY);
-        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_GRAY2RGB);
+//        Mat imagemOriginalPretoEBranco = imagemOriginal.clone();
+//        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_RGB2GRAY);
+//        Imgproc.cvtColor(imagemOriginalPretoEBranco, imagemOriginalPretoEBranco, Imgproc.COLOR_GRAY2RGB);
 
         // Transformação da imagem do tabuleiro para a posição ortogonal
         Mat imagemDoTabuleiroCorrigido =
@@ -406,10 +402,10 @@ public class MainActivity extends Activity implements CameraBridgeViewBase.CvCam
     private Mat lerImagemDosResourcesAdaptada(int idDaImagemResource, Size tamanhoDaImagem) {
         Mat imagemLidaDeArquivo = new Mat();
         try {
-            imagemLidaDeArquivo = Utils.loadResource(MainActivity.this, idDaImagemResource);
+            imagemLidaDeArquivo = Utils.loadResource(TestesActivity.this, idDaImagemResource);
             // Converte do formato BGR (usado pelo OpenCV) para o RGB
             Imgproc.cvtColor(imagemLidaDeArquivo, imagemLidaDeArquivo, Imgproc.COLOR_BGR2RGB);
-            Log.d(TAG, "Tamanho da imagem = " + tamanhoDaImagem.height + "x" + tamanhoDaImagem.width);
+            Log.i(TAG, "Tamanho da imagem = " + tamanhoDaImagem.height + "x" + tamanhoDaImagem.width);
             Imgproc.resize(imagemLidaDeArquivo, imagemLidaDeArquivo, tamanhoDaImagem);
         } catch (IOException e) {
             e.printStackTrace();

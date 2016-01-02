@@ -63,7 +63,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
-                    Log.i(MainActivity.TAG, "OpenCV loaded successfully");
+                    Log.i(TestesActivity.TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
                     break;
                 default:
@@ -306,7 +306,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 Toast.makeText(RegistrarPartidaActivity.this,
                         "Partida salva no arquivo: " + arquivo.getName() + ".",
                         Toast.LENGTH_LONG).show();
-                Log.i(MainActivity.TAG, "Partida salva: " + arquivo.getName() + " com conteúdo " + conteudoDaPartida);
+                Log.i(TestesActivity.TAG, "Partida salva: " + arquivo.getName() + " com conteúdo " + conteudoDaPartida);
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -316,7 +316,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         }
         else {
-            Log.i(MainActivity.TAG, "ERRO: Armazenamento externo não disponível.");
+            Log.i(TestesActivity.TAG, "ERRO: Armazenamento externo não disponível.");
         }
     }
 
@@ -333,7 +333,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                         RegistrarPartidaActivity.this,
                         "ERRO: Diretório " + pasta.toString() + " não criado.",
                         Toast.LENGTH_LONG).show();
-                Log.i(MainActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criada.");
+                Log.i(TestesActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criada.");
             }
         }
 

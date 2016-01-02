@@ -38,7 +38,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
-                    Log.i(MainActivity.TAG, "OpenCV loaded successfully");
+                    Log.i(TestesActivity.TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
                     break;
                 default:

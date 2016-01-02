@@ -9,11 +9,17 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.TelaInicialActivity">
 
+    <!-- http://stackoverflow.com/questions/7651912/android-center-textview-horizontally-in-linearlayout -->
     <TextView
         android:text="@string/titulo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="30dp" />
+        android:gravity="center_horizontal"
+        android:textSize="30dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="32dp"
+        />
+
     <Button
         android:id="@+id/btnIniciarRegistro"
         android:text="@string/btn_iniciar_registro"
@@ -24,5 +30,17 @@
         android:text="@string/btn_testes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btnAjuda"
+        android:text="@string/btn_ajuda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="@string/lbl_copyright"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|bottom" />
 
 </LinearLayout>

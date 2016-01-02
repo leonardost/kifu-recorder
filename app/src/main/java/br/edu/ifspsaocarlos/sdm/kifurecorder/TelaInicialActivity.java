@@ -1,11 +1,8 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
@@ -32,7 +29,7 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
                 startActivity(i);
                 break;
             case R.id.btnTestes:
-                i = new Intent(this, MainActivity.class);
+                i = new Intent(this, TestesActivity.class);
                 startActivity(i);
                 break;
         }

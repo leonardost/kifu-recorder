@@ -8,7 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
  * Guarda a sequência de jogadas que foram feitas durante uma partida.
@@ -71,7 +71,7 @@ public class Partida {
 
         tabuleiros.add(tabuleiro);
         jogadas.add(jogadaFeita);
-        Log.i(MainActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
+        Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
     }
 
     public Tabuleiro ultimoTabuleiro() {
@@ -137,7 +137,7 @@ public class Partida {
         escreverProperiedade(sgf, "CA", "UTF-8");
         escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimensao());
         escreverProperiedade(sgf, "DT", data);
-        escreverProperiedade(sgf, "AP", "Kifu-recorder 0.1");
+        escreverProperiedade(sgf, "AP", "Kifu Recorder 0.1");
         escreverProperiedade(sgf, "KM", komi);
         escreverProperiedade(sgf, "PW", jogadorDeBrancas);
         escreverProperiedade(sgf, "PB", jogadorDePretas);

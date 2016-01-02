@@ -11,15 +11,17 @@
     <string name="titulo">Kifu Recorder</string>
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
+    <string name="btn_ajuda">Ajuda</string>
+    <string name="lbl_copyright">(c) 2015-2016 LST Softwares</string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
     <string name="lbl_komi">Komi</string>
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
-    <!--<string name="btn_fixar_tabuleiro">Fixar tabuleiro e iniciar registro</string>-->
-    <string name="lbl_instrucoes">Quando o tabuleiro estiver enquadrado, toque em OK</string>
+    <string name="lbl_instrucoes">Quando a borda vermelha enquadrar o tabuleiro, toque em OK</string>
     <string name="btn_fixar_tabuleiro">OK</string>
 
+    <string name="btn_passar_a_vez">Passar</string>
     <string name="btn_voltar_ultima_jogada">Voltar</string>
     <string name="btn_pausar">Pausar</string>
     <string name="btn_pausar_continuar">Continuar</string>

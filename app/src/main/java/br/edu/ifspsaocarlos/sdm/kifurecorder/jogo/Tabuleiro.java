@@ -5,7 +5,7 @@ import android.util.Log;
 import java.util.HashSet;
 import java.util.Set;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.MainActivity;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
  * Representa um estado de tabuleiro
@@ -150,7 +150,7 @@ public class Tabuleiro {
         Tabuleiro rotacao2 = rotacao1.rotacionarEmSentidoHorario();
         Tabuleiro rotacao3 = rotacao2.rotacionarEmSentidoHorario();
 
-//        Log.d(MainActivity.TAG, "Comparando tabuleiro " + this + " com tabuleiros " + outroTabuleiro + ", " + rotacao1 + ", " + rotacao2 + " e " + rotacao3);
+//        Log.d(TestesActivity.TAG, "Comparando tabuleiro " + this + " com tabuleiros " + outroTabuleiro + ", " + rotacao1 + ", " + rotacao2 + " e " + rotacao3);
 
         if (this.identico(outroTabuleiro) || this.identico(rotacao1)
                 || this.identico(rotacao2) || this.identico(rotacao3)) {
@@ -304,7 +304,7 @@ public class Tabuleiro {
             Set<Posicao> liberdades = grupo.getLiberdades();
             if (liberdades.size() == 1 && liberdades.contains(jogadaFeita.posicao())) {
                 devemSerCapturados.add(grupo);
-                Log.i(MainActivity.TAG, "Grupo " + grupo + " será capturado.");
+                Log.i(TestesActivity.TAG, "Grupo " + grupo + " será capturado.");
             }
         }
 
@@ -314,7 +314,7 @@ public class Tabuleiro {
                 // Se alguma das posições ocupadas anteriormente pelo grupo não estiver vazia, a
                 // captura não foi feita corretamente
                 if (tabuleiro[posicao.linha][posicao.coluna] != Tabuleiro.VAZIO) {
-                    Log.i(MainActivity.TAG, "Captura não foi feita corretamente na posição " + posicao);
+                    Log.i(TestesActivity.TAG, "Captura não foi feita corretamente na posição " + posicao);
                     return false;
                 }
             }
@@ -324,9 +324,9 @@ public class Tabuleiro {
         for (Grupo grupo : devemSerCapturados) {
             posicoesQueDevemEstarVazias.addAll(grupo.getPosicoes());
         }
-        Log.i(MainActivity.TAG, "Posições que devem estar vazias:");
+        Log.i(TestesActivity.TAG, "Posições que devem estar vazias:");
         for (Posicao posicao : posicoesQueDevemEstarVazias) {
-            Log.i(MainActivity.TAG, "" + posicao);
+            Log.i(TestesActivity.TAG, "" + posicao);
         }
 
         // Verifica se todas as demais pedras, com exceção das que foram capturadas e da jogada que
@@ -338,14 +338,14 @@ public class Tabuleiro {
 
                 if (i == jogadaFeita.linha && j == jogadaFeita.coluna) {
                     if (tabuleiro[i][j] != jogadaFeita.cor) {
-                        Log.i(MainActivity.TAG, "Jogada feita não está no tabuleiro novo");
+                        Log.i(TestesActivity.TAG, "Jogada feita não está no tabuleiro novo");
                         return false;
                     }
                     continue;
                 }
 
                 if (tabuleiro[i][j] != anterior.getPosicao(i, j)) {
-                    Log.i(MainActivity.TAG, "Problema na posição (" + i + ", " + j + ")");
+                    Log.i(TestesActivity.TAG, "Problema na posição (" + i + ", " + j + ")");
                     return false;
                 }
             }

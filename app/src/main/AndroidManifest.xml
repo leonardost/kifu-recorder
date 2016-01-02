@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".TestesActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="landscape" >
         </activity>
