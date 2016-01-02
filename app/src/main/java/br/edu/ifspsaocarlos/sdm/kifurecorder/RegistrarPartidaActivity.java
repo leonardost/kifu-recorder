@@ -2,8 +2,6 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,7 +24,6 @@ import org.opencv.core.Point;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -40,10 +37,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
-
-    private String jogadorDePretas;
-    private String jogadorDeBrancas;
-    private String komi;
 
     Mat posicaoDoTabuleiroNaImagem;
     int dimensaoDoTabuleiro;
@@ -89,9 +82,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         mOpenCvCameraView.setCvCameraViewListener(this);
 
         Intent i = getIntent();
-        jogadorDePretas = i.getStringExtra("jogadorDePretas");
-        jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
-        komi = i.getStringExtra("komi");
+        String jogadorDePretas = i.getStringExtra("jogadorDePretas");
+        String jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
+        String komi = i.getStringExtra("komi");
         dimensaoDoTabuleiro = i.getIntExtra("dimensaoDoTabuleiro", -1);
         int[] cantosDoTabuleiro = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 
@@ -109,7 +102,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         cantos[3] = new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
         contornoDoTabuleiro = new MatOfPoint(cantos);
 
-        partida = new Partida(dimensaoDoTabuleiro);
+        partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
@@ -361,9 +354,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
 
-        string.append(jogadorDeBrancas)
+        string.append(partida.getJogadorDeBrancas())
                 .append("-")
-                .append(jogadorDePretas)
+                .append(partida.getJogadorDePretas())
                 .append("_")
                 .append(sdf.format(new Date(c.getTimeInMillis())))
                 .append(".sgf");

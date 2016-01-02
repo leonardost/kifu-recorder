@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">KifuRecorder</string>
+    <string name="nome">Kifu-recorder</string>
+    <string name="versao">0.1</string>
+
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
     <string name="title_activity_detectar_tabuleiro">DetectarTabuleiroActivity</string>

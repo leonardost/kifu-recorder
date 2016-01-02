@@ -163,8 +163,6 @@ public class Tabuleiro {
     /**
      * Retorna a jogada de diferença deste tabuleiro para o tabuleiro anteiror. Se houver mais de
      * uma jogada de diferença, retorna nulo.
-     * TODO: TESTAR!
-     *
      * @param tabuleiroAnterior
      * @return
      */
@@ -359,7 +357,6 @@ public class Tabuleiro {
     /**
      * Retorna o grupo que está em determinada posição do tabuleiro ou nulo caso não haja nenhum
      * grupo.
-     * TODO: TESTAR!
      * @param linha
      * @param coluna
      * @return
