@@ -31,14 +31,13 @@ public class Jogada {
     }
 
     public String sgf() {
-        // Se a linha ou coluna forem maiores que 8 (coluna i), adiciona um porque não se usa o i.
-        int l = 'a' + linha + (linha >= 8 ? 1 : 0);
-        int c = 'a' + coluna + (coluna >= 8 ? 1 : 0);
+        int l = 'a' + linha;
+        int c = 'a' + coluna;
         String coordenada = "" + (char)c + (char)l;
         if (ehPasse) {
             coordenada = "";
         }
         char cor = (this.cor == Tabuleiro.PEDRA_PRETA ? 'B' : 'W');
-        return cor + "[" + coordenada + "]";
+        return ";" + cor + "[" + coordenada + "]";
     }
 }

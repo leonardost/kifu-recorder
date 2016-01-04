@@ -63,15 +63,16 @@ public class Partida {
         return komi;
     }
 
-    public void adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
+    public boolean adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
         Jogada jogadaFeita = tabuleiro.diferenca(ultimoTabuleiro());
 
-        if (jogadaFeita == null) return;
-        if (repeteEstadoAnterior(tabuleiro)) return;
+        if (jogadaFeita == null) return false;
+        if (repeteEstadoAnterior(tabuleiro)) return false;
 
         tabuleiros.add(tabuleiro);
         jogadas.add(jogadaFeita);
         Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
+        return true;
     }
 
     public Tabuleiro ultimoTabuleiro() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -53,6 +54,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     ImageButton btnRotacionarDireita;
     ImageButton btnPausar;
     Button btnFinalizar;
+    MediaPlayer mediaPlayer;
 
     boolean pausado = false;
 
@@ -118,6 +120,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         btnPausar.setOnClickListener(this);
         btnFinalizar = (Button) findViewById(R.id.btnFinalizar);
         btnFinalizar.setOnClickListener(this);
+
+        mediaPlayer = MediaPlayer.create(this, R.raw.beep);
+        mediaPlayer.setLooping(false);
+        //mediaPlayer.stop();
     }
 
     @Override
@@ -167,14 +173,23 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
-                    partida.adicionarJogadaSeForValida(tabuleiro);
-                    if (partida.numeroDeJogadasFeitas() > 0) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                btnVoltarUltimaJogada.setEnabled(true);
-                            }
-                        });
+                    if (partida.adicionarJogadaSeForValida(tabuleiro)) {
+                        try {
+                            mediaPlayer.stop();
+                            mediaPlayer.prepare();
+                            mediaPlayer.start();
+                        }
+                        catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        if (partida.numeroDeJogadasFeitas() > 0) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    btnVoltarUltimaJogada.setEnabled(true);
+                                }
+                            });
+                        }
                     }
                 }
             } else {
