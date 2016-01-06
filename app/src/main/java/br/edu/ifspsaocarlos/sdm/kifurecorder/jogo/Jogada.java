@@ -23,7 +23,7 @@ public class Jogada {
     }
 
     /**
-     * Retorna a posição em que uma jogada fio feita.
+     * Retorna a posição em que uma jogada foi feita.
      * @return
      */
     public Posicao posicao() {

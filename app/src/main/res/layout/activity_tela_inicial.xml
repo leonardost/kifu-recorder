@@ -30,17 +30,18 @@
         android:text="@string/btn_testes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    <Button
+    <!--<Button
         android:id="@+id/btnAjuda"
         android:text="@string/btn_ajuda"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content" />-->
 
     <TextView
         android:text="@string/lbl_copyright"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal|bottom" />
+        android:gravity="center_horizontal|bottom"
+        android:paddingTop="32dp" />
 
 </LinearLayout>
