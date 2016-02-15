@@ -49,6 +49,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     Tabuleiro ultimoTabuleiro;
     Partida partida;
 
+    private String nomeDoArquivo;
+    private File arquivoDeRegistro;
+
+    ImageButton btnSalvar;
     ImageButton btnVoltarUltimaJogada;
     ImageButton btnRotacionarEsquerda;
     ImageButton btnRotacionarDireita;
@@ -109,6 +113,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
 
+        arquivoDeRegistro = getFile(gerarNomeDeArquivo());
+
+        btnSalvar = (ImageButton) findViewById(R.id.btnSalvar);
+        btnSalvar.setOnClickListener(this);
+        btnSalvar.setEnabled(true);
         btnVoltarUltimaJogada = (ImageButton) findViewById(R.id.btnVoltarUltimaJogada);
         btnVoltarUltimaJogada.setOnClickListener(this);
         btnVoltarUltimaJogada.setEnabled(false);
@@ -214,6 +223,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.btnSalvar:
+                salvarArquivo();
+                break;
             case R.id.btnVoltarUltimaJogada:
                 temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
                 break;
@@ -307,21 +319,42 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .show();
     }
 
-    private void salvarArquivoESair() {
-        String nomeArquivo = gerarNomeDeArquivo();
+    private void salvarArquivo() {
         String conteudoDaPartida = partida.sgf();
-
         if (isExternalStorageWritable()) {
-            File arquivo = getFile(nomeArquivo);
             try {
-                FileOutputStream fos = new FileOutputStream(arquivo);
+                FileOutputStream fos = new FileOutputStream(arquivoDeRegistro, false);
                 fos.write(conteudoDaPartida.getBytes());
                 fos.flush();
                 fos.close();
                 Toast.makeText(RegistrarPartidaActivity.this,
-                        "Partida salva no arquivo: " + arquivo.getName() + ".",
+                        "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".",
                         Toast.LENGTH_LONG).show();
-                Log.i(TestesActivity.TAG, "Partida salva: " + arquivo.getName() + " com conteúdo " + conteudoDaPartida);
+                Log.i(TestesActivity.TAG, "Partida salva: " + arquivoDeRegistro.getName() + " com conteúdo " + conteudoDaPartida);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Armazenamento externo nao disponivel.", Toast.LENGTH_LONG).show();
+            Log.i(TestesActivity.TAG, "ERRO: Armazenamento externo não disponível.");
+        }
+    }
+
+    private void salvarArquivoESair() {
+        String conteudoDaPartida = partida.sgf();
+
+        if (isExternalStorageWritable()) {
+            try {
+                FileOutputStream fos = new FileOutputStream(arquivoDeRegistro, false);
+                fos.write(conteudoDaPartida.getBytes());
+                fos.flush();
+                fos.close();
+                Toast.makeText(RegistrarPartidaActivity.this,
+                        "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".",
+                        Toast.LENGTH_LONG).show();
+                Log.i(TestesActivity.TAG, "Partida salva: " + arquivoDeRegistro.getName() + " com conteúdo " + conteudoDaPartida);
             }
             catch (IOException e) {
                 e.printStackTrace();
