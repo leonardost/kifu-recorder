@@ -67,11 +67,50 @@ public class Partida {
         Jogada jogadaFeita = tabuleiro.diferenca(ultimoTabuleiro());
 
         if (jogadaFeita == null) return false;
+        // Não pode repetir nenhum estado anterior de jogo (regra do super ko)
         if (repeteEstadoAnterior(tabuleiro)) return false;
+        // Tem que começar com uma pedra preta
+        if (comecouComPedraBranca(jogadaFeita)) return false;
+        // Não pode colocar pedra da mesma cor em seguida da outra, exceto se são pedras pretas para
+        // handicap no início da partida
+        if (!ehJogadaDeCorDiferenteOuSaoPedrasPretasDeHandicap(jogadaFeita)) return false;
 
         tabuleiros.add(tabuleiro);
         jogadas.add(jogadaFeita);
         Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
+        return true;
+    }
+
+    private boolean comecouComPedraBranca(Jogada jogadaFeita) {
+        return ultimaJogada() == null && jogadaFeita.cor == Tabuleiro.PEDRA_BRANCA;
+    }
+
+    private boolean ehJogadaDeCorDiferenteOuSaoPedrasPretasDeHandicap(Jogada jogadaFeita) {
+        // É uma jogada de cor diferente da última jogada e, portanto, válida
+        if (ehJogadaDeCorDiferente(jogadaFeita)) return true;
+        // Se for uma pedra preta e apenas pedras pretas tiverem sido joagdas, está colocando pedras de handicap
+        if (jogadaFeita.cor == Tabuleiro.PEDRA_PRETA && apenasPedrasPretasForamJogadas()) return true;
+        // Senão, está repetindo a cor de uma pedra e não são pedras pretas de handicap
+        return false;
+    }
+
+    private boolean ehJogadaDeCorDiferente(Jogada jogadaFeita) {
+        if (ultimaJogada() == null) return true;
+        return ultimaJogada().cor != jogadaFeita.cor;
+    }
+
+    /**
+     * Este método é útil para verificar se as pedras de handicap estão sendo
+     * colocadas.
+     */
+    private boolean apenasPedrasPretasForamJogadas() {
+        if (tabuleiros.size() == 1) return true;
+
+        for (int i = 1; i < tabuleiros.size(); ++i) {
+            Jogada jogada = tabuleiros.get(i).diferenca(tabuleiros.get(i - 1));
+            if (jogada.cor == Tabuleiro.PEDRA_BRANCA) return false;
+        }
+
         return true;
     }
 
@@ -98,9 +137,7 @@ public class Partida {
      * Desconsidera a última jogada feita
      */
     public void voltarUltimaJogada() {
-        if (tabuleiros.size() == 1) {
-            return;
-        }
+        if (tabuleiros.size() == 1) return;
         tabuleiros.remove(tabuleiros.size() - 1);
         jogadas.remove(jogadas.size() - 1);
     }
@@ -119,6 +156,7 @@ public class Partida {
         StringBuilder sgf = new StringBuilder();
         escreverCabecalho(sgf);
         for (Jogada jogada : jogadas) {
+            Log.i(TestesActivity.TAG, "construindo SGF - jogada " + jogada.sgf());
             sgf.append(jogada.sgf());
         }
         sgf.append(")");
@@ -160,19 +198,34 @@ public class Partida {
         if (direcao != -1 && direcao != 1) return;
 
         List<Tabuleiro> tabuleirosRotacionados = new ArrayList<>();
-        List<Jogada> jogadasRotacionadas = new ArrayList<>();
-
         for (Tabuleiro tabuleiro : tabuleiros) {
             tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
-            if (tabuleirosRotacionados.size() >= 2) {
-                jogadasRotacionadas.add(tabuleiro.rotacionar(direcao).diferenca(
-                        tabuleirosRotacionados.get(tabuleirosRotacionados.size() - 1)
-                ));
-            }
+        }
+
+        List<Jogada> jogadasRotacionadas = new ArrayList<>();
+        for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
+            Tabuleiro ultimo = tabuleirosRotacionados.get(i);
+            Tabuleiro penultimo = tabuleirosRotacionados.get(i - 1);
+            jogadasRotacionadas.add(ultimo.diferenca(penultimo));
         }
 
         tabuleiros = tabuleirosRotacionados;
         jogadas = jogadasRotacionadas;
+    }
+
+    /**
+     * Retorna a última jogada que foi feita na partida.
+     */
+    public Jogada ultimaJogada() {
+        if (tabuleiros.size() == 1) return null;
+        return ultimoTabuleiro().diferenca(penultimoTabuleiro());
+    }
+
+    private Tabuleiro penultimoTabuleiro() {
+        if (tabuleiros.size() == 1) {
+            return null;
+        }
+        return tabuleiros.get(tabuleiros.size() - 2);
     }
 
 }

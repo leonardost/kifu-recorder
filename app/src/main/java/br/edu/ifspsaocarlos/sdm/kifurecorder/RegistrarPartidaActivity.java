@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -48,6 +49,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long tempoDesdeUltimaMudancaDeTabuleiro;
     Tabuleiro ultimoTabuleiro;
     Partida partida;
+    // A cada 5 jogadas feitas a partida é salva automaticamente
+    int contadorDeJogadas = 0;
 
     private String nomeDoArquivo;
     private File arquivoDeRegistro;
@@ -83,6 +86,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar_partida);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
         mOpenCvCameraView.setCvCameraViewListener(this);
@@ -138,6 +142,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     @Override
     public void onPause()
     {
+        // Salva a partida em disco
+        salvarArquivo();
         super.onPause();
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
@@ -153,8 +159,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     public void onDestroy() {
         super.onDestroy();
-        if (mOpenCvCameraView != null)
+        if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
+        }
     }
 
     public void onCameraViewStarted(int width, int height) {
@@ -165,6 +172,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     }
 
+    /**
+     * Método chamado sempre que há um frame da câmera pronto para ser processado
+     */
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         Mat imagemFonte = inputFrame.rgba();
 
@@ -183,6 +193,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
                     if (partida.adicionarJogadaSeForValida(tabuleiro)) {
+                        contadorDeJogadas++;
+                        if (contadorDeJogadas % 5 == 0) {
+                            salvarArquivo();
+                        }
                         try {
                             mediaPlayer.stop();
                             mediaPlayer.prepare();
@@ -212,10 +226,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         if (pausado) {
-            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+            // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
+            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
         }
         else {
-            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400);
+            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
         }
 
         return imagemFonte;
@@ -262,6 +277,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         partida.voltarUltimaJogada();
+                        tempoDesdeUltimaMudancaDeTabuleiro = 0;
+                        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                         if (partida.numeroDeJogadasFeitas() == 0) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -327,9 +344,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 fos.write(conteudoDaPartida.getBytes());
                 fos.flush();
                 fos.close();
-                Toast.makeText(RegistrarPartidaActivity.this,
-                        "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".",
-                        Toast.LENGTH_LONG).show();
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(RegistrarPartidaActivity.this,
+                                "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
                 Log.i(TestesActivity.TAG, "Partida salva: " + arquivoDeRegistro.getName() + " com conteúdo " + conteudoDaPartida);
             }
             catch (IOException e) {

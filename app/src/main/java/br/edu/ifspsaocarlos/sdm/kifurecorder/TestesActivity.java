@@ -340,7 +340,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
         Tabuleiro tabuleiro = detectorDePedras.detectar();
         if (tabuleiro != null) {
-            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
         }
 
         imagemProcessada = imagemFonte;

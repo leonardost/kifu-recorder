@@ -15,6 +15,7 @@
         android:layout_height="wrap_content" />
     <EditText
         android:id="@+id/edtJogadorPretas"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content" />
     <EditText
         android:id="@+id/edtJogadorBrancas"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
@@ -31,6 +33,7 @@
         android:layout_height="wrap_content" />
     <EditText
         android:id="@+id/edtKomi"
+        android:inputType="numberDecimal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

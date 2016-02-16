@@ -14,6 +14,7 @@ import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 
 /**
  * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
@@ -95,15 +96,18 @@ public class Desenhista {
     /**
      * Desenha o tabuleiro sobre a matriz 'imagem' com a origem nas coordenadas 'x' e 'y' passadas
      * como parâmetro e com tamanho 'tamanhoImagem'. O desenho é feito respeitando a dimensão do
-     * tabuleiro, ou seja, se o tabuleiro tem dimensão maior, o preview fica menor.
+     * tabuleiro, ou seja, se o tabuleiro tem dimensão maior, o preview fica menor. A última jogada
+     * é marcada com um círculo sobre a última pedra que foi colocada. Se o parâmetro ultimaJogada
+     * for nulo, não marca a última jogada.
      *
      * @param imagem
      * @param tabuleiro
      * @param x
      * @param y
      * @param tamanhoImagem
+     * @param ultimaJogada
      */
-    public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem) {
+    public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem, Jogada ultimaJogada) {
         Point p1 = new Point();
         Point p2 = new Point();
         double distanciaEntreLinhas = tamanhoImagem / (tabuleiro.getDimensao() + 1);
@@ -153,6 +157,15 @@ public class Desenhista {
             }
         }
 
+        // Marca a última jogada feita
+        if (ultimaJogada != null) {
+            Point centro = new Point();
+            centro.x = x + distanciaEntreLinhas + ultimaJogada.coluna * distanciaEntreLinhas;
+            centro.y = y + distanciaEntreLinhas + ultimaJogada.linha * distanciaEntreLinhas;
+            Scalar corDaMarcacao = ultimaJogada.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
+            Core.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 2);
+//            Core.circle(imagem, centro, raioDaPedra, mBlue, -1);
+        }
     }
 
 }
