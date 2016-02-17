@@ -1,9 +1,11 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
+import java.io.Serializable;
+
 /**
  * Representa uma jogada feita em um jogo.
  */
-public class Jogada {
+public class Jogada implements Serializable {
 
     public boolean ehPasse;
     public int linha;

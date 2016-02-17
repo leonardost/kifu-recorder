@@ -4,7 +4,8 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.SystemClock;
@@ -25,8 +26,11 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -40,6 +44,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
+    int[] cantosDoTabuleiro;
     Mat posicaoDoTabuleiroNaImagem;
     int dimensaoDoTabuleiro;
     Point[] cantos;
@@ -52,7 +57,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     // A cada 5 jogadas feitas a partida é salva automaticamente
     int contadorDeJogadas = 0;
 
-    private String nomeDoArquivo;
     private File arquivoDeRegistro;
 
     ImageButton btnSalvar;
@@ -61,7 +65,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     ImageButton btnRotacionarDireita;
     ImageButton btnPausar;
     Button btnFinalizar;
-    MediaPlayer mediaPlayer;
+    SoundPool soundPool;
+    int beepId;
 
     boolean pausado = false;
 
@@ -96,28 +101,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         String jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
         String komi = i.getStringExtra("komi");
         dimensaoDoTabuleiro = i.getIntExtra("dimensaoDoTabuleiro", -1);
-        int[] cantosDoTabuleiro = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
+        cantosDoTabuleiro = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 
-        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
-        posicaoDoTabuleiroNaImagem.put(0, 0,
-                cantosDoTabuleiro[0], cantosDoTabuleiro[1],
-                cantosDoTabuleiro[2], cantosDoTabuleiro[3],
-                cantosDoTabuleiro[4], cantosDoTabuleiro[5],
-                cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
-
-        cantos = new Point[4];
-        cantos[0] = new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]);
-        cantos[1] = new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]);
-        cantos[2] = new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]);
-        cantos[3] = new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
-        contornoDoTabuleiro = new MatOfPoint(cantos);
+        processarCantosDoTabuleiro();
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
 
-        arquivoDeRegistro = getFile(gerarNomeDeArquivo());
+        arquivoDeRegistro = getFile();
 
         btnSalvar = (ImageButton) findViewById(R.id.btnSalvar);
         btnSalvar.setOnClickListener(this);
@@ -134,19 +127,71 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         btnFinalizar = (Button) findViewById(R.id.btnFinalizar);
         btnFinalizar.setOnClickListener(this);
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.beep);
-        mediaPlayer.setLooping(false);
-        //mediaPlayer.stop();
+        soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+        beepId = soundPool.load(this, R.raw.beep, 1);
+
+        Log.i(TestesActivity.TAG, "onCreate() finalizado");
+    }
+
+    private void processarCantosDoTabuleiro() {
+        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
+        posicaoDoTabuleiroNaImagem.put(0, 0,
+                cantosDoTabuleiro[0], cantosDoTabuleiro[1],
+                cantosDoTabuleiro[2], cantosDoTabuleiro[3],
+                cantosDoTabuleiro[4], cantosDoTabuleiro[5],
+                cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
+
+        cantos = new Point[4];
+        cantos[0] = new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]);
+        cantos[1] = new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]);
+        cantos[2] = new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]);
+        cantos[3] = new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
+        contornoDoTabuleiro = new MatOfPoint(cantos);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstaceState) {
+        super.onRestoreInstanceState(savedInstaceState);
+
+        restaurarPartidaSalvaTemporariamente();
+        processarCantosDoTabuleiro();
     }
 
     @Override
     public void onPause()
     {
-        // Salva a partida em disco
-        salvarArquivo();
+        guardaPartidaTemporariamente();
         super.onPause();
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
+        }
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+    }
+
+    private void guardaPartidaTemporariamente() {
+        File arquivo = getTempFile();
+        if (isExternalStorageWritable()) {
+            try {
+                FileOutputStream fos = new FileOutputStream(arquivo, false);
+                ObjectOutputStream oos = new ObjectOutputStream(fos);
+                oos.writeObject(partida);
+                oos.writeObject(arquivoDeRegistro);
+                oos.writeObject(cantosDoTabuleiro);
+                oos.close();
+                fos.close();
+                Log.i(TestesActivity.TAG, "Partida salva temporariamente no arquivo " + arquivo.getName());
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.i(TestesActivity.TAG, "ERRO: Armazenamento externo não disponível para guardar registro temporário da partida.");
         }
     }
 
@@ -155,6 +200,31 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     {
         super.onResume();
         OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+    }
+
+    private void restaurarPartidaSalvaTemporariamente() {
+        File arquivo = getTempFile();
+        if (isExternalStorageWritable()) {
+            try {
+                FileInputStream fis = new FileInputStream(arquivo);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                partida = (Partida) ois.readObject();
+                arquivoDeRegistro = (File) ois.readObject();
+                cantosDoTabuleiro = (int[]) ois.readObject();
+                ois.close();
+                fis.close();
+                Log.i(TestesActivity.TAG, "Partida recuperada.");
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.i(TestesActivity.TAG, "ERRO: Armazenamento externo não disponível para guardar registro temporário da partida.");
+        }
     }
 
     public void onDestroy() {
@@ -197,14 +267,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                         if (contadorDeJogadas % 5 == 0) {
                             salvarArquivo();
                         }
-                        try {
-                            mediaPlayer.stop();
-                            mediaPlayer.prepare();
-                            mediaPlayer.start();
-                        }
-                        catch (IOException e) {
-                            e.printStackTrace();
-                        }
+
+                        soundPool.play(beepId, 1, 1, 0, 0, 1);
+
                         if (partida.numeroDeJogadasFeitas() > 0) {
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -294,30 +359,32 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void rotacionar(int direcao) {
-        Point[] cantosRotacionados = new Point[4];
-        // Anti-horário
+        int[] cantosDoTabuleiroRotacionados = new int[8];
+
         if (direcao == -1) {
-            cantosRotacionados[0] = cantos[1];
-            cantosRotacionados[1] = cantos[2];
-            cantosRotacionados[2] = cantos[3];
-            cantosRotacionados[3] = cantos[0];
+            cantosDoTabuleiroRotacionados[0] = cantosDoTabuleiro[2];
+            cantosDoTabuleiroRotacionados[1] = cantosDoTabuleiro[3];
+            cantosDoTabuleiroRotacionados[2] = cantosDoTabuleiro[4];
+            cantosDoTabuleiroRotacionados[3] = cantosDoTabuleiro[5];
+            cantosDoTabuleiroRotacionados[4] = cantosDoTabuleiro[6];
+            cantosDoTabuleiroRotacionados[5] = cantosDoTabuleiro[7];
+            cantosDoTabuleiroRotacionados[6] = cantosDoTabuleiro[0];
+            cantosDoTabuleiroRotacionados[7] = cantosDoTabuleiro[1];
         }
         // Horário
         else if (direcao == 1) {
-            cantosRotacionados[0] = cantos[3];
-            cantosRotacionados[1] = cantos[0];
-            cantosRotacionados[2] = cantos[1];
-            cantosRotacionados[3] = cantos[2];
+            cantosDoTabuleiroRotacionados[0] = cantosDoTabuleiro[6];
+            cantosDoTabuleiroRotacionados[1] = cantosDoTabuleiro[7];
+            cantosDoTabuleiroRotacionados[2] = cantosDoTabuleiro[0];
+            cantosDoTabuleiroRotacionados[3] = cantosDoTabuleiro[1];
+            cantosDoTabuleiroRotacionados[4] = cantosDoTabuleiro[2];
+            cantosDoTabuleiroRotacionados[5] = cantosDoTabuleiro[3];
+            cantosDoTabuleiroRotacionados[6] = cantosDoTabuleiro[4];
+            cantosDoTabuleiroRotacionados[7] = cantosDoTabuleiro[5];
         }
-        contornoDoTabuleiro = new MatOfPoint(cantosRotacionados);
-        cantos = cantosRotacionados;
 
-        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
-        posicaoDoTabuleiroNaImagem.put(0, 0,
-                cantos[0].x, cantos[0].y,
-                cantos[1].x, cantos[1].y,
-                cantos[2].x, cantos[2].y,
-                cantos[3].x, cantos[3].y);
+        cantosDoTabuleiro = cantosDoTabuleiroRotacionados;
+        processarCantosDoTabuleiro();
 
         partida.rotacionar(direcao);
     }
@@ -394,7 +461,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    private File getFile(String filename) {
+    private File getFile() {
         File pasta = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
         if (!pasta.exists()) {
             if (!pasta.mkdirs()) {
@@ -406,10 +473,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         }
 
-        File arquivo = new File(pasta, filename);
+        File arquivo = new File(pasta, gerarNomeDeArquivo(0));
         int contador = 1;
         while (arquivo.exists()) {
-            String newFilename = filename + "(" + contador + ")";
+            String newFilename = gerarNomeDeArquivo(contador);
             arquivo = new File(pasta, newFilename);
             contador++;
         }
@@ -417,21 +484,42 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         return arquivo;
     }
 
-    private String gerarNomeDeArquivo() {
+    private File getTempFile() {
+        File pasta = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        if (!pasta.exists()) {
+            if (!pasta.mkdirs()) {
+                Toast.makeText(
+                        RegistrarPartidaActivity.this,
+                        "ERRO: Diretório " + pasta.toString() + " não criado.",
+                        Toast.LENGTH_LONG).show();
+                Log.i(TestesActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criado.");
+            }
+        }
+
+        return new File(pasta, "arquivo_temporario");
+    }
+
+    private String gerarNomeDeArquivo(int contadorDeNomeRepetido) {
         StringBuilder string = new StringBuilder();
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
+        String contador = "";
+        if (contadorDeNomeRepetido > 0) {
+            contador = "(" + contadorDeNomeRepetido + ")";
+        }
 
         string.append(partida.getJogadorDeBrancas())
                 .append("-")
                 .append(partida.getJogadorDePretas())
                 .append("_")
                 .append(sdf.format(new Date(c.getTimeInMillis())))
+                .append(contador)
                 .append(".sgf");
         return string.toString();
     }
 
+    // Verificar se isto está sendo chamado
     @Override
     public void onBackPressed() {
         temCertezaQueDesejaFinalizarORegisro();

@@ -2,6 +2,7 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,7 +11,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 /**
  * Representa um estado de tabuleiro
  */
-public class Tabuleiro {
+public class Tabuleiro implements Serializable {
 
     public final static int VAZIO = 0;
     public final static int PEDRA_PRETA = 1;

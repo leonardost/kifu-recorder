@@ -2,6 +2,7 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
 import android.util.Log;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,7 +14,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 /**
  * Guarda a sequência de jogadas que foram feitas durante uma partida.
  */
-public class Partida {
+public class Partida implements Serializable {
 
     private String jogadorDePretas;
     private String jogadorDeBrancas;
