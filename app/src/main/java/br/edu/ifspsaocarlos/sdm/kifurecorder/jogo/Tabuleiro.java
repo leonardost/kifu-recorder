@@ -30,6 +30,20 @@ public class Tabuleiro implements Serializable {
         }
     }
 
+    /**
+     * Constutor de cópia
+     * @param tabuleiro
+     */
+    public Tabuleiro(Tabuleiro tabuleiro) {
+        dimensao = tabuleiro.dimensao;
+        this.tabuleiro = new Integer[dimensao][dimensao];
+        for (int i = 0; i < dimensao; ++i) {
+            for (int j = 0; j < dimensao; ++j) {
+                this.tabuleiro[i][j] = tabuleiro.tabuleiro[i][j];
+            }
+        }
+    }
+
     public int getDimensao() {
         return dimensao;
     }
@@ -41,6 +55,9 @@ public class Tabuleiro implements Serializable {
         if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) {
             throw new RuntimeException("Posição inválida!");
         }
+        if (tabuleiro[linha][coluna] != VAZIO) {
+			throw new RuntimeException("Já existe uma pedra nessa posição!");
+		}
         tabuleiro[linha][coluna] = pedra;
     }
 
@@ -408,5 +425,40 @@ public class Tabuleiro implements Serializable {
         }
         // Se não entrou em nenhuma das condições, encontrou uma pedra de cor diferente da do grupo
     }
+
+	/**
+	 * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
+     * válida, retorna o tabuleiro antigo.
+	 */
+	public Tabuleiro gerarNovoTabuleiroComAJogada(Jogada jogada) {
+        if (jogada == null) return this;
+        if (tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
+        Tabuleiro novoTabuleiro = new Tabuleiro(this);
+
+        Grupo[] gruposAoRedor = new Grupo[4];
+        gruposAoRedor[0] = grupoEm(jogada.linha - 1, jogada.coluna);
+        gruposAoRedor[1] = grupoEm(jogada.linha + 1, jogada.coluna);
+        gruposAoRedor[2] = grupoEm(jogada.linha, jogada.coluna - 1);
+        gruposAoRedor[3] = grupoEm(jogada.linha, jogada.coluna + 1);
+
+        // Verifica quais grupos serão capturados e os remove do tabuleiro
+        for (Grupo grupo : gruposAoRedor) {
+            if (grupo == null || grupo.getCor() == jogada.cor) continue;
+            if (grupo.getLiberdades().size() == 1 &&
+                    grupo.getLiberdades().contains(jogada.posicao())) {
+                // Captura grupo
+                for (Posicao posicao : grupo.getPosicoes()) {
+                    novoTabuleiro.tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
+                }
+            }
+        }
+
+        novoTabuleiro.tabuleiro[jogada.linha][jogada.coluna] = jogada.cor;
+
+        Grupo grupoDaJogada = novoTabuleiro.grupoEm(jogada.linha, jogada.coluna);
+        if (grupoDaJogada.getLiberdades().isEmpty()) return this;
+
+		return novoTabuleiro;
+	}
 
 }

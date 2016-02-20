@@ -163,7 +163,7 @@ public class Desenhista {
             centro.x = x + distanciaEntreLinhas + ultimaJogada.coluna * distanciaEntreLinhas;
             centro.y = y + distanciaEntreLinhas + ultimaJogada.linha * distanciaEntreLinhas;
             Scalar corDaMarcacao = ultimaJogada.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
-            Core.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 2);
+            Core.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
 //            Core.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }
     }

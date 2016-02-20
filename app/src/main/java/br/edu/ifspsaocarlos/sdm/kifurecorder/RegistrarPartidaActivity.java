@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
@@ -43,6 +44,9 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
+
+	// Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
+	long tempoLimite = 1500;
 
     int[] cantosDoTabuleiro;
     Mat posicaoDoTabuleiroNaImagem;
@@ -246,15 +250,17 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
      * Método chamado sempre que há um frame da câmera pronto para ser processado
      */
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
         Mat tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
-        Tabuleiro tabuleiro = detectorDePedras.detectar();
-
-        long tempoLimite = 2000;
+  
+        Jogada jogada = detectorDePedras.detectar(partida.ultimoTabuleiro());
+        Tabuleiro tabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogada);
+//        Tabuleiro tabuleiro = detectorDePedras.detectar();
 
         if (!pausado) {
 
@@ -298,6 +304,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
         }
 
+        Log.d(TestesActivity.TAG, "TEMPO (onCameraFrame()): " + (System.currentTimeMillis() - tempoEntrou));
         return imagemFonte;
     }
 
