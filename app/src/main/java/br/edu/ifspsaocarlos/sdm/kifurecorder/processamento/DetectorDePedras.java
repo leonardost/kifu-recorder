@@ -72,41 +72,17 @@ public class DetectorDePedras {
         int larguraImagem = (int)imagemDoTabuleiro.size().width;
         int alturaImagem = (int)imagemDoTabuleiro.size().height;
 
-        Tabuleiro tabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
+//        Tabuleiro tabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
 
         double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
 //        Log.d(TestesActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
 
-		Jogada jogada = null;
         double[][] coresMedias = new double[3][imagemDoTabuleiro.channels()];
         int[] contadores = new int[3];
-        contadores[Tabuleiro.VAZIO] = 0;
-        contadores[Tabuleiro.PEDRA_PRETA] = 0;
-        contadores[Tabuleiro.PEDRA_BRANCA] = 0;
 
-        for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
-            for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
-                int cor = ultimoTabuleiro.getPosicao(i, j);
-                contadores[cor]++;
-                double[] mediaDeCorNaPosicao = recuperarMediaDeCores(
-                        imagemDoTabuleiro,
-                        (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
-                        (j * larguraImagem / (dimensaoDoTabuleiro - 1))
-                );
-                for (int k = 0; k < imagemDoTabuleiro.channels(); ++k) {
-                    coresMedias[cor][k] += mediaDeCorNaPosicao[k];
-                }
-            }
-        }
-        Log.d(TestesActivity.TAG, "TEMPO (detectar() (1)): " + (System.currentTimeMillis() - tempoEntrou));
+        encontrarCoresMedias(ultimoTabuleiro, coresMedias, contadores);
 
-        for (int i = 0; i < 3; ++i) {
-            if (contadores[i] > 0) {
-                for (int j = 0; j < imagemDoTabuleiro.channels(); ++j) {
-                    coresMedias[i][j] /= contadores[i];
-                }
-            }
-        }
+        Jogada jogada = null;
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
@@ -115,14 +91,18 @@ public class DetectorDePedras {
 				// Ignora as interseções das jogadas que já foram feitas
 				if (ultimoTabuleiro.getPosicao(i, j) != Tabuleiro.VAZIO) continue;
 
-                double[] color = recuperarCorPredominanteNaPosicao(
+                double[] corAoRedorDaPosicao = recuperarCorPredominanteNaPosicao(
                         (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
                         (j * larguraImagem / (dimensaoDoTabuleiro - 1)),
                         imagemDoTabuleiro
                 );
 
+                Log.d(TestesActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao));
+                Log.d(TestesActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao));
+
 //                int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
-                int hipotese = hipoteseDeCor2(color, corMediaDoTabuleiro, coresMedias, contadores);
+//                int hipotese = hipoteseDeCor2(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
+                int hipotese = hipoteseDeCor3(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
                 if (hipotese != Tabuleiro.VAZIO) {
 					// Já havia detectado outra jogada, há algo errado
 					if (jogada != null) return null;
@@ -137,12 +117,53 @@ public class DetectorDePedras {
 		return jogada;
 	}
 
-    private int hipoteseDeCor2(double[] cor, double[] corMediaDoTabuleiro, double[][] coresMedias, int[] contadores) {
+    private void encontrarCoresMedias(Tabuleiro ultimoTabuleiro, double[][] coresMedias, int[] contadores) {
         long tempoEntrou = System.currentTimeMillis();
-        double[] preto = {0.0, 0.0, 0.0, 255.0};
+        contadores[Tabuleiro.VAZIO] = 0;
+        contadores[Tabuleiro.PEDRA_PRETA] = 0;
+        contadores[Tabuleiro.PEDRA_BRANCA] = 0;
+
+        int larguraImagem = (int)imagemDoTabuleiro.size().width;
+        int alturaImagem = (int)imagemDoTabuleiro.size().height;
+
+        for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
+            for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
+                int cor = ultimoTabuleiro.getPosicao(i, j);
+                contadores[cor]++;
+
+                double[] mediaDeCorNaPosicao = recuperarMediaDeCores(
+                        imagemDoTabuleiro,
+                        (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        (j * larguraImagem / (dimensaoDoTabuleiro - 1))
+                );
+
+                for (int k = 0; k < imagemDoTabuleiro.channels(); ++k) {
+                    coresMedias[cor][k] += mediaDeCorNaPosicao[k];
+                }
+            }
+        }
+        Log.d(TestesActivity.TAG, "TEMPO (detectar() (1)): " + (System.currentTimeMillis() - tempoEntrou));
+
+        for (int i = 0; i < 3; ++i) {
+            if (contadores[i] > 0) {
+                for (int j = 0; j < imagemDoTabuleiro.channels(); ++j) {
+                    coresMedias[i][j] /= contadores[i];
+                }
+                Log.d(TestesActivity.TAG, "Cor média[" + i + "] = " + printColor(coresMedias[i]));
+                Log.d(TestesActivity.TAG, "Luminancia[" + i + "] = " + luminancia(coresMedias[i]));
+            }
+        }
+    }
+
+    private int hipoteseDeCor2(double[] cor, double[] corMediaDoTabuleiro, double[][] coresMedias, int[] contadores) {
+        double[] preto = {10.0, 10.0, 10.0, 255.0};
 
         double distanciaParaPreto = distanciaDeCor(cor, preto);
 
+        double distanciaParaMediaIntersecoes = 999;
+        if (contadores[Tabuleiro.VAZIO] > 0) {
+            distanciaParaMediaIntersecoes = distanciaDeCor(cor, coresMedias[Tabuleiro.VAZIO]);
+        }
         double distanciaParaMediaPecasPretas = 999;
         if (contadores[Tabuleiro.PEDRA_PRETA] > 0) {
             distanciaParaMediaPecasPretas = distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_PRETA]);
@@ -151,48 +172,104 @@ public class DetectorDePedras {
         if (contadores[Tabuleiro.PEDRA_BRANCA] > 0) {
             distanciaParaMediaPecasBrancas = distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_BRANCA]);
         }
-        double distanciaParaMediaIntersecoes = 999;
-        if (contadores[Tabuleiro.VAZIO] > 0) {
-            distanciaParaMediaIntersecoes = distanciaDeCor(cor, coresMedias[Tabuleiro.VAZIO]);
-        }
 
         if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (distanciaParaPreto < 60 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
-//                Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
                 return Tabuleiro.PEDRA_PRETA;
             }
             else {
-//                Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
                 return Tabuleiro.VAZIO;
             }
         }
         if (contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (distanciaParaPreto < 60 || distanciaParaMediaPecasPretas < 30) {
-//                Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
                 return Tabuleiro.PEDRA_PRETA;
             }
             else if (cor[2] >= 150 || cor[2] >= corMediaDoTabuleiro[2] * 1.35) {
-//                Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
                 return Tabuleiro.PEDRA_BRANCA;
             }
             else {
-//                Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
                 return Tabuleiro.VAZIO;
             }
         }
 
         if (distanciaParaMediaPecasPretas < distanciaParaMediaIntersecoes &&
                 distanciaParaMediaPecasPretas < distanciaParaMediaPecasBrancas) {
-//            Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
             return Tabuleiro.PEDRA_PRETA;
         }
         else if (distanciaParaMediaPecasBrancas < distanciaParaMediaIntersecoes &&
                 distanciaParaMediaPecasBrancas < distanciaParaMediaPecasPretas) {
-//            Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
             return Tabuleiro.PEDRA_BRANCA;
         }
-//        Log.d(TestesActivity.TAG, "TEMPO (hipoteseCor2()): " + (System.currentTimeMillis() - tempoEntrou));
         return Tabuleiro.VAZIO;
+    }
+
+    private int hipoteseDeCor3(double[] cor, double[] corMediaDoTabuleiro, double[][] coresMedias, int[] contadores) {
+        double[] preto = {10.0, 10.0, 10.0, 255.0};
+
+        double luminanciaSendoVerificada = luminancia(cor);
+        double distanciaParaPreto = distanciaDeCor(cor, preto);
+
+        double distanciaParaMediaIntersecoes = 999;
+        if (contadores[Tabuleiro.VAZIO] > 0) {
+            distanciaParaMediaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.VAZIO])) ;
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.VAZIO]);
+        }
+        double distanciaParaMediaPecasPretas = 999;
+        if (contadores[Tabuleiro.PEDRA_PRETA] > 0) {
+            distanciaParaMediaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_PRETA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_PRETA]);
+        }
+        double distanciaParaMediaPecasBrancas = 999;
+        if (contadores[Tabuleiro.PEDRA_BRANCA] > 0) {
+            distanciaParaMediaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_BRANCA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_BRANCA]);
+        }
+
+        if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+        if (contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaMediaPecasPretas < 30) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            else if (cor[2] >= 150 || cor[2] >= corMediaDoTabuleiro[2] * 1.35) {
+                return Tabuleiro.PEDRA_BRANCA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+
+        // Vamos deixar alguns hard limits aqui, acho que pode ser últil
+        if (distanciaParaPreto < 30 || distanciaParaMediaPecasPretas < 30) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        if (cor[2] >= 170 || distanciaParaMediaPecasBrancas < 30) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        if (distanciaParaMediaIntersecoes < 30) {
+            return Tabuleiro.VAZIO;
+        }
+
+        if (distanciaParaMediaPecasPretas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasPretas < distanciaParaMediaPecasBrancas) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        else if (distanciaParaMediaPecasBrancas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasBrancas < distanciaParaMediaPecasPretas) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        return Tabuleiro.VAZIO;
+    }
+
+    private double luminancia(double cor[]) {
+        return 0.299 * cor[0] + 0.587 * cor[1] + 0.114 * cor[2];
     }
 
     private String printColor(double color[]) {
@@ -221,18 +298,21 @@ public class DetectorDePedras {
         return color;
     }
 
-    // TODO: Refatorar este método pra usar o Core.mean
+
+    /**
+     * Recupera a cor media ao redor de uma posiçao na imagem
+     *
+     * @param imagem
+     * @param y
+     * @param x
+     * @return
+     */
     private double[] recuperarMediaDeCores(Mat imagem, int y, int x) {
         long tempoEntrou = System.currentTimeMillis();
 
-        double[] color = new double[imagem.channels()];
-        /*for (int i = 0; i < color.length; ++i) {
-            color[i] = 0;
-        }*/
         // Este raio deve variar de acordo com o tamanho do tabuleiro
         // As pedras tem tamanho mais ou menos padrão, então não sei o quanto este parâmetro afetaria
         int radius = 8;
-        int contador = 0;
 
         // Não é um círculo, mas pelo speedup, acho que compensa
         Mat roi = imagem.submat(
@@ -243,37 +323,15 @@ public class DetectorDePedras {
         );
         Scalar mediaScalar = Core.mean(roi);
 
-        double[] media = new double[imagem.channels()];
-
+        double[] corMedia = new double[imagem.channels()];
         for (int i = 0; i < mediaScalar.val.length; ++i) {
-            color[i] = mediaScalar.val[i];
+            corMedia[i] = mediaScalar.val[i];
         }
 
-        /*
-        for (int yy = y - radius; yy <= y + radius; ++yy) {
-            if (yy < 0 || yy >= imagem.height()) continue;
-            for (int xx = x - radius; xx <= x + radius; ++xx) {
-                if (xx < 0 || xx >= imagem.width()) continue;
-                double distancia = distance(xx, yy, x, y);
-                if (distancia < radius) {
-                    double c[] = imagem.get(yy, xx);
-                    for (int i = 0; i < c.length; ++i) {
-                        color[i] += c[i];
-                    }
-                    contador++;
-                }
-            }
-        }
-
-        for (int i = 0; i < color.length; ++i) {
-            color[i] /= contador;
-        }
-        */
-
-//        Log.i(TestesActivity.TAG, printColor(color));
+//        Log.i(TestesActivity.TAG, "Cor média ao redor de (" + x + ", " + y + ") = " + printColor(corMedia));
 
         //Log.d(TestesActivity.TAG, "TEMPO (recuperarMediaDeCores()): " + (System.currentTimeMillis() - tempoEntrou));
-        return color;
+        return corMedia;
     }
 
     private double[] recuperarMediaGaussianaDeCores(Mat imagem, int y, int x) {
