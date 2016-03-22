@@ -33,6 +33,7 @@
     <string name="dialog_tem_certeza">Tem certeza?</string>
     <string name="dialog_voltar_ultima_jogada">Deseja voltar a última jogada?</string>
     <string name="dialog_finalizar_registro">Deseja finalizar o registro da partida?</string>
+    <string name="dialog_adicionar_jogada">Adicionar jogada à partida</string>
 
     <string name="sim">Sim</string>
     <string name="nao">Não</string>

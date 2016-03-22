@@ -101,14 +101,40 @@ public class DetectorDePedras {
                         imagemDoTabuleiro
                 );
 
+                double[][] coresNasPosicoesLivresAdjacentes = new double[4][];
+                coresNasPosicoesLivresAdjacentes[0] = (i > 0) ? ultimoTabuleiro.getPosicao(i - 1, j) == Tabuleiro.VAZIO ? recuperarCorPredominanteNaPosicao(
+                        ((i - 1) * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        (j * larguraImagem / (dimensaoDoTabuleiro - 1)),
+                        imagemDoTabuleiro
+                ) : null : null;
+                coresNasPosicoesLivresAdjacentes[1] = (j < dimensaoDoTabuleiro - 1) ? ultimoTabuleiro.getPosicao(i, j + 1) == Tabuleiro.VAZIO ? recuperarCorPredominanteNaPosicao(
+                        (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        ((j + 1) * larguraImagem / (dimensaoDoTabuleiro - 1)),
+                        imagemDoTabuleiro
+                ) : null : null;
+                coresNasPosicoesLivresAdjacentes[2] = (i < dimensaoDoTabuleiro - 1) ? ultimoTabuleiro.getPosicao(i + 1, j) == Tabuleiro.VAZIO ? recuperarCorPredominanteNaPosicao(
+                        ((i + 1) * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        (j * larguraImagem / (dimensaoDoTabuleiro - 1)),
+                        imagemDoTabuleiro
+                ) : null : null;
+                coresNasPosicoesLivresAdjacentes[3] = (j > 0) ? ultimoTabuleiro.getPosicao(i, j - 1) == Tabuleiro.VAZIO ? recuperarCorPredominanteNaPosicao(
+                        (i * alturaImagem / (dimensaoDoTabuleiro - 1)),
+                        ((j - 1) * larguraImagem / (dimensaoDoTabuleiro - 1)),
+                        imagemDoTabuleiro
+                ) : null : null;
+
                 Log.d(TestesActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao));
                 Log.d(TestesActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao));
+                Log.d(TestesActivity.TAG, "Variância ao redor de (" + i + ", " + j + ") = " + variancia(corAoRedorDaPosicao));
                 snapshot.append("Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao) + "\n");
                 snapshot.append("Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao) + "\n");
+                snapshot.append("Variância ao redor de (" + i + ", " + j + ") = " + variancia(corAoRedorDaPosicao) + "\n");
 
 //                int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
 //                int hipotese = hipoteseDeCor2(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
                 int hipotese = hipoteseDeCor3(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
+//                int hipotese = hipoteseDeCor4(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
+//                int hipotese = hipoteseDeCor5(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores, coresNasPosicoesLivresAdjacentes);
 
                 snapshot.append("Hipótese para (" + i + ", " + j + ") = " + hipotese + "\n");
 
@@ -171,6 +197,8 @@ public class DetectorDePedras {
                     snapshot.append("pedras brancas");
                 }
                 snapshot.append(") = " + printColor(coresMedias[i]) + "\n");
+                snapshot.append("Luminancia = " + luminancia(coresMedias[i]) + "\n");
+                snapshot.append("Variância = " + variancia(coresMedias[i]) + "\n");
             }
         }
     }
@@ -292,12 +320,189 @@ public class DetectorDePedras {
         return 0.299 * cor[0] + 0.587 * cor[1] + 0.114 * cor[2];
     }
 
+    /**
+     * Hipótese que leva em conta a variância das cores
+     * @param cor
+     * @param corMediaDoTabuleiro
+     * @param coresMedias
+     * @param contadores
+     * @return
+     */
+    private int hipoteseDeCor4(double[] cor, double[] corMediaDoTabuleiro, double[][] coresMedias, int[] contadores) {
+        double[] preto = {10.0, 10.0, 10.0, 255.0};
+
+        double luminanciaSendoVerificada = luminancia(cor);
+        double distanciaParaPreto = distanciaDeCor(cor, preto);
+
+        // Se a variância é maior que um certo valor, considera que é uma interseção vazia
+        // TODO: Este valor pode varia de acordo com a cor do tabuleiro, será que seria melhor
+        //       baseá-lo na variância da cor média do tabuleiro? Mas difiiclmente um tabuleiro
+        //       tem cor próxima do cinza
+
+        // Percebi que a variância não é uma boa medida para verificar se é uma interseção vazia,
+        // alguns testes mostram que uma pedra branca pode ter variãncia maior que o tabuleiro,
+        // dependendo das condições de iluminação
+        if (variancia(cor) > 150) return Tabuleiro.VAZIO;
+
+        double distanciaParaMediaIntersecoes = 999;
+        if (contadores[Tabuleiro.VAZIO] > 0) {
+            distanciaParaMediaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.VAZIO])) ;
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.VAZIO]);
+        }
+        double distanciaParaMediaPecasPretas = 999;
+        if (contadores[Tabuleiro.PEDRA_PRETA] > 0) {
+            distanciaParaMediaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_PRETA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_PRETA]);
+        }
+        double distanciaParaMediaPecasBrancas = 999;
+        if (contadores[Tabuleiro.PEDRA_BRANCA] > 0) {
+            distanciaParaMediaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_BRANCA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_BRANCA]);
+        }
+
+        if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+
+        if (contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaMediaPecasPretas < 30) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            // Estes valores para pedras brancas precisariam ser revistos
+            else if (cor[2] >= 150 || cor[2] >= corMediaDoTabuleiro[2] * 1.25) {
+                return Tabuleiro.PEDRA_BRANCA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+
+        if (distanciaParaPreto < 30 || distanciaParaMediaPecasPretas < 25) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        if (cor[2] >= 170 || distanciaParaMediaPecasBrancas < 25) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        if (variancia(cor) > 120 || distanciaParaMediaIntersecoes < 25) {
+            return Tabuleiro.VAZIO;
+        }
+
+        if (distanciaParaMediaPecasPretas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasPretas < distanciaParaMediaPecasBrancas) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        else if (distanciaParaMediaPecasBrancas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasBrancas < distanciaParaMediaPecasPretas) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        return Tabuleiro.VAZIO;
+    }
+
+    private int hipoteseDeCor5(double[] cor, double[] corMediaDoTabuleiro, double[][] coresMedias, int[] contadores, double[][] coresNasPosicoesAdjacentes) {
+        double[] preto = {10.0, 10.0, 10.0, 255.0};
+
+        double luminanciaSendoVerificada = luminancia(cor);
+        double distanciaParaPreto = distanciaDeCor(cor, preto);
+        double diferencaDeLuminanciaParaOsVizinhos = diferencaDeLuminancia(cor, coresNasPosicoesAdjacentes);
+        snapshot.append("Diferença de luminância para as posições adjacentes vazias = " + diferencaDeLuminanciaParaOsVizinhos + "\n");
+
+        double distanciaParaMediaIntersecoes = 999;
+        if (contadores[Tabuleiro.VAZIO] > 0) {
+            distanciaParaMediaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.VAZIO])) ;
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.VAZIO]);
+        }
+        double distanciaParaMediaPecasPretas = 999;
+        if (contadores[Tabuleiro.PEDRA_PRETA] > 0) {
+            distanciaParaMediaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_PRETA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_PRETA]);
+        }
+        double distanciaParaMediaPecasBrancas = 999;
+        if (contadores[Tabuleiro.PEDRA_BRANCA] > 0) {
+            distanciaParaMediaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Tabuleiro.PEDRA_BRANCA]));
+//                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_BRANCA]);
+        }
+
+        if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+
+        if (contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
+            if (distanciaParaPreto < 50 || distanciaParaMediaPecasPretas < 30) {
+                return Tabuleiro.PEDRA_PRETA;
+            }
+            else if (diferencaDeLuminanciaParaOsVizinhos > 70) {
+                return Tabuleiro.PEDRA_BRANCA;
+            }
+            // Estes valores para pedras brancas precisariam ser revistos
+            else if (cor[2] >= 150 || cor[2] >= corMediaDoTabuleiro[2] * 1.25) {
+                return Tabuleiro.PEDRA_BRANCA;
+            }
+            else {
+                return Tabuleiro.VAZIO;
+            }
+        }
+
+        if (distanciaParaPreto < 30 || distanciaParaMediaPecasPretas < 25) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        if (diferencaDeLuminanciaParaOsVizinhos > 70) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        if (cor[2] >= 170 || distanciaParaMediaPecasBrancas < 25) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        if (variancia(cor) > 120 || distanciaParaMediaIntersecoes < 25) {
+            return Tabuleiro.VAZIO;
+        }
+
+        if (distanciaParaMediaPecasPretas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasPretas < distanciaParaMediaPecasBrancas) {
+            return Tabuleiro.PEDRA_PRETA;
+        }
+        else if (distanciaParaMediaPecasBrancas < distanciaParaMediaIntersecoes &&
+                distanciaParaMediaPecasBrancas < distanciaParaMediaPecasPretas) {
+            return Tabuleiro.PEDRA_BRANCA;
+        }
+        return Tabuleiro.VAZIO;
+    }
+
+    private double diferencaDeLuminancia(double cor[], double corNasPosicoesAdjacentes[][]) {
+        double diferenca = 0;
+        double luminanciaDoCentro = luminancia(cor);
+        for (int i = 0; i < 4; ++i) {
+            if (corNasPosicoesAdjacentes[i] != null) {
+                double luminancia = luminancia(corNasPosicoesAdjacentes[i]);
+                diferenca += (luminanciaDoCentro - luminancia);
+            }
+        }
+        return diferenca;
+    }
+
     private String printColor(double color[]) {
         StringBuilder saida = new StringBuilder("(");
         for (int i = 0; i < color.length; ++i) {
             saida.append(color[i] + ", ");
         }
+        saida.append(")");
         return saida.toString();
+    }
+
+    private double variancia(double cor[]) {
+        double media = (cor[0] + cor[1] + cor[2]) / 3;
+        double diferencas[] = {cor[0] - media, cor[1] - media, cor[2] - media};
+        return (diferencas[0] * diferencas[0] +
+                diferencas[1] * diferencas[1] +
+                diferencas[2] * diferencas[2]) / 3;
     }
 
     // TODO: Transformar hipóteses de recuperação de cor em classes separadas

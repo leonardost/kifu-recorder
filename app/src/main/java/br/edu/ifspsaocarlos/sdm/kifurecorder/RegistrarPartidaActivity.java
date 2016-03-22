@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
@@ -73,6 +74,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     ImageButton btnRotacionarDireita;
     ImageButton btnPausar;
     ImageButton btnSnapshot;
+    ImageButton btnAdicionarJogada;
     Button btnFinalizar;
     SoundPool soundPool;
     int beepId;
@@ -137,6 +139,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         btnFinalizar.setOnClickListener(this);
         btnSnapshot = (ImageButton) findViewById(R.id.btnSnapshot);
         btnSnapshot.setOnClickListener(this);
+        btnAdicionarJogada = (ImageButton) findViewById(R.id.btnAdicionarPedra);
+        btnAdicionarJogada.setOnClickListener(this);
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
@@ -349,6 +353,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 break;
             case R.id.btnSnapshot:
                 tirarSnapshot();
+                break;
+            case R.id.btnAdicionarPedra:
+                adicionarJogadaAoRegistro();
                 break;
         }
     }
@@ -610,6 +617,50 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     @Override
     public void onBackPressed() {
         temCertezaQueDesejaFinalizarORegisro();
+    }
+
+    private void adicionarJogadaAoRegistro() {
+        AlertDialog.Builder dialogo = new AlertDialog.Builder(this);
+
+        final EditText input = new EditText(RegistrarPartidaActivity.this);
+
+        dialogo.setTitle(R.string.dialog_adicionar_jogada)
+                .setMessage(getString(R.string.dialog_adicionar_jogada))
+                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String jogada = input.getText().toString();
+                        jogada = jogada.trim();
+                        if (jogada.length() != 3) return;
+                        jogada = jogada.toLowerCase();
+                        int cor = jogada.charAt(0) == 'b' ? Tabuleiro.PEDRA_PRETA : Tabuleiro.PEDRA_BRANCA;
+                        int linha = jogada.charAt(1) - 'a';
+                        int coluna = jogada.charAt(2) - 'a';
+                        Jogada jogadaAdicionda = new Jogada(linha, coluna, cor);
+                        Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogadaAdicionda);
+                        if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
+                            contadorDeJogadas++;
+                            if (contadorDeJogadas % 5 == 0) {
+                                salvarArquivo();
+                            }
+
+                            soundPool.play(beepId, 1, 1, 0, 0, 1);
+
+                            if (partida.numeroDeJogadasFeitas() > 0) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        btnVoltarUltimaJogada.setEnabled(true);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                })
+                .setNegativeButton(R.string.nao, null)
+                .setView(input)
+                .show();
+
     }
 
 }
