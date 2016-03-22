@@ -50,6 +50,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_finalizar_registro" />
+        <ImageButton
+            android:id="@+id/btnSnapshot"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/snapshot" />
         <!--<Button
             android:id="@+id/btnVisualizarRegistro"
             android:layout_width="wrap_content"

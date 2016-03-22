@@ -19,6 +19,8 @@ public class Partida implements Serializable {
     private String jogadorDePretas;
     private String jogadorDeBrancas;
     private String komi;
+    // Atributo para medir a precisao do sistema
+    private int numeroDeVezesQueVoltou;
 
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
@@ -28,6 +30,7 @@ public class Partida implements Serializable {
         tabuleiros = new ArrayList<>();
         Tabuleiro vazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(vazio);
+        numeroDeVezesQueVoltou = 0;
     }
 
     public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
@@ -38,6 +41,7 @@ public class Partida implements Serializable {
         this.jogadorDePretas = jogadorDePretas;
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
+        numeroDeVezesQueVoltou = 0;
     }
 
     public void setJogadorDePretas(String jogadorDePretas) {
@@ -141,6 +145,7 @@ public class Partida implements Serializable {
         if (tabuleiros.size() == 1) return;
         tabuleiros.remove(tabuleiros.size() - 1);
         jogadas.remove(jogadas.size() - 1);
+        numeroDeVezesQueVoltou++;
     }
 
     public int numeroDeJogadasFeitas() {
@@ -181,6 +186,8 @@ public class Partida implements Serializable {
         escreverProperiedade(sgf, "KM", komi);
         escreverProperiedade(sgf, "PW", jogadorDeBrancas);
         escreverProperiedade(sgf, "PB", jogadorDePretas);
+        escreverProperiedade(sgf, "Z1", "" + numeroDeJogadasFeitas());
+        escreverProperiedade(sgf, "Z2", "" + numeroDeVezesQueVoltou);
     }
 
     private void escreverProperiedade(StringBuilder sgf, String propriedade, String valor) {

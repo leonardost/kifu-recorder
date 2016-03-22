@@ -24,6 +24,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,9 +50,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 	// Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
 	long tempoLimite = 1500;
 
-    int[] cantosDoTabuleiro;
-    Mat posicaoDoTabuleiroNaImagem;
-    int dimensaoDoTabuleiro;
+    int[] cantosDoTabuleiro;                // Pontos dos cantos do tabuleiro
+    Mat posicaoDoTabuleiroNaImagem;         // Matriz que contem os cantos do tabuleiro
+    int dimensaoDoTabuleiro;                // 9x9, 13x13 ou 19x19
     Point[] cantos;
     MatOfPoint contornoDoTabuleiro;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
@@ -58,6 +60,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long tempoDesdeUltimaMudancaDeTabuleiro;
     Tabuleiro ultimoTabuleiro;
     Partida partida;
+    String snapshotAtual;
+    Mat tabuleiroOrtogonal;
     // A cada 5 jogadas feitas a partida é salva automaticamente
     int contadorDeJogadas = 0;
 
@@ -68,6 +72,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     ImageButton btnRotacionarEsquerda;
     ImageButton btnRotacionarDireita;
     ImageButton btnPausar;
+    ImageButton btnSnapshot;
     Button btnFinalizar;
     SoundPool soundPool;
     int beepId;
@@ -130,6 +135,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         btnPausar.setOnClickListener(this);
         btnFinalizar = (Button) findViewById(R.id.btnFinalizar);
         btnFinalizar.setOnClickListener(this);
+        btnSnapshot = (ImageButton) findViewById(R.id.btnSnapshot);
+        btnSnapshot.setOnClickListener(this);
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
@@ -253,13 +260,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
-        Mat tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
+        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
+        // Desenha o tabuleiro ortogonal na tela
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
   
         Jogada jogada = detectorDePedras.detectar(partida.ultimoTabuleiro());
         Tabuleiro tabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogada);
+        snapshotAtual = detectorDePedras.snapshot.toString();
 //        Tabuleiro tabuleiro = detectorDePedras.detectar();
 
         if (!pausado) {
@@ -338,6 +347,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             case R.id.btnFinalizar:
                 temCertezaQueDesejaFinalizarORegisro();
                 break;
+            case R.id.btnSnapshot:
+                tirarSnapshot();
+                break;
         }
     }
 
@@ -363,6 +375,27 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 })
                 .setNegativeButton(R.string.nao, null)
                 .show();
+    }
+
+    private void tirarSnapshot() {
+        File arquivoSnapshot = getFileSnapshot();
+        File arquivoImagemSnapshot = getFileImagemSnapshot();
+        try {
+            FileOutputStream fos = new FileOutputStream(arquivoSnapshot, false);
+            Mat imagemFormatoDeCorCerto = new Mat();
+            Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+            Highgui.imwrite(arquivoImagemSnapshot.getAbsolutePath(), imagemFormatoDeCorCerto);
+            fos.write(snapshotAtual.getBytes());
+            fos.flush();
+            fos.close();
+            Log.i(TestesActivity.TAG, "Snapshot salva: " + arquivoSnapshot.getName() + " com conteúdo " + snapshotAtual);
+            Toast.makeText(RegistrarPartidaActivity.this,
+                    "Snapshot salva no arquivo: " + arquivoSnapshot.getName() + ".",
+                    Toast.LENGTH_LONG).show();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void rotacionar(int direcao) {
@@ -480,10 +513,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         }
 
-        File arquivo = new File(pasta, gerarNomeDeArquivo(0));
+        File arquivo = new File(pasta, gerarNomeDeArquivo(0, "sgf"));
         int contador = 1;
         while (arquivo.exists()) {
-            String newFilename = gerarNomeDeArquivo(contador);
+            String newFilename = gerarNomeDeArquivo(contador, "sgf");
             arquivo = new File(pasta, newFilename);
             contador++;
         }
@@ -506,7 +539,53 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         return new File(pasta, "arquivo_temporario");
     }
 
-    private String gerarNomeDeArquivo(int contadorDeNomeRepetido) {
+    private File getFileSnapshot() {
+        File pasta = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        if (!pasta.exists()) {
+            if (!pasta.mkdirs()) {
+                Toast.makeText(
+                        RegistrarPartidaActivity.this,
+                        "ERRO: Diretório " + pasta.toString() + " não criado.",
+                        Toast.LENGTH_LONG).show();
+                Log.i(TestesActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criada.");
+            }
+        }
+
+        File arquivo = new File(pasta, gerarNomeDeArquivo(0, "txt"));
+        int contador = 1;
+        while (arquivo.exists()) {
+            String newFilename = gerarNomeDeArquivo(contador, "txt");
+            arquivo = new File(pasta, newFilename);
+            contador++;
+        }
+
+        return arquivo;
+    }
+
+    private File getFileImagemSnapshot() {
+        File pasta = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        if (!pasta.exists()) {
+            if (!pasta.mkdirs()) {
+                Toast.makeText(
+                        RegistrarPartidaActivity.this,
+                        "ERRO: Diretório " + pasta.toString() + " não criado.",
+                        Toast.LENGTH_LONG).show();
+                Log.i(TestesActivity.TAG, "ERRO: Diretório " + pasta.toString() + " não criada.");
+            }
+        }
+
+        File arquivo = new File(pasta, gerarNomeDeArquivo(0, "jpg"));
+        int contador = 1;
+        while (arquivo.exists()) {
+            String newFilename = gerarNomeDeArquivo(contador, "jpg");
+            arquivo = new File(pasta, newFilename);
+            contador++;
+        }
+
+        return arquivo;
+    }
+
+    private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String extensao) {
         StringBuilder string = new StringBuilder();
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
@@ -522,7 +601,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .append("_")
                 .append(sdf.format(new Date(c.getTimeInMillis())))
                 .append(contador)
-                .append(".sgf");
+                .append(".")
+                .append(extensao);
         return string.toString();
     }
 

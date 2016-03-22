@@ -20,6 +20,8 @@ public class DetectorDePedras {
     private Mat imagemDoTabuleiro;
     // Dimensões do tabuleiro (9x9, 13x13 ou 19x19)
     private int dimensaoDoTabuleiro;
+    // Informações de debug do estado atual sendo visto pelo detector
+    public StringBuilder snapshot;
 
     public void setDimensaoDoTabuleiro(int dimensaoDoTabuleiro) {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
@@ -75,10 +77,12 @@ public class DetectorDePedras {
 //        Tabuleiro tabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
 
         double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
-//        Log.d(TestesActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
-
         double[][] coresMedias = new double[3][imagemDoTabuleiro.channels()];
         int[] contadores = new int[3];
+
+//        Log.d(TestesActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
+
+        snapshot = new StringBuilder();
 
         encontrarCoresMedias(ultimoTabuleiro, coresMedias, contadores);
 
@@ -99,10 +103,15 @@ public class DetectorDePedras {
 
                 Log.d(TestesActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao));
                 Log.d(TestesActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao));
+                snapshot.append("Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao) + "\n");
+                snapshot.append("Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao) + "\n");
 
 //                int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
 //                int hipotese = hipoteseDeCor2(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
                 int hipotese = hipoteseDeCor3(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
+
+                snapshot.append("Hipótese para (" + i + ", " + j + ") = " + hipotese + "\n");
+
                 if (hipotese != Tabuleiro.VAZIO) {
 					// Já havia detectado outra jogada, há algo errado
 					if (jogada != null) return null;
@@ -151,6 +160,17 @@ public class DetectorDePedras {
                 }
                 Log.d(TestesActivity.TAG, "Cor média[" + i + "] = " + printColor(coresMedias[i]));
                 Log.d(TestesActivity.TAG, "Luminancia[" + i + "] = " + luminancia(coresMedias[i]));
+                snapshot.append("Cor média (");
+                if (i == Tabuleiro.VAZIO) {
+                    snapshot.append("interseções livres");
+                }
+                else if (i == Tabuleiro.PEDRA_PRETA) {
+                    snapshot.append("pedras pretas");
+                }
+                else if (i == Tabuleiro.PEDRA_BRANCA) {
+                    snapshot.append("pedras brancas");
+                }
+                snapshot.append(") = " + printColor(coresMedias[i]) + "\n");
             }
         }
     }
