@@ -6,6 +6,9 @@ import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
@@ -33,7 +36,7 @@ public class DetectorDePedras {
 
     /**
      * Detecção de pedras que não utiliza o estado anterior da partida.
-     *//*
+     */
     public Tabuleiro detectar() {
 
         int larguraImagem = (int)imagemDoTabuleiro.size().width;
@@ -65,7 +68,7 @@ public class DetectorDePedras {
 //        Desenhista.desenhaLinhasNoPreview(imagemDoTabuleiro, larguraImagem, alturaImagem);
 
         return tabuleiro;
-    }*/
+    }
 
     /**
      * Utiliza a informação do último estado do jogo para melhorar a detecção da
@@ -174,7 +177,7 @@ public class DetectorDePedras {
 
         encontrarCoresMedias(ultimoTabuleiro, coresMedias, contadores);
 
-        ArrayList<HipoteseDeJogada> hipotesesDeJogadasEncontradas = new ArrayList<HipoteseDeJogada>();
+        List<HipoteseDeJogada> hipotesesDeJogadasEncontradas = new ArrayList<HipoteseDeJogada>();
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
@@ -537,6 +540,10 @@ public class DetectorDePedras {
 //                    distanciaDeCor(cor, coresMedias[Tabuleiro.PEDRA_BRANCA]);
         }
 
+        snapshot.append("Distância para média das pedras pretas  = " + distanciaParaMediaPecasPretas + "\n");
+        snapshot.append("Distância para média das pedras brancas = " + distanciaParaMediaPecasBrancas + "\n");
+        snapshot.append("Distância para média das interseções    = " + distanciaParaMediaIntersecoes + "\n");
+
         if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (distanciaParaPreto < 50 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
                 return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
@@ -570,6 +577,14 @@ public class DetectorDePedras {
         if (distanciaParaPreto < 30) {
             return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
         }
+        // Esta condição foi adicionada porque quando uma pedra preta era jogada de forma inválida
+        // (após outra pedra preta e não sendo pedra de handicap) acontecia algo inusitado: as
+        // posições ao redor da pedra preta eram vistas como pedras brancas devido à diferença de
+        // contraste. Verificar se as interseções se parecem com interseções vazias antes de
+        // verificar se se parecem com pedras brancas resolve esse problema.
+        if (distanciaParaMediaIntersecoes < 15) {
+            return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+        }
         if (diferencaDeLuminanciaParaOsVizinhos > 70) {
             return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.9);
         }
@@ -595,6 +610,7 @@ public class DetectorDePedras {
             snapshot.append("Hipótese de ser pedra branca com diferenças de " + (diferencas / 2) + "\n");
             return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, diferencas / 2);
         }
+        snapshot.append("\n");
 
         return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
     }
@@ -674,7 +690,7 @@ public class DetectorDePedras {
          * achava que havia uma pedra preta ali.
          */ 
         //int radius = 500 / (partida.getDimensaoDoTabuleiro() - 1) * 0.4;
-        int radius;
+        int radius = 0;
         if (dimensaoDoTabuleiro == 9) {
             radius = 25;
         }
@@ -749,7 +765,7 @@ public class DetectorDePedras {
      * @param cor Cor a ser verificada
      * @param corMediaDoTabuleiro Cor média da imagem do tabuleiro
      * @return Pedra preta, branca, ou vazio
-     *//*
+     */
     private int hipoteseDeCor(double[] cor, double[] corMediaDoTabuleiro) {
         double[] preto = {0.0, 0.0, 0.0, 255.0};
         double[] branco = {255.0, 255.0, 255.0, 255.0};
@@ -785,7 +801,7 @@ public class DetectorDePedras {
         else {
             return Tabuleiro.PEDRA_BRANCA;
         }
-*/
+
 /*
         if (distanciaParaPreto < distanciaParaBranco && distanciaParaPreto < distanciaParaCorMedia) {
             return Tabuleiro.PEDRA_PRETA;
@@ -794,8 +810,8 @@ public class DetectorDePedras {
             return Tabuleiro.PEDRA_BRANCA;
         }
         return Tabuleiro.VAZIO;
-        *//*
-    }*/
+        */
+    }
 
     private double distanciaDeCor(double[] cor1, double[] cor2) {
         double distancia = 0;
