@@ -19,8 +19,10 @@ public class Partida implements Serializable {
     private String jogadorDePretas;
     private String jogadorDeBrancas;
     private String komi;
+    private int dimensaoDoTabuleiro;
     // Atributo para medir a precisao do sistema
     private int numeroDeVezesQueVoltou;
+    private int numeroDeVezesQueTeveQueAdicionarManualmente;
 
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
@@ -29,8 +31,10 @@ public class Partida implements Serializable {
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
         Tabuleiro vazio = new Tabuleiro(dimensaoDoTabuleiro);
+        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         tabuleiros.add(vazio);
         numeroDeVezesQueVoltou = 0;
+        numeroDeVezesQueTeveQueAdicionarManualmente = 0;
     }
 
     public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
@@ -42,6 +46,10 @@ public class Partida implements Serializable {
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
         numeroDeVezesQueVoltou = 0;
+    }
+
+    public int getDimensaoDoTabuleiro() {
+        return dimensaoDoTabuleiro;
     }
 
     public void setJogadorDePretas(String jogadorDePretas) {
@@ -156,7 +164,7 @@ public class Partida implements Serializable {
      * Exporta uma partida em formato SGF.
      * Referência: http://www.red-bean.com/sgf/
      *
-     * @return
+     * @return String contendo a partida em formato SGF
      */
     public String sgf() {
         StringBuilder sgf = new StringBuilder();
@@ -188,6 +196,7 @@ public class Partida implements Serializable {
         escreverProperiedade(sgf, "PB", jogadorDePretas);
         escreverProperiedade(sgf, "Z1", "" + numeroDeJogadasFeitas());
         escreverProperiedade(sgf, "Z2", "" + numeroDeVezesQueVoltou);
+        escreverProperiedade(sgf, "Z3", "" + numeroDeVezesQueTeveQueAdicionarManualmente);
     }
 
     private void escreverProperiedade(StringBuilder sgf, String propriedade, String valor) {
@@ -234,6 +243,32 @@ public class Partida implements Serializable {
             return null;
         }
         return tabuleiros.get(tabuleiros.size() - 2);
+    }
+
+    /**
+     * Retorna verdadeiro se a próxima jogada pode ser uma pedra preta ou
+     * branca, de acordo com o parâmetro.
+     */
+    public boolean proximaJogadaPodeSer(int cor) {
+
+        if (cor == Tabuleiro.PEDRA_PRETA) {
+            // Uma pedra preta pode ser a primeira jogada
+            if (ultimaJogada() == null) return true;
+            // Também pode ser a colocação de pedras de handicap
+            if (apenasPedrasPretasForamJogadas()) return true;
+            if (ultimaJogada().cor == Tabuleiro.PEDRA_BRANCA) return true;
+        }
+        // Uma pedra branca só pode vir depois de uma pedra preta
+        else if (cor == Tabuleiro.PEDRA_BRANCA) {
+            if (ultimaJogada() == null) return false;
+            return ultimaJogada().cor == Tabuleiro.PEDRA_PRETA;
+        }
+
+        return false;
+    }
+
+    public void adicionouJogadaManualmente() {
+        numeroDeVezesQueTeveQueAdicionarManualmente++;
     }
 
 }

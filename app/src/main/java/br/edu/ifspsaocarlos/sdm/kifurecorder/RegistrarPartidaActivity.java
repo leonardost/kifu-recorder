@@ -48,8 +48,8 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
-	// Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
-	long tempoLimite = 1500;
+    // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
+    long tempoLimite = 1500;
 
     int[] cantosDoTabuleiro;                // Pontos dos cantos do tabuleiro
     Mat posicaoDoTabuleiroNaImagem;         // Matriz que contem os cantos do tabuleiro
@@ -265,13 +265,24 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         Mat imagemFonte = inputFrame.rgba();
 
         tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // TODO: Verificar qual o tamanho da imagem do tabuleiro ortogonal aqui!!!
+        //       Isso traz implicações para o raio calculado no método de calcular a cor média ao redor de uma posição
+        // int larguraImagem = (int)tabuleiroOrtogonal.size().width;
+        // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
         // Desenha o tabuleiro ortogonal na tela
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
   
-        Jogada jogada = detectorDePedras.detectar(partida.ultimoTabuleiro());
-        Tabuleiro tabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogada);
+//        Jogada jogada = detectorDePedras.detectar(
+        Tabuleiro tabuleiro = detectorDePedras.detectar(
+                partida.ultimoTabuleiro(),
+                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
+                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
+        );
+//        Tabuleiro tabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogada);
         snapshotAtual = detectorDePedras.snapshot.toString();
 //        Tabuleiro tabuleiro = detectorDePedras.detectar();
 
@@ -282,21 +293,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite) {
                     if (partida.adicionarJogadaSeForValida(tabuleiro)) {
-                        contadorDeJogadas++;
-                        if (contadorDeJogadas % 5 == 0) {
-                            salvarArquivo();
-                        }
-
-                        soundPool.play(beepId, 1, 1, 0, 0, 1);
-
-                        if (partida.numeroDeJogadasFeitas() > 0) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    btnVoltarUltimaJogada.setEnabled(true);
-                                }
-                            });
-                        }
+                        novaJogadaFoiAdicionada();
                     }
                 }
             } else {
@@ -639,21 +636,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                         Jogada jogadaAdicionda = new Jogada(linha, coluna, cor);
                         Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogadaAdicionda);
                         if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
-                            contadorDeJogadas++;
-                            if (contadorDeJogadas % 5 == 0) {
-                                salvarArquivo();
-                            }
-
-                            soundPool.play(beepId, 1, 1, 0, 0, 1);
-
-                            if (partida.numeroDeJogadasFeitas() > 0) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        btnVoltarUltimaJogada.setEnabled(true);
-                                    }
-                                });
-                            }
+                            novaJogadaFoiAdicionada();
+                            partida.adicionouJogadaManualmente();
                         }
                     }
                 })
@@ -661,6 +645,22 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .setView(input)
                 .show();
 
+    }
+
+    private void novaJogadaFoiAdicionada() {
+        soundPool.play(beepId, 1, 1, 0, 0, 1);
+        contadorDeJogadas++;
+        if (contadorDeJogadas % 5 == 0) {
+            salvarArquivo();
+        }
+        if (partida.numeroDeJogadasFeitas() > 0) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    btnVoltarUltimaJogada.setEnabled(true);
+                }
+            });
+        }
     }
 
 }
