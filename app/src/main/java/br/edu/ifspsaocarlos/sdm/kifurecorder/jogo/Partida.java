@@ -23,29 +23,36 @@ public class Partida implements Serializable {
     // Atributo para medir a precisao do sistema
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
+    // Guarda todas as jogadas que foram registradas juntamente com as confianças calculadas pelo detector de pedras
+    private StringBuilder log;
 
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
 
     public Partida(int dimensaoDoTabuleiro) {
+        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
-        Tabuleiro vazio = new Tabuleiro(dimensaoDoTabuleiro);
-        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
-        tabuleiros.add(vazio);
+        log = new StringBuilder();
+
+        Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
+        tabuleiros.add(tabuleiroVazio);
         numeroDeVezesQueVoltou = 0;
         numeroDeVezesQueTeveQueAdicionarManualmente = 0;
     }
 
     public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
-        jogadas = new ArrayList<>();
-        tabuleiros = new ArrayList<>();
-        Tabuleiro vazio = new Tabuleiro(dimensaoDoTabuleiro);
-        tabuleiros.add(vazio);
         this.jogadorDePretas = jogadorDePretas;
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
+        jogadas = new ArrayList<>();
+        tabuleiros = new ArrayList<>();
+        log = new StringBuilder();
+
+        Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
+        tabuleiros.add(tabuleiroVazio);
         numeroDeVezesQueVoltou = 0;
+        numeroDeVezesQueTeveQueAdicionarManualmente = 0;
     }
 
     public int getDimensaoDoTabuleiro() {

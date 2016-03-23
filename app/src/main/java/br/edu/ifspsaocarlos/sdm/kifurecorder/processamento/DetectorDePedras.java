@@ -25,6 +25,8 @@ public class DetectorDePedras {
     private int dimensaoDoTabuleiro;
     // Informações de debug do estado atual sendo visto pelo detector
     public StringBuilder snapshot;
+    // Traz informações sobre o estado atual detectado pelo detector e sobre confianças e hipóteses
+    public String log;
 
     public void setDimensaoDoTabuleiro(int dimensaoDoTabuleiro) {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
@@ -174,6 +176,7 @@ public class DetectorDePedras {
 //        Log.d(TestesActivity.TAG, "Cor média do tabuleiro: " + printColor(corMediaDoTabuleiro));
 
         snapshot = new StringBuilder();
+		log = "";
 
         encontrarCoresMedias(ultimoTabuleiro, coresMedias, contadores);
 
@@ -181,6 +184,9 @@ public class DetectorDePedras {
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
+
+				log += String.format("(%1$2d, %2$2d)", i, j);
+			
 //                Log.i(TestesActivity.TAG, "Pos(" + i + ", " + j + ") = ");
 
                 // Ignora as interseções das jogadas que já foram feitas
@@ -220,6 +226,10 @@ public class DetectorDePedras {
                 snapshot.append("Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao) + "\n");
                 snapshot.append("Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao) + "\n");
                 snapshot.append("Variância ao redor de (" + i + ", " + j + ") = " + variancia(corAoRedorDaPosicao) + "\n");
+				log += "    Cor média ao redor  = " + printColor(corAoRedorDaPosicao) + "\n";
+				log += "    Luminância ao redor = " + luminancia(corAoRedorDaPosicao) + "\n";
+				log += "    Variância ao redor  = " + variancia(corAoRedorDaPosicao) + "\n";
+				log += "    ---\n";
 
 //                int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
 //                int hipotese = hipoteseDeCor2(corAoRedorDaPosicao, corMediaDoTabuleiro, coresMedias, contadores);
@@ -229,7 +239,7 @@ public class DetectorDePedras {
                 hipotese.linha = i;
                 hipotese.coluna = j;
 
-                snapshot.append("Hipótese para (" + i + ", " + j + ") = " + hipotese.cor + "\n");
+                snapshot.append("Hipótese para (" + i + ", " + j + ") = " + hipotese.cor + "\n\n");
 
                 if (hipotese.cor != Tabuleiro.VAZIO) {
                     if (podeSerPedraPreta && hipotese.cor == Tabuleiro.PEDRA_PRETA ||
@@ -523,6 +533,7 @@ public class DetectorDePedras {
         double distanciaParaPreto = distanciaDeCor(cor, preto);
         double diferencaDeLuminanciaParaOsVizinhos = diferencaDeLuminancia(cor, coresNasPosicoesAdjacentes);
         snapshot.append("Diferença de luminância para as posições adjacentes vazias = " + diferencaDeLuminanciaParaOsVizinhos + "\n");
+        log += "    Diferença de luminância = " + diferencaDeLuminanciaParaOsVizinhos + "\n";
 
         double distanciaParaMediaIntersecoes = 999;
         if (contadores[Tabuleiro.VAZIO] > 0) {
@@ -543,6 +554,9 @@ public class DetectorDePedras {
         snapshot.append("Distância para média das pedras pretas  = " + distanciaParaMediaPecasPretas + "\n");
         snapshot.append("Distância para média das pedras brancas = " + distanciaParaMediaPecasBrancas + "\n");
         snapshot.append("Distância para média das interseções    = " + distanciaParaMediaIntersecoes + "\n");
+        log += "    Distância para média das pedras pretas  = " + distanciaParaMediaPecasPretas + "\n";
+        log += "    Distância para média das pedras brancas = " + distanciaParaMediaPecasBrancas + "\n";
+        log += "    Distância para média das interseções    = " + distanciaParaMediaIntersecoes + "\n";
 
         if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (distanciaParaPreto < 50 || distanciaParaPreto < distanciaParaMediaIntersecoes) {
