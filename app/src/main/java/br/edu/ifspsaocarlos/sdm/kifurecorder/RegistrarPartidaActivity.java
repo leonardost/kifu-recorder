@@ -1,3 +1,7 @@
+/**
+ * - Guardar todas as jogadas que foram detectadas juntamente com a confiança dela -> fazer um log na partida
+ * - Nas snapshots, mostrar estado atual do tabuleiro
+ */
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
@@ -44,7 +48,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
-
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 

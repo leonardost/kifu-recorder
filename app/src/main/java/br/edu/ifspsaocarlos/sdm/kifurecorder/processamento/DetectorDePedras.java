@@ -605,6 +605,12 @@ public class DetectorDePedras {
 
         if (probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] > probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] &&
                 probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] > probabilidadeDeSer[Tabuleiro.VAZIO]) {
+
+            // Esta possível pedra branca está quase indistinguível de uma interseção vazia
+            if (distanciaParaMediaPecasBrancas - distanciaParaMediaIntersecoes < 15) {
+                return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+            }
+
             double diferencas = probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] - probabilidadeDeSer[Tabuleiro.PEDRA_PRETA];
             diferencas += probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] - probabilidadeDeSer[Tabuleiro.VAZIO];
             snapshot.append("Hipótese de ser pedra branca com diferenças de " + (diferencas / 2) + "\n");
