@@ -151,6 +151,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 			return;
 		}
 
+		log = new ArrayList<String>();
+
         Log.i(TestesActivity.TAG, "onCreate() finalizado");
     }
 
@@ -308,6 +310,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
 					novaJogadaFoiAdicionada();
+					partida.adicionarLog(snapshotAtual);
                 }
             } else {
                 tempoDesdeUltimaMudancaDeTabuleiro = 0;

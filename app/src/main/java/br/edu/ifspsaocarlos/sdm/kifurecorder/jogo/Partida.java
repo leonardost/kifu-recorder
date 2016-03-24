@@ -24,7 +24,7 @@ public class Partida implements Serializable {
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
     // Guarda todas as jogadas que foram registradas juntamente com as confianças calculadas pelo detector de pedras
-    private StringBuilder log;
+    private List<String> log;
 
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
@@ -33,7 +33,7 @@ public class Partida implements Serializable {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
-        log = new StringBuilder();
+        log = new ArrayList<>();
 
         Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(tabuleiroVazio);
@@ -47,7 +47,7 @@ public class Partida implements Serializable {
         this.komi = komi;
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
-        log = new StringBuilder();
+        log = new ArrayList<>();
 
         Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(tabuleiroVazio);
@@ -277,5 +277,9 @@ public class Partida implements Serializable {
     public void adicionouJogadaManualmente() {
         numeroDeVezesQueTeveQueAdicionarManualmente++;
     }
+
+	public void adicionarLog(String log) {
+		this.log.add(log);
+	}
 
 }
