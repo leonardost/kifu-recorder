@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Kifu Recorder</string>
     <string name="nome">Kifu-recorder</string>
-    <string name="versao">0.1</string>
+    <string name="versao">0.2</string>
 
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>

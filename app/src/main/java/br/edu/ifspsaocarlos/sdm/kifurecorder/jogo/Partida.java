@@ -23,8 +23,6 @@ public class Partida implements Serializable {
     // Atributo para medir a precisao do sistema
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
-    // Guarda todas as jogadas que foram registradas juntamente com as confianças calculadas pelo detector de pedras
-    private List<String> log;
 
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
@@ -33,7 +31,6 @@ public class Partida implements Serializable {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
-        log = new ArrayList<>();
 
         Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(tabuleiroVazio);
@@ -47,7 +44,6 @@ public class Partida implements Serializable {
         this.komi = komi;
         jogadas = new ArrayList<>();
         tabuleiros = new ArrayList<>();
-        log = new ArrayList<>();
 
         Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
         tabuleiros.add(tabuleiroVazio);
@@ -154,13 +150,14 @@ public class Partida implements Serializable {
     }
 
     /**
-     * Desconsidera a última jogada feita
+     * Desconsidera a última jogada feita e a retorna;
      */
-    public void voltarUltimaJogada() {
-        if (tabuleiros.size() == 1) return;
+    public Jogada voltarUltimaJogada() {
+        if (tabuleiros.size() == 1) return null;
         tabuleiros.remove(tabuleiros.size() - 1);
-        jogadas.remove(jogadas.size() - 1);
+        Jogada removida = jogadas.remove(jogadas.size() - 1);
         numeroDeVezesQueVoltou++;
+        return removida;
     }
 
     public int numeroDeJogadasFeitas() {
@@ -185,8 +182,6 @@ public class Partida implements Serializable {
     }
 
     private void escreverCabecalho(StringBuilder sgf) {
-        // TODO: Mudar o nome da aplicação por uma constante ou string no strings.xml
-
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
         String data = sdf.format(new Date(c.getTimeInMillis()));
@@ -197,7 +192,7 @@ public class Partida implements Serializable {
         escreverProperiedade(sgf, "CA", "UTF-8");
         escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimensao());
         escreverProperiedade(sgf, "DT", data);
-        escreverProperiedade(sgf, "AP", "Kifu Recorder 0.1");
+        escreverProperiedade(sgf, "AP", "Kifu Recorder 0.2");
         escreverProperiedade(sgf, "KM", komi);
         escreverProperiedade(sgf, "PW", jogadorDeBrancas);
         escreverProperiedade(sgf, "PB", jogadorDePretas);
@@ -277,9 +272,5 @@ public class Partida implements Serializable {
     public void adicionouJogadaManualmente() {
         numeroDeVezesQueTeveQueAdicionarManualmente++;
     }
-
-	public void adicionarLog(String log) {
-		this.log.add(log);
-	}
 
 }

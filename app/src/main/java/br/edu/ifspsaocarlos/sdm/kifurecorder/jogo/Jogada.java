@@ -42,4 +42,10 @@ public class Jogada implements Serializable {
         char cor = (this.cor == Tabuleiro.PEDRA_PRETA ? 'B' : 'W');
         return ";" + cor + "[" + coordenada + "]";
     }
+
+    public String toString() {
+        String nomeCor = cor == Tabuleiro.VAZIO ? "Vazio" : cor == Tabuleiro.PEDRA_PRETA ? "Preto" : "Branco";
+        return "(" + linha + ", " + coluna + ", " + nomeCor + ")";
+    }
+
 }

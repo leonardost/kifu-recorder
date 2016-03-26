@@ -1,6 +1,3 @@
-/**
- * - Guardar todas as jogadas que foram detectadas juntamente com a confiança dela -> fazer um log na partida
- */
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.app.Activity;
@@ -53,7 +50,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     Partida partida;
     Tabuleiro ultimoTabuleiro;
-    List<String> log;                          // Guarda todo o histórico de jogadas e valores de confiança da partida
 
     int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
@@ -70,6 +66,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private File pastaDeRegistro;              // Local onde os registros e arquivos de log serão salvos
     private File arquivoDeRegistro;            // Representa o arquivo SGF da partida
+    private File arquivoDeLog;                 // Guarda informacoes de debug referentes a partida
 
     private ImageButton btnSalvar;
     private ImageButton btnVoltarUltimaJogada;
@@ -144,14 +141,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
 
+        pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        if (!criarPastaDeRegistroSeNaoExistir()) {
+            finish();
+            return;
+        }
         arquivoDeRegistro = getFile("sgf");
-		pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
-		if (!criarPastaDeRegistroSeNaoExistir()) {
-			finish();
-			return;
-		}
-
-		log = new ArrayList<String>();
+        arquivoDeLog = getFile("log");
 
         Log.i(TestesActivity.TAG, "onCreate() finalizado");
     }
@@ -164,7 +160,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 cantosDoTabuleiro[4], cantosDoTabuleiro[5],
                 cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
 
-        cantos = new Point[4];
+        Point[] cantos = new Point[4];
         cantos[0] = new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]);
         cantos[1] = new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]);
         cantos[2] = new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]);
@@ -302,6 +298,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
+        snapshotAtual += "Jogada " + (partida.numeroDeJogadasFeitas() + 1) + "\n";
+        snapshotAtual += "\n";
 
         if (!pausado) {
 
@@ -310,7 +308,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
 					novaJogadaFoiAdicionada();
-					partida.adicionarLog(snapshotAtual);
+                    adicionarAoLog(snapshotAtual.toString());
+                    Mat imagemFormatoDeCorCerto = new Mat();
+                    Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+                    Highgui.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
                 }
             } else {
                 tempoDesdeUltimaMudancaDeTabuleiro = 0;
@@ -366,11 +367,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
 	private void atualizarBotaoDePausa() {
 		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				btnPausar.setImageResource(pausado ? R.drawable.play : R.drawable.pause);
-			}
-		});
+            @Override
+            public void run() {
+                btnPausar.setImageResource(pausado ? R.drawable.play : R.drawable.pause);
+            }
+        });
 	}
 
     private void temCertezaQueDesejaVoltarAUltimaJogada(String mensagem) {
@@ -380,10 +381,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        partida.voltarUltimaJogada();
+                        Jogada removida = partida.voltarUltimaJogada();
                         tempoDesdeUltimaMudancaDeTabuleiro = 0;
                         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                         atualizarBotaoDeVoltar();
+                        adicionarAoLog("Voltando jogada " + removida + "\n\n");
                     }
                 })
                 .setNegativeButton(R.string.nao, null)
@@ -401,8 +403,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             fos.flush();
             fos.close();
 
-            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + arquivoSnapshot.getName() + ".", Toast.LENGTH_LONG).show();
-            Log.i(TestesActivity.TAG, "Snapshot salva: " + arquivoSnapshot.getName() + " com conteúdo " + snapshotAtual);
+            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + getFile("txt").getName() + ".", Toast.LENGTH_LONG).show();
+            Log.i(TestesActivity.TAG, "Snapshot salva: " + getFile("txt").getName() + " com conteúdo " + snapshotAtual);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -467,7 +469,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 fos.write(conteudoDaPartida.getBytes());
                 fos.flush();
                 fos.close();
-                // TODO: Verificar se isto tem que rodar na thread de UI
+
+                // Isto tem que rodar na thread de UI porque a activity é fechada após o toast ser mostrado
                 runOnUiThread(new Runnable() {
                     public void run() {
                         Toast.makeText(RegistrarPartidaActivity.this, "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".", Toast.LENGTH_LONG).show();
@@ -490,6 +493,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
 	}
 
+    private void adicionarAoLog(String conteudo) {
+        try {
+            FileOutputStream fos = new FileOutputStream(arquivoDeLog, true);
+            fos.write(conteudo.getBytes());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
@@ -501,6 +514,19 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         while (arquivo.exists()) {
             String newFilename = gerarNomeDeArquivo(contador, extensao);
+            arquivo = new File(pastaDeRegistro, newFilename);
+            contador++;
+        }
+
+        return arquivo;
+    }
+
+    private File getFile(String nome, String extensao) {
+        File arquivo = new File(pastaDeRegistro, gerarNomeDeArquivo(0, nome, extensao));
+        int contador = 1;
+
+        while (arquivo.exists()) {
+            String newFilename = gerarNomeDeArquivo(contador, nome, extensao);
             arquivo = new File(pastaDeRegistro, newFilename);
             contador++;
         }
@@ -533,6 +559,30 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         return string.toString();
     }
 
+    private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String nome, String extensao) {
+        // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
+        String contador = "";
+        if (contadorDeNomeRepetido > 0) {
+            contador = "(" + contadorDeNomeRepetido + ")";
+        }
+
+        StringBuilder string = new StringBuilder();
+        string.append(partida.getJogadorDeBrancas())
+                .append("-")
+                .append(partida.getJogadorDePretas())
+                .append("_")
+                .append(data)
+                .append("_")
+                .append(nome)
+                .append("_")
+                .append(contador)
+                .append(".")
+                .append(extensao);
+        return string.toString();
+    }
+
     // TODO: Verificar se isto está sendo chamado
     @Override
     public void onBackPressed() {
@@ -549,11 +599,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Jogada jogadaAdicionadaManualmente = processarJogadaManual(input.getText().toString());
-                        Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(jogadaAdicionadaManualmente);
+                        Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
+                        Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
                         if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
                             novaJogadaFoiAdicionada();
                             partida.adicionouJogadaManualmente();
+                            adicionarAoLog("Jogada " + adicionadaManualmente + " foi adicionada manualmente.\n\n");
                         }
                     }
                 })
@@ -562,7 +613,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .show();
     }
     
-    private Jogada processarJogadaManuL(String textoJogada) {
+    private Jogada processarJogadaManual(String textoJogada) {
 		textoJogada = textoJogada.trim();
 		if (textoJogada.length() != 3) return null;
 		textoJogada = textoJogada.toLowerCase();
@@ -581,11 +632,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
 	private void atualizarBotaoDeVoltar() {
 		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				btnVoltarUltimaJogada.setEnabled(partida.numeroDeJogadasFeitas() > 0);
-			}
-		});
+            @Override
+            public void run() {
+                btnVoltarUltimaJogada.setEnabled(partida.numeroDeJogadasFeitas() > 0);
+            }
+        });
 	}
 
 }
