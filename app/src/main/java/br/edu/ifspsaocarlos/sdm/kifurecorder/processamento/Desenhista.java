@@ -1,7 +1,5 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
-import android.util.Log;
-
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
@@ -12,7 +10,6 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 
@@ -59,38 +56,6 @@ public class Desenhista {
         List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
         listaContorno.add(contornoDoTabuleiro);
         Imgproc.drawContours(imagem, listaContorno, -1, mRed, 6);
-    }
-
-    public static void desenhaInterseccoesECantosDoTabuleiro(Mat imagem, List<ClusterDeVertices> intersecoes, List<Point> cantos) {
-        // Desenha as interseções encontradas
-//        for (ClusterDeVertices c : intersecoes) {
-//            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
-//        }
-
-        // Desenha os 4 cantos do quadrilátero do tabuleiro
-        for (int i = 0; i < 4; ++i) {
-            Log.d(TestesActivity.TAG, "Canto " + i + ": " + cantos.get(i));
-            Core.circle(imagem, cantos.get(i), 10, colors[i], -1);
-        }
-    }
-
-    public static void desenhaInterseccoes(Mat imagem, List<ClusterDeVertices> intersecoes) {
-        for (ClusterDeVertices c : intersecoes) {
-            Core.circle(imagem, c.verticeMedio(), 10, mWhite, 2);
-        }
-    }
-
-    public static void desenhaLinhasNoPreview(Mat imagemTabuleiroCorrigido, int larguraImagemPreview,
-                                              int alturaImagemPreview) {
-        // Desenha linhas do tabuleiro na imagem de preview
-        Core.line(imagemTabuleiroCorrigido, new Point(0, 0), new Point(larguraImagemPreview, alturaImagemPreview), mGreen);
-        Core.line(imagemTabuleiroCorrigido, new Point(larguraImagemPreview, 0), new Point(0, alturaImagemPreview), mGreen);
-        for (int i = 0; i < 9; ++i) {
-            Core.line(imagemTabuleiroCorrigido, new Point(0, i * alturaImagemPreview / 8), new Point(larguraImagemPreview, i * alturaImagemPreview / 8), mBlue);
-        }
-        for (int i = 0; i < 9; ++i) {
-            Core.line(imagemTabuleiroCorrigido, new Point(i * larguraImagemPreview / 8, 0), new Point(i * larguraImagemPreview / 8, alturaImagemPreview), mBlue);
-        }
     }
 
     /**
