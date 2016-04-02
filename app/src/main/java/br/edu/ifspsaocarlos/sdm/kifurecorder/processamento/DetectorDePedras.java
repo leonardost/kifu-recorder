@@ -142,6 +142,7 @@ public class DetectorDePedras {
         }
         else {
             snapshot.append("Nenhuma jogada detectada.\n");
+            jogadaEscolhida = null;
         }
 
         Log.d(TestesActivity.TAG, "TEMPO (detectar()): " + (System.currentTimeMillis() - tempoEntrou));
@@ -295,12 +296,13 @@ public class DetectorDePedras {
                 return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
             }
         }
-        if (diferencaDeLuminanciaParaOsVizinhos > 30) {
+/*        if (diferencaDeLuminanciaParaOsVizinhos > 30) {
             // O 0.99 é só para os casos em que uma pedra preta é colocada mas uma pedra branca é detectada
             // erroneamente. Com esta confiança em 0.99, a pedra preta tem prioridade.
             return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.99);
-        }
+        }*/
         if (diferencaDeLuminanciaParaOsVizinhos > 15) {
+            // Esta verificação é importante, por isso resolvi deixar apenas esta condição de > 15 e tirar a de cima
             if (distanciaParaBrancas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaBrancas > 100) {
                 return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.99);
             }
