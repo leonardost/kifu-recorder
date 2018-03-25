@@ -1,6 +1,5 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
@@ -83,7 +82,7 @@ public class Desenhista {
         p2.x = x + tamanhoImagem;
         p2.y = y + tamanhoImagem;
 
-        Core.rectangle(imagem, p1, p2, mBoardBrown, -1);
+        Imgproc.rectangle(imagem, p1, p2, mBoardBrown, -1);
 
         // Desenha linhas horizontais
         for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
@@ -93,7 +92,7 @@ public class Desenhista {
             inicio.y = y + distanciaEntreLinhas + distanciaEntreLinhas * i;
             fim.x = x + fimDasLinhas;
             fim.y = inicio.y;
-            Core.line(imagem, inicio, fim, mBlack);
+            Imgproc.line(imagem, inicio, fim, mBlack);
         }
 
         // Desenha linhas verticais
@@ -104,7 +103,7 @@ public class Desenhista {
             inicio.y = y + distanciaEntreLinhas;
             fim.x = inicio.x;
             fim.y = y + fimDasLinhas;
-            Core.line(imagem, inicio, fim, mBlack);
+            Imgproc.line(imagem, inicio, fim, mBlack);
         }
 
         // Desenha pedras
@@ -114,10 +113,10 @@ public class Desenhista {
                 centro.x = x + distanciaEntreLinhas + j * distanciaEntreLinhas;
                 centro.y = y + distanciaEntreLinhas + i * distanciaEntreLinhas;
                 if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_PRETA) {
-                    Core.circle(imagem, centro, raioDaPedra, mBlack, -1);
+                    Imgproc.circle(imagem, centro, raioDaPedra, mBlack, -1);
                 } else if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_BRANCA) {
-                    Core.circle(imagem, centro, raioDaPedra, mWhite, -1);
-                    Core.circle(imagem, centro, raioDaPedra, mBlack);
+                    Imgproc.circle(imagem, centro, raioDaPedra, mWhite, -1);
+                    Imgproc.circle(imagem, centro, raioDaPedra, mBlack);
                 }
             }
         }
@@ -128,8 +127,8 @@ public class Desenhista {
             centro.x = x + distanciaEntreLinhas + ultimaJogada.coluna * distanciaEntreLinhas;
             centro.y = y + distanciaEntreLinhas + ultimaJogada.linha * distanciaEntreLinhas;
             Scalar corDaMarcacao = ultimaJogada.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
-            Core.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
-//            Core.circle(imagem, centro, raioDaPedra, mBlue, -1);
+            Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
+            Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }
     }
 

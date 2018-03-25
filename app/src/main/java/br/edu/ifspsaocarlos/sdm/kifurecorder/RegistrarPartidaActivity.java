@@ -25,7 +25,7 @@ import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
-import org.opencv.highgui.Highgui;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
@@ -311,7 +311,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     adicionarAoLog(snapshotAtual.toString());
                     Mat imagemFormatoDeCorCerto = new Mat();
                     Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-                    Highgui.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
+                    Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
                 }
             } else {
                 tempoDesdeUltimaMudancaDeTabuleiro = 0;
@@ -396,7 +396,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         try {
             Mat imagemFormatoDeCorCerto = new Mat();
             Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-            Highgui.imwrite(getFile("jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
+            Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
 
             FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
             fos.write(snapshotAtual.getBytes());

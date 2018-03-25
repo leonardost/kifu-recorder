@@ -47,6 +47,6 @@ proguard/
 # External library
 openCVLibrary2411/
 openCVLibrary310/
-
+OpenCV-android-sdk/
 
 import-summary.txt
