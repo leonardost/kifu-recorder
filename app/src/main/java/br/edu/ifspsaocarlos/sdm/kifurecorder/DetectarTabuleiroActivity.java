@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.SurfaceView;
 import android.view.WindowManager;
 import android.widget.Button;
 
@@ -56,6 +57,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_surface_view1);
         mOpenCvCameraView.setCvCameraViewListener(this);
+        mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 
         btnFixarTabuleiro = (Button) findViewById(R.id.btnFixarTabuleiro);
         btnFixarTabuleiro.setOnClickListener(this);
@@ -80,7 +82,14 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     @Override
     public void onResume() {
         super.onResume();
-        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+//        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(TestesActivity.TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        } else {
+            Log.d(TestesActivity.TAG, "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
     }
 
     public void onDestroy() {
@@ -98,6 +107,8 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     }
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+//        return inputFrame.rgba();
+
         Mat imagemFonte = inputFrame.rgba();
 
         detectorDeTabuleiro.setImagem(imagemFonte.clone());
