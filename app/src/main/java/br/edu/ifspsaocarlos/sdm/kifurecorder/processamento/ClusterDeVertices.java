@@ -44,8 +44,8 @@ public class ClusterDeVertices {
     public double distanceTo(Point p) {
         Point verticeMedio = verticeMedio();
         return Math.sqrt(
-                (p.x - verticeMedio.x) * (p.x - verticeMedio.x) +
-                        (p.y - verticeMedio.y) * (p.y - verticeMedio.y)
+            (p.x - verticeMedio.x) * (p.x - verticeMedio.x) +
+            (p.y - verticeMedio.y) * (p.y - verticeMedio.y)
         );
     }
 

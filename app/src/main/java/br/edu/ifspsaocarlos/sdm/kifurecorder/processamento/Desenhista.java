@@ -25,7 +25,7 @@ public class Desenhista {
     private static Scalar mBoardBrown = new Scalar(219, 176, 105);
 
     private static Scalar[] colors = new Scalar[] {
-            mRed, mGreen, mBlue, mWhite
+        mRed, mGreen, mBlue, mWhite
     };
 
     public static void desenharContornosRelevantes(Mat imagem, HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {

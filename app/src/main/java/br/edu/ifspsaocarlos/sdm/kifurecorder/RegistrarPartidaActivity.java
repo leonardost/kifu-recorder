@@ -57,6 +57,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long tempoDesdeUltimaMudancaDeTabuleiro;
     String snapshotAtual;
     boolean pausado = false;
+    long momentoDoUltimoProcessamentoDeImagem;
+    long tempoDesdeUltimoProcessamentoDeImagem;
 
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
     int[] cantosDoTabuleiro;                   // Pontos dos cantos do tabuleiro
@@ -102,6 +104,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
+//        mOpenCvCameraView.setMaxFrameSize(1000, 1000);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
         Intent i = getIntent();
@@ -112,12 +115,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         cantosDoTabuleiro       = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 		detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
+
         processarCantosDoTabuleiro();
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
+        momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
+        tempoDesdeUltimoProcessamentoDeImagem = 0;
 
         btnSalvar = (ImageButton) findViewById(R.id.btnSalvar);
         btnSalvar.setOnClickListener(this);
@@ -228,7 +234,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     public void onResume()
     {
         super.onResume();
-        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+//        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
+        if (!OpenCVLoader.initDebug()) {
+            Log.d(TestesActivity.TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+        } else {
+            Log.d(TestesActivity.TAG, "OpenCV library found inside package. Using it!");
+            mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
+        }
     }
 
     private void restaurarPartidaSalvaTemporariamente() {
@@ -279,6 +292,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
+        // Throttling, processa 2 vezes por segundo
+        if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
+            tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
+            Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+            return imagemFonte;
+        }
+        else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
+
         tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // TODO: Verificar qual o tamanho da imagem do tabuleiro ortogonal aqui!!!
@@ -289,7 +311,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
         // Desenha o tabuleiro ortogonal na tela
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
-  
+
         Tabuleiro tabuleiro = detectorDePedras.detectar(
                 partida.ultimoTabuleiro(),
                 partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
