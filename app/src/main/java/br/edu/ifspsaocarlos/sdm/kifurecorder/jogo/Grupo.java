@@ -12,12 +12,6 @@ public class Grupo {
     private Set<Posicao> posicoes;
     private Set<Posicao> liberdades;
 
-    public Grupo() {
-        cor = Tabuleiro.PEDRA_PRETA;
-        posicoes = new HashSet<>();
-        liberdades = new HashSet<>();
-    }
-
     public Grupo(int cor) {
         this.cor = cor;
         posicoes = new HashSet<>();
@@ -30,10 +24,6 @@ public class Grupo {
 
     public Set<Posicao> getPosicoes() {
         return posicoes;
-    }
-
-    public Set<Posicao> getLiberdades() {
-        return liberdades;
     }
 
     public void adicionarPosicao(Posicao posicao) {
@@ -49,7 +39,7 @@ public class Grupo {
     }
 
     public boolean ehCapturadoPela(Jogada jogada) {
-        return estaEmAtari() && liberdades.contains(jogada.posicao());
+        return jogada.cor != cor && estaEmAtari() && liberdades.contains(jogada.posicao());
     }
 
     public boolean naoTemLiberdades() {

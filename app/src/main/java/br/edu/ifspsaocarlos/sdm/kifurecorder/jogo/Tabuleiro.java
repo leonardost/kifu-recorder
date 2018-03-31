@@ -126,12 +126,6 @@ public class Tabuleiro implements Serializable {
         return tabuleiroRotacionado;
     }
 
-    /**
-     * Verifica se dois tabuleiros são exatamente iguais.
-     *
-     * @return Verdadeiro se os dois tabuleiros são exatamente iguais, falso
-     *         caso contrário
-     */
     public boolean identico(Tabuleiro outroTabuleiro) {
         if (dimensao != outroTabuleiro.dimensao) return false;
 
@@ -150,8 +144,7 @@ public class Tabuleiro implements Serializable {
      * Verifica se dois tabuleiros são iguais, incluindo se um tabuleiro é uma
      * rotação do outro.
      *
-     * @return Verdadeiro se os dois tabuleiros são iguais, falso caso
-     *         contrário
+     * @return boolean
      */
     @Override
     public boolean equals(Object objeto) {
@@ -202,7 +195,7 @@ public class Tabuleiro implements Serializable {
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
                 Grupo grupo = grupoEm(i, j);
-                if (grupo != null && grupo.getLiberdades().size() == 0) {
+                if (grupo != null && grupo.naoTemLiberdades()) {
                     return null;
                 }
             }
@@ -318,7 +311,7 @@ public class Tabuleiro implements Serializable {
         // da jogada que foi feita
         for (Posicao posicao : posicoes) {
             Grupo grupo = anterior.grupoEm(posicao);
-            if (grupo == null || grupo.getCor() == jogadaFeita.cor) continue;
+            if (grupo == null) continue;
             if (grupo.ehCapturadoPela(jogadaFeita)) {
                 devemSerCapturados.add(grupo);
                 Log.i(TestesActivity.TAG, "Grupo " + grupo + " será capturado.");
@@ -437,6 +430,7 @@ public class Tabuleiro implements Serializable {
 	public Tabuleiro gerarNovoTabuleiroComAJogada(Jogada jogada) {
         if (jogada == null) return this;
         if (tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
+
         Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
         Grupo[] gruposAoRedorDaJogada = new Grupo[4];
@@ -446,7 +440,7 @@ public class Tabuleiro implements Serializable {
         gruposAoRedorDaJogada[3] = grupoEm(jogada.linha, jogada.coluna + 1);
 
         for (Grupo grupo : gruposAoRedorDaJogada) {
-            if (grupo == null || grupo.getCor() == jogada.cor) continue;
+            if (grupo == null) continue;
             if (grupo.ehCapturadoPela(jogada)) {
                 novoTabuleiro.remove(grupo);
             }
