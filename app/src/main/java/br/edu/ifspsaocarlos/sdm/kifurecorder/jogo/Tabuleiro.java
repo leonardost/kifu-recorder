@@ -137,40 +137,27 @@ public class Tabuleiro implements Serializable {
     }
 
     /**
-     * Retorna a jogada de diferença deste tabuleiro para outro. Se houver mais de
-     * uma jogada de diferença, retorna nulo.
-     * 
-     * @param tabuleiroAnterior
-     * @return
+     * Retorna a jogada de diferença deste tabuleiro para o anterior. Se não for possível chegar no
+     * estado do tabuleiro atual a partir do anterior, retorna nulo.
      */
     public Jogada diferenca(Tabuleiro tabuleiroAnterior) {
-
         int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
         int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
         int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
         int numeroDePedrasBrancasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
         int diferencaDePedrasPretas = numeroDePedrasPretasDepois - numeroDePedrasPretasAntes;
         int diferencaDePedrasBrancas = numeroDePedrasBrancasDepois - numeroDePedrasBrancasAntes;
+        int corDaJogada;
 
-        // Ha mais de uma jogada de diferença
-        if (diferencaDePedrasPretas >= 1 && diferencaDePedrasBrancas >= 1) return null;
+        if (diferencaDePedrasPretas == 1) corDaJogada = Tabuleiro.PEDRA_PRETA;
+        else if (diferencaDePedrasBrancas == 1) corDaJogada = Tabuleiro.PEDRA_BRANCA;
+        else return null;
+        Jogada jogadaFeita = jogadaDiferenteEntreTabuleiroAtualE(tabuleiroAnterior, corDaJogada);
 
-        if (!todosOsGruposDoTabuleiroTemLiberdade()) return null;
-
-        int corDaJogada = Tabuleiro.VAZIO;
-        boolean houveCaptura = false;
-        if (diferencaDePedrasPretas == 1) {
-            corDaJogada = Tabuleiro.PEDRA_PRETA;
-            if (diferencaDePedrasBrancas < 0) houveCaptura = true;
-        } else if (diferencaDePedrasBrancas == 1) {
-            corDaJogada = Tabuleiro.PEDRA_BRANCA;
-            if (diferencaDePedrasPretas < 0) houveCaptura = true;
-        } else return null;
-
-        Jogada jogadaFeita = pedraDiferente(tabuleiroAnterior, corDaJogada);
-        if (!houveCaptura && !todasAsPedrasEstaoNoMesmoLugar(tabuleiroAnterior)) return null;
-        if (houveCaptura && !capturaFoiValida(jogadaFeita, tabuleiroAnterior)) return null;
-        return jogadaFeita;
+        if (tabuleiroAnterior.gerarNovoTabuleiroComAJogada(jogadaFeita).identico(this)) {
+            return jogadaFeita;
+        }
+        return null;
     }
 
     private int numeroDePedrasDaCor(int cor) {
@@ -185,39 +172,10 @@ public class Tabuleiro implements Serializable {
         return numeroDePedrasDessaCor;
     }
 
-    private boolean todosOsGruposDoTabuleiroTemLiberdade() {
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                Grupo grupo = grupoEm(i, j);
-                if (grupo != null && grupo.naoTemLiberdades()) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     /**
-     * Veifica se todas as pedras do tabuleiro antigo estão no novo.
+     * Retorna a primeira pedra da cor especificada encontrada diferente entre os dois tabuleiros.
      */
-    private boolean todasAsPedrasEstaoNoMesmoLugar(Tabuleiro anterior) {
-        for (int i = 0; i < anterior.getDimensao(); ++i) {
-            for (int j = 0; j < anterior.getDimensao(); ++j) {
-                int posicaoAntiga = anterior.getPosicao(i, j);
-                if (posicaoAntiga != Tabuleiro.VAZIO && posicaoAntiga != tabuleiro[i][j]) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Retorna a primeira pedra diferente da cor especificada encontrada entre os dois tabuleiros.
-     * @param anterior
-     * @return
-     */
-    private Jogada pedraDiferente(Tabuleiro anterior, int cor) {
+    private Jogada jogadaDiferenteEntreTabuleiroAtualE(Tabuleiro anterior, int cor) {
         for (int i = 0; i < anterior.getDimensao(); ++i) {
             for (int j = 0; j < anterior.getDimensao(); ++j) {
                 if (tabuleiro[i][j] == cor && anterior.getPosicao(i, j) != tabuleiro[i][j]) {
@@ -229,33 +187,26 @@ public class Tabuleiro implements Serializable {
     }
 
     /**
-     * Verifica se a jogada que foi feita sobre o tabuleiro anterior condiz com o tabuleiro atual.
-     * @param jogadaFeita
-     * @param anterior
-     * @return
+     * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
+     * válida, retorna o tabuleiro antigo.
      */
-    private boolean capturaFoiValida(Jogada jogadaFeita, Tabuleiro anterior) {
-        Set<Grupo> gruposQueDevemSerCapturados = recuperarGruposQueDevemSerCapturadosApos(jogadaFeita, anterior);
+	public Tabuleiro gerarNovoTabuleiroComAJogada(Jogada jogada) {
+        if (jogada == null || tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
 
-        if (!gruposForamRealmenteCapturados(gruposQueDevemSerCapturados)) return false;
+        Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
-        Set<Posicao> posicoesJaVerificadas = new HashSet<>();
-        for (Grupo grupo : gruposQueDevemSerCapturados) {
-            posicoesJaVerificadas.addAll(grupo.getPosicoes());
-        }
-        posicoesJaVerificadas.add(jogadaFeita.posicao());
-
-        return demaisPosicoesEstaoIguais(posicoesJaVerificadas);
-    }
-
-    private Set<Grupo> recuperarGruposQueDevemSerCapturadosApos(Jogada jogada, Tabuleiro tabuleiro) {
-        Set<Grupo> gruposQueDevemSerCapturados = new HashSet<>();
         for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
             if (grupo == null) continue;
-            if (grupo.ehCapturadoPela(jogada)) gruposQueDevemSerCapturados.add(grupo);
+            if (grupo.ehCapturadoPela(jogada)) novoTabuleiro.remove(grupo);
         }
-        return gruposQueDevemSerCapturados;
-    }
+
+        novoTabuleiro.tabuleiro[jogada.linha][jogada.coluna] = jogada.cor;
+
+        Grupo grupoDaJogada = novoTabuleiro.grupoEm(jogada.linha, jogada.coluna);
+        if (grupoDaJogada.naoTemLiberdades()) return this;
+
+        return novoTabuleiro;
+	}
 
     private Set<Grupo> recuperaGruposAdjacentesA(Jogada jogada) {
         Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
@@ -266,33 +217,15 @@ public class Tabuleiro implements Serializable {
         return gruposAdjacentesAJogada;
     }
 
-    private boolean gruposForamRealmenteCapturados(Set<Grupo> gruposQueDevemSerCapturados) {
-        for (Grupo grupo : gruposQueDevemSerCapturados) {
-            for (Posicao posicao : grupo.getPosicoes()) {
-                if (tabuleiro[posicao.linha][posicao.coluna] != Tabuleiro.VAZIO) {
-                    return false;
-                }
-            }
+    private void remove(Grupo grupo) {
+        for (Posicao posicao : grupo.getPosicoes()) {
+            tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
         }
-        return true;
-    }
-
-    private boolean demaisPosicoesEstaoIguais(Set<Posicao> posicoesJaVerificadas) {
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (posicoesJaVerificadas.contains(new Posicao(i, j))) continue;
-                if (tabuleiro[i][j] != anterior.getPosicao(i, j)) return false;
-            }
-        }
-        return true;
     }
 
     /**
      * Retorna o grupo que está em determinada posição do tabuleiro ou nulo caso não haja nenhum
      * grupo.
-     * @param linha
-     * @param coluna
-     * @return
      */
     public Grupo grupoEm(int linha, int coluna) {
         if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
@@ -333,37 +266,6 @@ public class Tabuleiro implements Serializable {
             delimitarGrupo(linha + 1, coluna, posicoesVisitadas, grupo);
             delimitarGrupo(linha, coluna - 1, posicoesVisitadas, grupo);
             delimitarGrupo(linha, coluna + 1, posicoesVisitadas, grupo);
-        }
-    }
-
-	/**
-	 * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
-     * válida, retorna o tabuleiro antigo.
-	 */
-	public Tabuleiro gerarNovoTabuleiroComAJogada(Jogada jogada) {
-        if (jogada == null) return this;
-        if (tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
-
-        Tabuleiro novoTabuleiro = new Tabuleiro(this);
-
-        for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
-            if (grupo == null) continue;
-            if (grupo.ehCapturadoPela(jogada)) {
-                novoTabuleiro.remove(grupo);
-            }
-        }
-
-        novoTabuleiro.tabuleiro[jogada.linha][jogada.coluna] = jogada.cor;
-
-        Grupo grupoDaJogada = novoTabuleiro.grupoEm(jogada.linha, jogada.coluna);
-        if (grupoDaJogada.naoTemLiberdades()) return this;
-
-		return novoTabuleiro;
-	}
-
-    private void remove(Grupo grupo) {
-        for (Posicao posicao : grupo.getPosicoes()) {
-            tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
         }
     }
 
