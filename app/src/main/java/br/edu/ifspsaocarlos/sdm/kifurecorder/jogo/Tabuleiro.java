@@ -275,15 +275,8 @@ public class Tabuleiro implements Serializable {
     }
 
     private Set<Grupo> recuperarGruposQueDevemSerCapturadosApos(Jogada jogada, Tabuleiro tabuleiro) {
-        Set<Posicao> posicoesAdjacentes = new HashSet<>();
-        posicoesAdjacentes.add(new Posicao(jogada.linha - 1, jogada.coluna));
-        posicoesAdjacentes.add(new Posicao(jogada.linha + 1, jogada.coluna));
-        posicoesAdjacentes.add(new Posicao(jogada.linha, jogada.coluna - 1));
-        posicoesAdjacentes.add(new Posicao(jogada.linha, jogada.coluna + 1));
-
         Set<Grupo> gruposQueDevemSerCapturados = new HashSet<>();
-        for (Posicao posicao : posicoesAdjacentes) {
-            Grupo grupo = tabuleiro.grupoEm(posicao);
+        for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
             if (grupo == null) continue;
             if (grupo.ehCapturadoPela(jogada)) {
                 gruposQueDevemSerCapturados.add(grupo);
@@ -326,9 +319,7 @@ public class Tabuleiro implements Serializable {
      */
     public Grupo grupoEm(int linha, int coluna) {
         if (ehPosicaoInvalida(linha, coluna)) return null;
-        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
-            return null;
-        }
+        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
 
         boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
@@ -347,10 +338,6 @@ public class Tabuleiro implements Serializable {
         return linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao;
     }
 
-    public Grupo grupoEm(Posicao posicao) {
-        return grupoEm(posicao.linha, posicao.coluna);
-    }
-
     /**
      * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo.
      */
@@ -360,11 +347,9 @@ public class Tabuleiro implements Serializable {
 
         posicoesVisitadas[linha][coluna] = true;
 
-        // Encontrou uma das liberdades do grupo
         if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
             grupo.adicionarLiberdade(new Posicao(linha, coluna));
         }
-        // Encontrou uma extensão do grupo
         else if (tabuleiro[linha][coluna] == grupo.getCor()) {
             grupo.adicionarPosicao(new Posicao(linha, coluna));
 
@@ -386,13 +371,7 @@ public class Tabuleiro implements Serializable {
 
         Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
-        Grupo[] gruposAoRedorDaJogada = new Grupo[4];
-        gruposAoRedorDaJogada[0] = grupoEm(jogada.linha - 1, jogada.coluna);
-        gruposAoRedorDaJogada[1] = grupoEm(jogada.linha + 1, jogada.coluna);
-        gruposAoRedorDaJogada[2] = grupoEm(jogada.linha, jogada.coluna - 1);
-        gruposAoRedorDaJogada[3] = grupoEm(jogada.linha, jogada.coluna + 1);
-
-        for (Grupo grupo : gruposAoRedorDaJogada) {
+        for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
             if (grupo == null) continue;
             if (grupo.ehCapturadoPela(jogada)) {
                 novoTabuleiro.remove(grupo);
@@ -406,6 +385,15 @@ public class Tabuleiro implements Serializable {
 
 		return novoTabuleiro;
 	}
+
+    private Set<Grupo> recuperaGruposAdjacentesA(Jogada jogada) {
+        Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha - 1, jogada.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha + 1, jogada.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna - 1));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna + 1));
+        return gruposAdjacentesAJogada;
+    }
 
     private void remove(Grupo grupo) {
         for (Posicao posicao : grupo.getPosicoes()) {
