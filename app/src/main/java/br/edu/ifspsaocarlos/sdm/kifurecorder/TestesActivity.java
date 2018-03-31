@@ -255,10 +255,9 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
                 // Transformação da imagem do tabuleiro para a posição ortogonal
                 Mat imagemDoTabuleiroCorrigido =
-                        TransformadorDeTabuleiro.transformar(
+                        TransformadorDeTabuleiro.transformarOrtogonalmente(
                                 imagemOriginal,
-                                detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
-                                null
+                                detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()
                         );
                 imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
@@ -309,11 +308,10 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
         // Transformação da imagem do tabuleiro para a posição ortogonal
         Mat imagemDoTabuleiroCorrigido =
-                TransformadorDeTabuleiro.transformar(
+                TransformadorDeTabuleiro.transformarOrtogonalmente(
                     imagemOriginal,
 //                    imagemOriginalPretoEBranco,
-                    detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem(),
-                    null
+                    detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()
                 );
 
         /*

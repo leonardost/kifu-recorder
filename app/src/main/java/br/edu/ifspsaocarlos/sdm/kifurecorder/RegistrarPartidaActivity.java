@@ -229,10 +229,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
-//        OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_3, this, mLoaderCallback);
         if (!OpenCVLoader.initDebug()) {
             Log.d(TestesActivity.TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
@@ -299,7 +297,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
         else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
 
-        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformar(imagemFonte, posicaoDoTabuleiroNaImagem, null);
+        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(imagemFonte, posicaoDoTabuleiroNaImagem);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // TODO: Verificar qual o tamanho da imagem do tabuleiro ortogonal aqui!!!
         //       Isso traz implicações para o raio calculado no método de calcular a cor média ao redor de uma posição
