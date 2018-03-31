@@ -405,6 +405,9 @@ public class Tabuleiro implements Serializable {
         return grupoEm(posicao.linha, posicao.coluna);
     }
 
+    /**
+     * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo.
+     */
     private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Grupo grupo) {
         if (ehPosicaoInvalida(linha, coluna)) return;
         if (posicoesVisitadas[linha][coluna]) return;
