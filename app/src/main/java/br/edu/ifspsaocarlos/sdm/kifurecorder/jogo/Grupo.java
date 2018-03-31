@@ -44,6 +44,18 @@ public class Grupo {
         liberdades.add(liberdade);
     }
 
+    public boolean estaEmAtari() {
+        return liberdades.size() == 1;
+    }
+
+    public boolean ehCapturadoPela(Jogada jogada) {
+        return estaEmAtari() && liberdades.contains(jogada.posicao());
+    }
+
+    public boolean naoTemLiberdades() {
+        return liberdades.size() == 0;
+    }
+
     @Override
     public boolean equals(Object outro) {
         if (!(outro instanceof Grupo)) {

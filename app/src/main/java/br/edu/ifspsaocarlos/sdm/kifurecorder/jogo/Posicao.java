@@ -11,9 +11,14 @@ public class Posicao {
 
     @Override
     public String toString() {
-        int l = 'a' + linha + (linha >= 8 ? 1 : 0);
-        int c = 'a' + coluna + (coluna >= 8 ? 1 : 0);
+        int l = 'a' + adicionarUmParaPularLetraI(linha);
+        int c = 'a' + adicionarUmParaPularLetraI(coluna);
         return "[" + (char)l + (char)c + "]";
+    }
+
+    private char adicionarUmParaPularLetraI(int indice) {
+        final int INDICE_LETRA_I = 8;
+        return indice + (indice >= INDICE_LETRA_I ? 1 : 0);
     }
 
     @Override

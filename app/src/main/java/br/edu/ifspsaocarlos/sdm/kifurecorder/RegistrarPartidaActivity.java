@@ -49,7 +49,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     Partida partida;
-    Tabuleiro ultimoTabuleiro;
+    Tabuleiro ultimoTabuleiroDetectado;
 
     int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
@@ -119,7 +119,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         processarCantosDoTabuleiro();
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
-        ultimoTabuleiro = new Tabuleiro(dimensaoDoTabuleiro);
+        ultimoTabuleiroDetectado = new Tabuleiro(dimensaoDoTabuleiro);
         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
         tempoDesdeUltimaMudancaDeTabuleiro = 0;
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
@@ -321,7 +321,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (!pausado) {
 
-            if (ultimoTabuleiro.equals(tabuleiro)) {
+            if (ultimoTabuleiroDetectado.equals(tabuleiro)) {
                 tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
@@ -338,7 +338,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         }
 
-        ultimoTabuleiro = tabuleiro;
+        ultimoTabuleiroDetectado = tabuleiro;
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         if (pausado) {

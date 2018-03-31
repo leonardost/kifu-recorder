@@ -319,8 +319,7 @@ public class Tabuleiro implements Serializable {
         for (Posicao posicao : posicoes) {
             Grupo grupo = anterior.grupoEm(posicao);
             if (grupo == null || grupo.getCor() == jogadaFeita.cor) continue;
-            Set<Posicao> liberdades = grupo.getLiberdades();
-            if (liberdades.size() == 1 && liberdades.contains(jogadaFeita.posicao())) {
+            if (grupo.ehCapturadoPela(jogadaFeita)) {
                 devemSerCapturados.add(grupo);
                 Log.i(TestesActivity.TAG, "Grupo " + grupo + " será capturado.");
             }
@@ -380,9 +379,7 @@ public class Tabuleiro implements Serializable {
      * @return
      */
     public Grupo grupoEm(int linha, int coluna) {
-        if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) {
-            return null;
-        }
+        if (ehPosicaoInvalida(linha, coluna)) return null;
         if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
             return null;
         }
@@ -400,12 +397,16 @@ public class Tabuleiro implements Serializable {
         return grupo;
     }
 
+    private boolean ehPosicaoInvalida(int linha, int coluna) {
+        return linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao;
+    }
+
     public Grupo grupoEm(Posicao posicao) {
         return grupoEm(posicao.linha, posicao.coluna);
     }
 
     private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Grupo grupo) {
-        if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) return;
+        if (ehPosicaoInvalida(linha, coluna)) return;
         if (posicoesVisitadas[linha][coluna]) return;
 
         posicoesVisitadas[linha][coluna] = true;
@@ -435,30 +436,31 @@ public class Tabuleiro implements Serializable {
         if (tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
         Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
-        Grupo[] gruposAoRedor = new Grupo[4];
-        gruposAoRedor[0] = grupoEm(jogada.linha - 1, jogada.coluna);
-        gruposAoRedor[1] = grupoEm(jogada.linha + 1, jogada.coluna);
-        gruposAoRedor[2] = grupoEm(jogada.linha, jogada.coluna - 1);
-        gruposAoRedor[3] = grupoEm(jogada.linha, jogada.coluna + 1);
+        Grupo[] gruposAoRedorDaJogada = new Grupo[4];
+        gruposAoRedorDaJogada[0] = grupoEm(jogada.linha - 1, jogada.coluna);
+        gruposAoRedorDaJogada[1] = grupoEm(jogada.linha + 1, jogada.coluna);
+        gruposAoRedorDaJogada[2] = grupoEm(jogada.linha, jogada.coluna - 1);
+        gruposAoRedorDaJogada[3] = grupoEm(jogada.linha, jogada.coluna + 1);
 
-        // Verifica quais grupos serão capturados e os remove do tabuleiro
-        for (Grupo grupo : gruposAoRedor) {
+        for (Grupo grupo : gruposAoRedorDaJogada) {
             if (grupo == null || grupo.getCor() == jogada.cor) continue;
-            if (grupo.getLiberdades().size() == 1 &&
-                    grupo.getLiberdades().contains(jogada.posicao())) {
-                // Captura grupo
-                for (Posicao posicao : grupo.getPosicoes()) {
-                    novoTabuleiro.tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
-                }
+            if (grupo.ehCapturadoPela(jogada)) {
+                novoTabuleiro.remove(grupo);
             }
         }
 
         novoTabuleiro.tabuleiro[jogada.linha][jogada.coluna] = jogada.cor;
 
         Grupo grupoDaJogada = novoTabuleiro.grupoEm(jogada.linha, jogada.coluna);
-        if (grupoDaJogada.getLiberdades().isEmpty()) return this;
+        if (grupoDaJogada.naoTemLiberdades()) return this;
 
 		return novoTabuleiro;
 	}
+
+    private void remove(Grupo grupo) {
+        for (Posicao posicao : grupo.getPosicoes()) {
+            tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
+        }
+    }
 
 }
