@@ -20,12 +20,12 @@ public class Partida implements Serializable {
     private String jogadorDeBrancas;
     private String komi;
     private int dimensaoDoTabuleiro;
+    private List<Jogada> jogadas;
+    private List<Tabuleiro> tabuleiros;
+
     // Atributo para medir a precisao do sistema
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
-
-    private List<Jogada> jogadas;
-    private List<Tabuleiro> tabuleiros;
 
     public Partida(int dimensaoDoTabuleiro) {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
@@ -39,6 +39,7 @@ public class Partida implements Serializable {
     }
 
     public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
+        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         this.jogadorDePretas = jogadorDePretas;
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
@@ -55,41 +56,20 @@ public class Partida implements Serializable {
         return dimensaoDoTabuleiro;
     }
 
-    public void setJogadorDePretas(String jogadorDePretas) {
-        this.jogadorDePretas = jogadorDePretas;
-    }
-
     public String getJogadorDePretas() {
         return jogadorDePretas;
-    }
-
-    public void setJogadorDeBrancas(String jogadorDeBrancas) {
-        this.jogadorDeBrancas = jogadorDeBrancas;
     }
 
     public String getJogadorDeBrancas() {
         return jogadorDeBrancas;
     }
 
-    public void setKomi(String komi) {
-        this.komi = komi;
-    }
-
-    public String getKomi() {
-        return komi;
-    }
-
     public boolean adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
         Jogada jogadaFeita = tabuleiro.diferenca(ultimoTabuleiro());
 
-        if (jogadaFeita == null) return false;
-        // Não pode repetir nenhum estado anterior de jogo (regra do super ko)
-        if (repeteEstadoAnterior(tabuleiro)) return false;
-        // Tem que começar com uma pedra preta
-        if (comecouComPedraBranca(jogadaFeita)) return false;
-        // Não pode colocar pedra da mesma cor em seguida da outra, exceto se são pedras pretas para
-        // handicap no início da partida
-        if (!ehJogadaDeCorDiferenteOuSaoPedrasPretasDeHandicap(jogadaFeita)) return false;
+        if (jogadaFeita == null || repeteEstadoAnterior(tabuleiro) || !proximaJogadaPodeSer(jogadaFeita.cor)) {
+            return false;
+        }
 
         tabuleiros.add(tabuleiro);
         jogadas.add(jogadaFeita);
@@ -97,56 +77,53 @@ public class Partida implements Serializable {
         return true;
     }
 
-    private boolean comecouComPedraBranca(Jogada jogadaFeita) {
-        return ultimaJogada() == null && jogadaFeita.cor == Tabuleiro.PEDRA_BRANCA;
-    }
-
-    private boolean ehJogadaDeCorDiferenteOuSaoPedrasPretasDeHandicap(Jogada jogadaFeita) {
-        // É uma jogada de cor diferente da última jogada e, portanto, válida
-        if (ehJogadaDeCorDiferente(jogadaFeita)) return true;
-        // Se for uma pedra preta e apenas pedras pretas tiverem sido joagdas, está colocando pedras de handicap
-        if (jogadaFeita.cor == Tabuleiro.PEDRA_PRETA && apenasPedrasPretasForamJogadas()) return true;
-        // Senão, está repetindo a cor de uma pedra e não são pedras pretas de handicap
+    /**
+     * Retorna verdadeiro se o tabuleiroNovo repete algum dos tabuleiros anteriores da partida
+     * (regra do superko).
+     */
+    private boolean repeteEstadoAnterior(Tabuleiro tabuleiroNovo) {
+        for (Tabuleiro tabuleiro : tabuleiros) {
+            if (tabuleiro.equals(tabuleiroNovo)) return true;
+        }
         return false;
     }
 
-    private boolean ehJogadaDeCorDiferente(Jogada jogadaFeita) {
-        if (ultimaJogada() == null) return true;
-        return ultimaJogada().cor != jogadaFeita.cor;
+    public boolean proximaJogadaPodeSer(int cor) {
+        if (cor == Tabuleiro.PEDRA_PRETA)
+            return ehPrimeiraJogada() || apenasPedrasPretasForamJogadas() || ultimaJogadaFoiBranca();
+        else if (cor == Tabuleiro.PEDRA_BRANCA)
+            return ultimaJogadaFoiPreta();
+    }
+
+    private boolean ehPrimeiraJogada() {
+        return jogadas.isEmpty();
+    }
+
+    private boolean ultimaJogadaFoiBranca() {
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_BRANCA;
+    }
+
+    private boolean ultimaJogadaFoiPreta() {
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_PRETA;
+    }
+
+    public Jogada ultimaJogada() {
+        if (jogadas.isEmpty()) return null;
+        return jogadas.get(jogadas.size() - 1);
     }
 
     /**
-     * Este método é útil para verificar se as pedras de handicap estão sendo
-     * colocadas.
+     * Este método é usado para verificar se as pedras de handicap estão sendo colocadas.
      */
     private boolean apenasPedrasPretasForamJogadas() {
-        if (tabuleiros.size() == 1) return true;
-
-        for (int i = 1; i < tabuleiros.size(); ++i) {
-            Jogada jogada = tabuleiros.get(i).diferenca(tabuleiros.get(i - 1));
+        for (Jogada jogada : jogadas) {
             if (jogada.cor == Tabuleiro.PEDRA_BRANCA) return false;
         }
-
         return true;
     }
 
     public Tabuleiro ultimoTabuleiro() {
         return tabuleiros.get(tabuleiros.size() - 1);
-    }
-
-    /**
-     * Retorna verdadeiro se o tabuleiroNovo repete algum dos tabuleiros anteriores da partida
-     * (regra do superko).
-     * @param tabuleiroNovo
-     * @return
-     */
-    private boolean repeteEstadoAnterior(Tabuleiro tabuleiroNovo) {
-        for (Tabuleiro tabuleiro : tabuleiros) {
-            if (tabuleiro.equals(tabuleiroNovo)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
@@ -161,7 +138,7 @@ public class Partida implements Serializable {
     }
 
     public int numeroDeJogadasFeitas() {
-        return tabuleiros.size() - 1;
+        return jogadas.size();
     }
 
     /**
@@ -211,7 +188,6 @@ public class Partida implements Serializable {
     /**
      * Rotaciona todos os tabuleiros desta partida em sentido horário (direcao = 1) ou em sentido
      * anti-horário (direcao = -1).
-     * @param direcao
      */
     public void rotacionar(int direcao) {
         if (direcao != -1 && direcao != 1) return;
@@ -230,43 +206,6 @@ public class Partida implements Serializable {
 
         tabuleiros = tabuleirosRotacionados;
         jogadas = jogadasRotacionadas;
-    }
-
-    /**
-     * Retorna a última jogada que foi feita na partida.
-     */
-    public Jogada ultimaJogada() {
-        if (tabuleiros.size() == 1) return null;
-        return ultimoTabuleiro().diferenca(penultimoTabuleiro());
-    }
-
-    private Tabuleiro penultimoTabuleiro() {
-        if (tabuleiros.size() == 1) {
-            return null;
-        }
-        return tabuleiros.get(tabuleiros.size() - 2);
-    }
-
-    /**
-     * Retorna verdadeiro se a próxima jogada pode ser uma pedra preta ou
-     * branca, de acordo com o parâmetro.
-     */
-    public boolean proximaJogadaPodeSer(int cor) {
-
-        if (cor == Tabuleiro.PEDRA_PRETA) {
-            // Uma pedra preta pode ser a primeira jogada
-            if (ultimaJogada() == null) return true;
-            // Também pode ser a colocação de pedras de handicap
-            if (apenasPedrasPretasForamJogadas()) return true;
-            if (ultimaJogada().cor == Tabuleiro.PEDRA_BRANCA) return true;
-        }
-        // Uma pedra branca só pode vir depois de uma pedra preta
-        else if (cor == Tabuleiro.PEDRA_BRANCA) {
-            if (ultimaJogada() == null) return false;
-            return ultimaJogada().cor == Tabuleiro.PEDRA_PRETA;
-        }
-
-        return false;
     }
 
     public void adicionouJogadaManualmente() {

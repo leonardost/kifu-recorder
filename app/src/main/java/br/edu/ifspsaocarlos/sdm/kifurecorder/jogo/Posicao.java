@@ -23,12 +23,9 @@ public class Posicao {
 
     @Override
     public boolean equals(Object posicao) {
-        if (!(posicao instanceof Posicao)) {
-            return false;
-        }
-
-        return linha == ((Posicao)posicao).linha &&
-                coluna == ((Posicao)posicao).coluna;
+        if (!(posicao instanceof Posicao)) return false;
+        return linha == ((Posicao)posicao).linha
+            && coluna == ((Posicao)posicao).coluna;
     }
 
     @Override

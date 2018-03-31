@@ -30,12 +30,8 @@ public class Tabuleiro implements Serializable {
         }
     }
 
-    /**
-     * Constutor de cópia
-     * @param tabuleiro
-     */
     public Tabuleiro(Tabuleiro tabuleiro) {
-        dimensao = tabuleiro.dimensao;
+        this.dimensao = tabuleiro.dimensao;
         this.tabuleiro = new Integer[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
@@ -52,7 +48,7 @@ public class Tabuleiro implements Serializable {
         if (pedra != PEDRA_PRETA && pedra != PEDRA_BRANCA) {
             throw new RuntimeException("Pedra inválida!");
         }
-        if (linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao) {
+        if (ehPosicaoInvalida(linha, coluna)) {
             throw new RuntimeException("Posição inválida!");
         }
         if (tabuleiro[linha][coluna] != VAZIO) {
@@ -70,15 +66,9 @@ public class Tabuleiro implements Serializable {
 
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[i][j] == VAZIO) {
-                    saida.append('.');
-                }
-                else if (tabuleiro[i][j] == PEDRA_PRETA) {
-                    saida.append('P');
-                }
-                else if (tabuleiro[i][j] == PEDRA_BRANCA) {
-                    saida.append('B');
-                }
+                if (tabuleiro[i][j] == VAZIO) saida.append('.');
+                else if (tabuleiro[i][j] == PEDRA_PRETA) saida.append('P');
+                else if (tabuleiro[i][j] == PEDRA_BRANCA) saida.append('B');
             }
             saida.append(System.getProperty("line.separator"));
         }
@@ -89,16 +79,10 @@ public class Tabuleiro implements Serializable {
     /**
      * Retorna um novo tabuleiro que correponde ao tabuleiro atual rotacionado em sentido horário
      * (direcao = 1) ou anti-horário (direcao = -1).
-     * @param direcao
-     * @return Novo tabuleiro rotacionado.
      */
     public Tabuleiro rotacionar(int direcao) {
-        if (direcao == -1) {
-            return rotacionarEmSentidoAntihorario();
-        }
-        else if (direcao == 1) {
-            return rotacionarEmSentidoHorario();
-        }
+        if (direcao == -1) return rotacionarEmSentidoAntihorario();
+        else if (direcao == 1) return rotacionarEmSentidoHorario();
         throw new RuntimeException("Direção de rotação inválida!");
     }
 
@@ -128,22 +112,16 @@ public class Tabuleiro implements Serializable {
 
     public boolean identico(Tabuleiro outroTabuleiro) {
         if (dimensao != outroTabuleiro.dimensao) return false;
-
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (getPosicao(i, j) != outroTabuleiro.getPosicao(i, j)) {
-                    return false;
-                }
+                if (getPosicao(i, j) != outroTabuleiro.getPosicao(i, j)) return false;
             }
         }
         return true;
     }
 
     /**
-     * Verifica se dois tabuleiros são iguais, incluindo se um tabuleiro é uma
-     * rotação do outro.
-     *
-     * @return boolean
+     * Verifica se dois tabuleiros são iguais, incluindo se um tabuleiro é uma rotação do outro.
      */
     @Override
     public boolean equals(Object objeto) {
@@ -161,15 +139,16 @@ public class Tabuleiro implements Serializable {
     /**
      * Retorna a jogada de diferença deste tabuleiro para outro. Se houver mais de
      * uma jogada de diferença, retorna nulo.
+     * 
      * @param tabuleiroAnterior
      * @return
      */
     public Jogada diferenca(Tabuleiro tabuleiroAnterior) {
 
-        int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_PRETA);
-        int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedras(Tabuleiro.PEDRA_BRANCA);
-        int numeroDePedrasPretasDepois = numeroDePedras(Tabuleiro.PEDRA_PRETA);
-        int numeroDePedrasBrancasDepois = numeroDePedras(Tabuleiro.PEDRA_BRANCA);
+        int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
+        int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
+        int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
+        int numeroDePedrasBrancasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
         int diferencaDePedrasPretas = numeroDePedrasPretasDepois - numeroDePedrasPretasAntes;
         int diferencaDePedrasBrancas = numeroDePedrasBrancasDepois - numeroDePedrasBrancasAntes;
 
@@ -194,19 +173,16 @@ public class Tabuleiro implements Serializable {
         return jogadaFeita;
     }
 
-    /**
-     * Retorna a quantidade de determinada pedra (preta ou branca) neste tabuleiro.
-     */
-    private int numeroDePedras(int pedra) {
-        int numeroDePedras = 0;
+    private int numeroDePedrasDaCor(int cor) {
+        int numeroDePedrasDessaCor = 0;
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[i][j] == pedra) {
-                    ++numeroDePedras;
+                if (tabuleiro[i][j] == cor) {
+                    ++numeroDePedrasDessaCor;
                 }
             }
         }
-        return numeroDePedras;
+        return numeroDePedrasDessaCor;
     }
 
     private boolean todosOsGruposDoTabuleiroTemLiberdade() {
@@ -223,8 +199,6 @@ public class Tabuleiro implements Serializable {
 
     /**
      * Veifica se todas as pedras do tabuleiro antigo estão no novo.
-     * @param anterior
-     * @return
      */
     private boolean todasAsPedrasEstaoNoMesmoLugar(Tabuleiro anterior) {
         for (int i = 0; i < anterior.getDimensao(); ++i) {
@@ -278,33 +252,36 @@ public class Tabuleiro implements Serializable {
         Set<Grupo> gruposQueDevemSerCapturados = new HashSet<>();
         for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
             if (grupo == null) continue;
-            if (grupo.ehCapturadoPela(jogada)) {
-                gruposQueDevemSerCapturados.add(grupo);
-                Log.i(TestesActivity.TAG, "Grupo " + grupo + " será capturado.");
-            }
+            if (grupo.ehCapturadoPela(jogada)) gruposQueDevemSerCapturados.add(grupo);
         }
         return gruposQueDevemSerCapturados;
+    }
+
+    private Set<Grupo> recuperaGruposAdjacentesA(Jogada jogada) {
+        Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha - 1, jogada.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha + 1, jogada.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna - 1));
+        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna + 1));
+        return gruposAdjacentesAJogada;
     }
 
     private boolean gruposForamRealmenteCapturados(Set<Grupo> gruposQueDevemSerCapturados) {
         for (Grupo grupo : gruposQueDevemSerCapturados) {
             for (Posicao posicao : grupo.getPosicoes()) {
                 if (tabuleiro[posicao.linha][posicao.coluna] != Tabuleiro.VAZIO) {
-                    Log.i(TestesActivity.TAG, "Captura não foi feita corretamente na posição " + posicao);
                     return false;
                 }
             }
         }
+        return true;
     }
 
     private boolean demaisPosicoesEstaoIguais(Set<Posicao> posicoesJaVerificadas) {
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
                 if (posicoesJaVerificadas.contains(new Posicao(i, j))) continue;
-                if (tabuleiro[i][j] != anterior.getPosicao(i, j)) {
-                    Log.i(TestesActivity.TAG, "Problema na posição (" + i + ", " + j + ")");
-                    return false;
-                }
+                if (tabuleiro[i][j] != anterior.getPosicao(i, j)) return false;
             }
         }
         return true;
@@ -318,8 +295,7 @@ public class Tabuleiro implements Serializable {
      * @return
      */
     public Grupo grupoEm(int linha, int coluna) {
-        if (ehPosicaoInvalida(linha, coluna)) return null;
-        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
+        if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
 
         boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
@@ -339,11 +315,11 @@ public class Tabuleiro implements Serializable {
     }
 
     /**
-     * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo.
+     * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo e
+     * suas liberdades.
      */
     private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Grupo grupo) {
-        if (ehPosicaoInvalida(linha, coluna)) return;
-        if (posicoesVisitadas[linha][coluna]) return;
+        if (ehPosicaoInvalida(linha, coluna) || posicoesVisitadas[linha][coluna]) return;
 
         posicoesVisitadas[linha][coluna] = true;
 
@@ -358,7 +334,6 @@ public class Tabuleiro implements Serializable {
             delimitarGrupo(linha, coluna - 1, posicoesVisitadas, grupo);
             delimitarGrupo(linha, coluna + 1, posicoesVisitadas, grupo);
         }
-        // Se não entrou em nenhuma das condições, encontrou uma pedra de cor diferente da do grupo
     }
 
 	/**
@@ -385,15 +360,6 @@ public class Tabuleiro implements Serializable {
 
 		return novoTabuleiro;
 	}
-
-    private Set<Grupo> recuperaGruposAdjacentesA(Jogada jogada) {
-        Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha - 1, jogada.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha + 1, jogada.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna - 1));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna + 1));
-        return gruposAdjacentesAJogada;
-    }
 
     private void remove(Grupo grupo) {
         for (Posicao posicao : grupo.getPosicoes()) {

@@ -24,10 +24,6 @@ public class Jogada implements Serializable {
         this.cor = cor;
     }
 
-    /**
-     * Retorna a posição em que uma jogada foi feita.
-     * @return
-     */
     public Posicao posicao() {
         return new Posicao(linha, coluna);
     }
@@ -36,10 +32,8 @@ public class Jogada implements Serializable {
         int l = 'a' + linha;
         int c = 'a' + coluna;
         String coordenada = "" + (char)c + (char)l;
-        if (ehPasse) {
-            coordenada = "";
-        }
-        char cor = (this.cor == Tabuleiro.PEDRA_PRETA ? 'B' : 'W');
+        if (ehPasse) coordenada = "";
+        char cor = this.cor == Tabuleiro.PEDRA_PRETA ? 'B' : 'W';
         return ";" + cor + "[" + coordenada + "]";
     }
 

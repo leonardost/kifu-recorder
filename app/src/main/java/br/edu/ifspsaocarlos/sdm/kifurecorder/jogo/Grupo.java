@@ -48,14 +48,12 @@ public class Grupo {
 
     @Override
     public boolean equals(Object outro) {
-        if (!(outro instanceof Grupo)) {
-            return false;
-        }
+        if (!(outro instanceof Grupo)) return false;
 
-        Grupo outroGrupo = (Grupo) outro;
-        return cor == outroGrupo.cor &&
-                posicoes.equals(outroGrupo.posicoes) &&
-                liberdades.equals(outroGrupo.liberdades);
+        Grupo outroGrupo = (Grupo)outro;
+        return cor == outroGrupo.cor
+            && posicoes.equals(outroGrupo.posicoes)
+            && liberdades.equals(outroGrupo.liberdades);
     }
 
     @Override
