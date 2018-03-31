@@ -175,12 +175,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
 	private boolean criarPastaDeRegistroSeNaoExistir() {
-        if (!pastaDeRegistro.exists()) {
-            if (!pastaDeRegistro.mkdirs()) {
-                Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
-                Log.e(TestesActivity.TAG, "Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.");
-                return false;
-            }
+        if (!pastaDeRegistro.exists() && !pastaDeRegistro.mkdirs()) {
+            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
+            Log.e(TestesActivity.TAG, "Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.");
+            return false;
         }
         return true;
 	}

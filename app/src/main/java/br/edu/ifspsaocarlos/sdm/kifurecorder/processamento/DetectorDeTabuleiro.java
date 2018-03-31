@@ -88,9 +88,6 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
-//        List<ClusterDeVertices> intersecoes = null;
-//        intersecoes = detectarIntersecoes(quadrilateros, quadrilateroDoTabuleiro);
-
         HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
         double areaMedia = 0;
         for (MatOfPoint quadrilatero : hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro)) {
@@ -243,33 +240,6 @@ public class DetectorDeTabuleiro {
 //        }
 
         return contornoMaisProximoDoTabuleiro;
-    }
-
-    private List<ClusterDeVertices> detectarIntersecoes(List<MatOfPoint> quadrilateros, MatOfPoint quadrilateroDoTabuleiro) {
-        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
-        List<ClusterDeVertices> intersecoes = new ArrayList<>();
-
-        // Agrupa os vértices dos quadriláteros internos para encontrar as interseções do tabuleiro
-        for (MatOfPoint quadradoInterno : hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro)) {
-            List<Point> vertices = quadradoInterno.toList();
-            boolean encontrouClusterProximo = false;
-            for (Point vertice : vertices) {
-                for (ClusterDeVertices intersecaoMedia : intersecoes) {
-                    if (intersecaoMedia.distanceTo(vertice) < 20) {  // Valor totalmente arbitrário, apenas para testes
-                        intersecaoMedia.combinarPontoSeEstaProximoOSuficiente(vertice, 20);
-                        encontrouClusterProximo = true;
-                        break;
-                    }
-                }
-                if (!encontrouClusterProximo) {
-                    ClusterDeVertices novoCluster = new ClusterDeVertices();
-                    novoCluster.combinarPontoSeEstaProximoOSuficiente(vertice, 20);
-                    intersecoes.add(novoCluster);
-                }
-            }
-        }
-
-        return intersecoes;
     }
 
     private List<Point> ordenarCantos(MatOfPoint quadrilateroDoTabuleiro) {
