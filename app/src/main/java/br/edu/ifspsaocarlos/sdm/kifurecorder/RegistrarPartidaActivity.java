@@ -47,6 +47,8 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
+    private boolean DEBUG_MODE = true;
+
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     Partida partida;
     Tabuleiro ultimoTabuleiroDetectado;
@@ -143,13 +145,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
 
-        pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "kifu_recorder");
         if (!criarPastaDeRegistroSeNaoExistir()) {
             finish();
             return;
         }
-        arquivoDeRegistro = getFile("sgf");
-        arquivoDeLog = getFile("log");
+        arquivoDeRegistro = getFile("", "sgf");
+        arquivoDeLog = getFile("", "log");
 
         Log.i(TestesActivity.TAG, "onCreate() finalizado");
     }
@@ -172,8 +174,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
 	private boolean criarPastaDeRegistroSeNaoExistir() {
         if (!pastaDeRegistro.exists() && !pastaDeRegistro.mkdirs()) {
-            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
-            Log.e(TestesActivity.TAG, "Diretório " + pastaDeRegistro.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.");
+            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + pastaDeRegistro.toString() + " não pôde ser criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
+            Log.e(TestesActivity.TAG, "Diretório " + pastaDeRegistro.toString() + " não pôde ser criado, verifique as configurações de armazenamento de seu dispositivo.");
             return false;
         }
         return true;
@@ -234,8 +236,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private void restaurarPartidaSalvaTemporariamente() {
         File arquivo = getTempFile();
-        // TODO: Precisa fazer esta checagem aqui? Porque aqui só é feita a leitura de arquivos
-        if (isExternalStorageWritable()) {
+        if (isExternalStorageAvailable()) {
             try {
                 FileInputStream fis = new FileInputStream(arquivo);
                 ObjectInputStream ois = new ObjectInputStream(fis);
@@ -336,6 +337,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void salvarScreenshotDoTabuleiroOrtogonal() {
+        if (!DEBUG_MODE) return;
         Mat imagemNoFormatoDeCorCerto = new Mat();
         Imgproc.cvtColor(tabuleiroOrtogonal, imagemNoFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
         Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemNoFormatoDeCorCerto);
@@ -401,15 +403,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         try {
             Mat imagemNoFormatoDeCorCerto = new Mat();
             Imgproc.cvtColor(tabuleiroOrtogonal, imagemNoFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-            Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemNoFormatoDeCorCerto);
+            Imgcodecs.imwrite(getFile("", "jpg").getAbsolutePath(), imagemNoFormatoDeCorCerto);
 
-            FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
+            File file = getFile("", "txt");
+            FileOutputStream fos = new FileOutputStream(file, false);
             fos.write(snapshotAtual.getBytes());
             fos.flush();
             fos.close();
 
-            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + getFile("txt").getName() + ".", Toast.LENGTH_LONG).show();
-            Log.i(TestesActivity.TAG, "Snapshot salva: " + getFile("txt").getName() + " com conteúdo " + snapshotAtual);
+            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + file.getName() + ".", Toast.LENGTH_LONG).show();
+            Log.i(TestesActivity.TAG, "Snapshot salva: " + file.getName() + " com conteúdo " + snapshotAtual);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -465,7 +468,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
 	private void salvarArquivoNoDisco() {
         String conteudoDaPartida = partida.sgf();
-        if (isExternalStorageWritable()) {
+        if (isExternalStorageAvailable()) {
             try {
                 FileOutputStream fos = new FileOutputStream(arquivoDeRegistro, false);
                 fos.write(conteudoDaPartida.getBytes());
@@ -491,6 +494,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 	}
 
     private void adicionarAoLog(String conteudo) {
+        if (!DEBUG_MODE) return;
         try {
             FileOutputStream fos = new FileOutputStream(arquivoDeLog, true);
             fos.write(conteudo.getBytes());
@@ -500,22 +504,13 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
     }
 
-    private boolean isExternalStorageWritable() {
+    private boolean isExternalStorageAvailable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    private File getFile(String extensao) {
-        File arquivo = new File(pastaDeRegistro, gerarNomeDeArquivo(0, extensao));
-        int contador = 1;
-
-        while (arquivo.exists()) {
-            String newFilename = gerarNomeDeArquivo(contador, extensao);
-            arquivo = new File(pastaDeRegistro, newFilename);
-            contador++;
-        }
-
-        return arquivo;
+    private File getTempFile() {
+        return new File(pastaDeRegistro, "arquivo_temporario");
     }
 
     private File getFile(String nome, String extensao) {
@@ -529,28 +524,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
 
         return arquivo;
-    }
-
-    private File getTempFile() {
-        return new File(pastaDeRegistro, "arquivo_temporario");
-    }
-
-    private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String extensao) {
-        // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
-        String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
-        String contador = "";
-        if (contadorDeNomeRepetido > 0) {
-            contador = "(" + contadorDeNomeRepetido + ")";
-        }
-
-        StringBuilder string = new StringBuilder();
-        string.append(partida.getJogadorDeBrancas())
-            .append("-").append(partida.getJogadorDePretas())
-            .append("_").append(data)
-            .append(contador)
-            .append(".").append(extensao);
-        return string.toString();
     }
 
     private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String nome, String extensao) {
@@ -570,7 +543,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             .append(data)
             .append("_")
             .append(nome)
-            .append("_")
             .append(contador)
             .append(".")
             .append(extensao);
