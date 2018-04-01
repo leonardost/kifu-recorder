@@ -53,12 +53,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
-    long momentoDaUltimaDeteccaoDeTabuleiro;
-    long tempoDesdeUltimaMudancaDeTabuleiro;
+    long momentoDaUltimaMudancaDeTabuleiro;
+    long momentoDoUltimoProcessamentoDeImagem;
     String snapshotAtual;
     boolean pausado = false;
-    long momentoDoUltimoProcessamentoDeImagem;
-    long tempoDesdeUltimoProcessamentoDeImagem;
+    boolean throttlingLigado = true;
 
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
     int[] cantosDoTabuleiro;                   // Pontos dos cantos do tabuleiro
@@ -115,15 +114,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         cantosDoTabuleiro       = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 		detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
-
         processarCantosDoTabuleiro();
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         ultimoTabuleiroDetectado = new Tabuleiro(dimensaoDoTabuleiro);
-        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-        tempoDesdeUltimaMudancaDeTabuleiro = 0;
+        momentoDaUltimaMudancaDeTabuleiro = SystemClock.elapsedRealtime();
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
-        tempoDesdeUltimoProcessamentoDeImagem = 0;
 
         btnSalvar = (ImageButton) findViewById(R.id.btnSalvar);
         btnSalvar.setOnClickListener(this);
@@ -191,19 +187,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     @Override
-    public void onPause()
-    {
-        super.onPause();
-        guardaPartidaTemporariamente();  // TODO: Isto estava em cima, ver se não quebrou nada
-        if (mOpenCvCameraView != null) {
-            mOpenCvCameraView.disableView();
-        }
+    public void onStop() {
+        super.onStop();
     }
 
     @Override
-    public void onStop()
-    {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
+        guardaPartidaTemporariamente();
+        if (mOpenCvCameraView != null) mOpenCvCameraView.disableView();
     }
 
     private void guardaPartidaTemporariamente() {
@@ -288,75 +280,71 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
-        // Throttling, processa 2 vezes por segundo
-        if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
-            tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
-            Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
-            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(imagemFonte, posicaoDoTabuleiroNaImagem);
+        desenharInterface(imagemFonte);
+
+        if (throttlingLigado && System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
             return imagemFonte;
         }
-        else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
+        momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
 
-        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(imagemFonte, posicaoDoTabuleiroNaImagem);
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // TODO: Verificar qual o tamanho da imagem do tabuleiro ortogonal aqui!!!
-        //       Isso traz implicações para o raio calculado no método de calcular a cor média ao redor de uma posição
-        // int larguraImagem = (int)tabuleiroOrtogonal.size().width;
-        // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
-        // Desenha o tabuleiro ortogonal na tela
-        tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
-
         Tabuleiro tabuleiro = detectorDePedras.detectar(
-                partida.ultimoTabuleiro(),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
+            partida.ultimoTabuleiro(),
+            partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
+            partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
         );
+
+        desenharTabuleiro(imagemFonte, tabuleiro);
 
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
         snapshotAtual += "Jogada " + (partida.numeroDeJogadasFeitas() + 1) + "\n";
         snapshotAtual += "\n";
 
-        if (!pausado) {
-
-            if (ultimoTabuleiroDetectado.equals(tabuleiro)) {
-                tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
-                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-                if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
-					novaJogadaFoiAdicionada();
-                    adicionarAoLog(snapshotAtual.toString());
-                    Mat imagemFormatoDeCorCerto = new Mat();
-                    Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-                    Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
-                }
-            } else {
-                tempoDesdeUltimaMudancaDeTabuleiro = 0;
-                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-            }
-
-        }
+        if (!pausado) processaTabuleiroDetectado(tabuleiro);
 
         ultimoTabuleiroDetectado = tabuleiro;
-
-        Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
-        if (pausado) {
-            // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
-            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
-        }
-        else {
-            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
-        }
 
         Log.d(TestesActivity.TAG, "TEMPO (onCameraFrame()): " + (System.currentTimeMillis() - tempoEntrou));
         return imagemFonte;
     }
 
+    private void desenharInterface(Mat imagemFonte) {
+        tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
+        Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+    }
+
+    private void desenharTabuleiro(Mat imagemFonte, Tabuleiro tabuleiro) {
+        // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
+        if (pausado) {
+            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
+        } else {
+            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+        }
+    }
+
+    private void processaTabuleiroDetectado(Tabuleiro tabuleiro) {
+        if (ultimoTabuleiroDetectado.equals(tabuleiro)) {
+            long tempoDesdeUltimaMudancaDeTabuleiro = SystemClock.elapsedRealtime() - momentoDaUltimaMudancaDeTabuleiro;
+            if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
+                novaJogadaFoiAdicionada();
+                adicionarAoLog(snapshotAtual.toString());
+                salvarScreenshotDoTabuleiroOrtogonal();
+            }
+        } else momentoDaUltimaMudancaDeTabuleiro = SystemClock.elapsedRealtime();
+    }
+
+    private void salvarScreenshotDoTabuleiroOrtogonal() {
+        Mat imagemNoFormatoDeCorCerto = new Mat();
+        Imgproc.cvtColor(tabuleiroOrtogonal, imagemNoFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+        Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemNoFormatoDeCorCerto);
+    }
+
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnSalvar:
-                salvarArquivoNoDiscoESair(false);
+                salvarArquivoNoDisco();
                 break;
             case R.id.btnVoltarUltimaJogada:
                 temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
@@ -394,27 +382,26 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private void temCertezaQueDesejaVoltarAUltimaJogada(String mensagem) {
         new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_tem_certeza)
-                .setMessage(mensagem)
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Jogada removida = partida.voltarUltimaJogada();
-                        tempoDesdeUltimaMudancaDeTabuleiro = 0;
-                        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-                        atualizarBotaoDeVoltar();
-                        adicionarAoLog("Voltando jogada " + removida + "\n\n");
-                    }
-                })
-                .setNegativeButton(R.string.nao, null)
-                .show();
+            .setTitle(R.string.dialog_tem_certeza)
+            .setMessage(mensagem)
+            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Jogada removida = partida.voltarUltimaJogada();
+                    momentoDaUltimaMudancaDeTabuleiro = SystemClock.elapsedRealtime();
+                    atualizarBotaoDeVoltar();
+                    adicionarAoLog("Voltando jogada " + removida + "\n\n");
+                }
+            })
+            .setNegativeButton(R.string.nao, null)
+            .show();
     }
 
     private void tirarSnapshot() {
         try {
-            Mat imagemFormatoDeCorCerto = new Mat();
-            Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-            Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
+            Mat imagemNoFormatoDeCorCerto = new Mat();
+            Imgproc.cvtColor(tabuleiroOrtogonal, imagemNoFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+            Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemNoFormatoDeCorCerto);
 
             FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
             fos.write(snapshotAtual.getBytes());
@@ -463,23 +450,20 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private void temCertezaQueDesejaFinalizarORegisro() {
         new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_tem_certeza)
-                .setMessage(getString(R.string.dialog_finalizar_registro))
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        salvarArquivoNoDiscoESair(true);
-                    }
-                })
-                .setNegativeButton(R.string.nao, null)
-                .show();
+            .setTitle(R.string.dialog_tem_certeza)
+            .setMessage(getString(R.string.dialog_finalizar_registro))
+            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    salvarArquivoNoDisco();
+                    finish();
+                }
+            })
+            .setNegativeButton(R.string.nao, null)
+            .show();
     }
 
-	/**
-	 * Salva o arquivo da partida e o log no armazenamento secundário. Se o
-	 * parâmetro 'sair' for verdadeiro, finaliza o registro depois de salvar.
-	 */
-	private void salvarArquivoNoDiscoESair(boolean sairDepoisDeSalvar) {
+	private void salvarArquivoNoDisco() {
         String conteudoDaPartida = partida.sgf();
         if (isExternalStorageWritable()) {
             try {
@@ -499,11 +483,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             catch (IOException e) {
                 e.printStackTrace();
             }
-            finally {
-				if (sairDepoisDeSalvar) {
-					finish();
-				}
-			}
         }
         else {
             Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Armazenamento externo nao disponivel.", Toast.LENGTH_LONG).show();
@@ -567,13 +546,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         StringBuilder string = new StringBuilder();
         string.append(partida.getJogadorDeBrancas())
-                .append("-")
-                .append(partida.getJogadorDePretas())
-                .append("_")
-                .append(data)
-                .append(contador)
-                .append(".")
-                .append(extensao);
+            .append("-").append(partida.getJogadorDePretas())
+            .append("_").append(data)
+            .append(contador)
+            .append(".").append(extensao);
         return string.toString();
     }
 
@@ -588,16 +564,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         StringBuilder string = new StringBuilder();
         string.append(partida.getJogadorDeBrancas())
-                .append("-")
-                .append(partida.getJogadorDePretas())
-                .append("_")
-                .append(data)
-                .append("_")
-                .append(nome)
-                .append("_")
-                .append(contador)
-                .append(".")
-                .append(extensao);
+            .append("-")
+            .append(partida.getJogadorDePretas())
+            .append("_")
+            .append(data)
+            .append("_")
+            .append(nome)
+            .append("_")
+            .append(contador)
+            .append(".")
+            .append(extensao);
         return string.toString();
     }
 
@@ -613,22 +589,22 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         final EditText input = new EditText(RegistrarPartidaActivity.this);
 
         dialogo.setTitle(R.string.dialog_adicionar_jogada)
-                .setMessage(getString(R.string.dialog_adicionar_jogada))
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                        Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
-                        if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
-                            novaJogadaFoiAdicionada();
-                            partida.adicionouJogadaManualmente();
-                            adicionarAoLog("Jogada " + adicionadaManualmente + " foi adicionada manualmente.\n\n");
-                        }
+            .setMessage(getString(R.string.dialog_adicionar_jogada))
+            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
+                    Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
+                    if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
+                        novaJogadaFoiAdicionada();
+                        partida.adicionouJogadaManualmente();
+                        adicionarAoLog("Jogada " + adicionadaManualmente + " foi adicionada manualmente.\n\n");
                     }
-                })
-                .setNegativeButton(R.string.nao, null)
-                .setView(input)
-                .show();
+                }
+            })
+            .setNegativeButton(R.string.nao, null)
+            .setView(input)
+            .show();
     }
     
     private Jogada processarJogadaManual(String textoJogada) {
@@ -644,7 +620,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void novaJogadaFoiAdicionada() {
         contadorDeJogadas++;
         soundPool.play(beepId, 1, 1, 0, 0, 1);
-        if (contadorDeJogadas % 5 == 0) salvarArquivoNoDiscoESair(false);
+        if (contadorDeJogadas % 5 == 0) salvarArquivoNoDisco();
         atualizarBotaoDeVoltar();
     }
 

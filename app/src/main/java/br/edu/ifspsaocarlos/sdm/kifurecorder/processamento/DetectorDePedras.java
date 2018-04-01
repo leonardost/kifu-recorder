@@ -14,8 +14,8 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
- * Detecta as pedras do tabuleiro que está na imagem, retornando um objeto
- * Tabuleiro correspondente ao estado atual do jogo.
+ * Detecta as pedras do tabuleiro que está na imagem, retornando um objeto Tabuleiro correspondente
+ * ao estado atual do jogo.
  */
 public class DetectorDePedras {
 
