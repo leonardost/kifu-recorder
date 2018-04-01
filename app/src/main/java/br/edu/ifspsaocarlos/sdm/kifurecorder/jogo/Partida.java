@@ -12,7 +12,7 @@ import java.util.List;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
- * Guarda a sequência de jogadas que foram feitas durante uma partida.
+ * Representa uma partida completa, com a sequência de tabuleiros e jogadas que foram feitos.
  */
 public class Partida implements Serializable {
 
@@ -23,20 +23,9 @@ public class Partida implements Serializable {
     private List<Jogada> jogadas;
     private List<Tabuleiro> tabuleiros;
 
-    // Atributo para medir a precisao do sistema
+    // Atributo para medir a precisão do sistema
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
-
-    public Partida(int dimensaoDoTabuleiro) {
-        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
-        jogadas = new ArrayList<>();
-        tabuleiros = new ArrayList<>();
-
-        Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
-        tabuleiros.add(tabuleiroVazio);
-        numeroDeVezesQueVoltou = 0;
-        numeroDeVezesQueTeveQueAdicionarManualmente = 0;
-    }
 
     public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
@@ -99,6 +88,16 @@ public class Partida implements Serializable {
         return jogadas.isEmpty();
     }
 
+    /**
+     * Este método é usado para verificar se as pedras de handicap estão sendo colocadas.
+     */
+    private boolean apenasPedrasPretasForamJogadas() {
+        for (Jogada jogada : jogadas) {
+            if (jogada.cor == Tabuleiro.PEDRA_BRANCA) return false;
+        }
+        return true;
+    }
+
     private boolean ultimaJogadaFoiBranca() {
         return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_BRANCA;
     }
@@ -112,40 +111,55 @@ public class Partida implements Serializable {
         return jogadas.get(jogadas.size() - 1);
     }
 
-    /**
-     * Este método é usado para verificar se as pedras de handicap estão sendo colocadas.
-     */
-    private boolean apenasPedrasPretasForamJogadas() {
-        for (Jogada jogada : jogadas) {
-            if (jogada.cor == Tabuleiro.PEDRA_BRANCA) return false;
-        }
-        return true;
-    }
-
     public Tabuleiro ultimoTabuleiro() {
         return tabuleiros.get(tabuleiros.size() - 1);
     }
 
     /**
-     * Desconsidera a última jogada feita e a retorna;
+     * Desconsidera a última jogada feita e a retorna
      */
     public Jogada voltarUltimaJogada() {
-        if (tabuleiros.size() == 1) return null;
+        if (jogadas.isEmpty()) return null;
         tabuleiros.remove(tabuleiros.size() - 1);
-        Jogada removida = jogadas.remove(jogadas.size() - 1);
+        Jogada ultimaJogada = jogadas.remove(jogadas.size() - 1);
         numeroDeVezesQueVoltou++;
-        return removida;
+        return ultimaJogada;
     }
 
     public int numeroDeJogadasFeitas() {
         return jogadas.size();
     }
 
+    public void adicionouJogadaManualmente() {
+        numeroDeVezesQueTeveQueAdicionarManualmente++;
+    }
+
     /**
-     * Exporta uma partida em formato SGF.
+     * Rotaciona todos os tabuleiros desta partida em sentido horário (direcao = 1) ou em sentido
+     * anti-horário (direcao = -1).
+     */
+    public void rotacionar(int direcao) {
+        if (direcao != -1 && direcao != 1) return;
+
+        List<Tabuleiro> tabuleirosRotacionados = new ArrayList<>();
+        for (Tabuleiro tabuleiro : tabuleiros) {
+            tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
+        }
+
+        List<Jogada> jogadasRotacionadas = new ArrayList<>();
+        for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
+            Tabuleiro ultimo = tabuleirosRotacionados.get(i);
+            Tabuleiro penultimo = tabuleirosRotacionados.get(i - 1);
+            jogadasRotacionadas.add(ultimo.diferenca(penultimo));
+        }
+
+        tabuleiros = tabuleirosRotacionados;
+        jogadas = jogadasRotacionadas;
+    }
+
+    /**
+     * Exporta a partida em formato SGF.
      * Referência: http://www.red-bean.com/sgf/
-     *
-     * @return String contendo a partida em formato SGF
      */
     public String sgf() {
         StringBuilder sgf = new StringBuilder();
@@ -183,33 +197,6 @@ public class Partida implements Serializable {
         sgf.append("[");
         sgf.append(valor);
         sgf.append("]");
-    }
-
-    /**
-     * Rotaciona todos os tabuleiros desta partida em sentido horário (direcao = 1) ou em sentido
-     * anti-horário (direcao = -1).
-     */
-    public void rotacionar(int direcao) {
-        if (direcao != -1 && direcao != 1) return;
-
-        List<Tabuleiro> tabuleirosRotacionados = new ArrayList<>();
-        for (Tabuleiro tabuleiro : tabuleiros) {
-            tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
-        }
-
-        List<Jogada> jogadasRotacionadas = new ArrayList<>();
-        for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
-            Tabuleiro ultimo = tabuleirosRotacionados.get(i);
-            Tabuleiro penultimo = tabuleirosRotacionados.get(i - 1);
-            jogadasRotacionadas.add(ultimo.diferenca(penultimo));
-        }
-
-        tabuleiros = tabuleirosRotacionados;
-        jogadas = jogadasRotacionadas;
-    }
-
-    public void adicionouJogadaManualmente() {
-        numeroDeVezesQueTeveQueAdicionarManualmente++;
     }
 
 }

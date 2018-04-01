@@ -57,6 +57,10 @@ public class Tabuleiro implements Serializable {
         tabuleiro[linha][coluna] = pedra;
     }
 
+    private boolean ehPosicaoInvalida(int linha, int coluna) {
+        return linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao;
+    }
+
     public int getPosicao(int linha, int coluna) {
         return tabuleiro[linha][coluna];
     }
@@ -241,10 +245,6 @@ public class Tabuleiro implements Serializable {
         Grupo grupo = new Grupo(cor);
         delimitarGrupo(linha, coluna, posicoesVisitadas, grupo);
         return grupo;
-    }
-
-    private boolean ehPosicaoInvalida(int linha, int coluna) {
-        return linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao;
     }
 
     /**
