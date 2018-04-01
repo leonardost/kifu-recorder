@@ -105,6 +105,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
+        // TODO: Testar com outras resoluções da câmera
 //        mOpenCvCameraView.setMaxFrameSize(1000, 1000);
         mOpenCvCameraView.setCvCameraViewListener(this);
 
@@ -298,14 +299,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         desenharTabuleiro(imagemFonte, tabuleiro);
 
+        if (!pausado) processaTabuleiroDetectado(tabuleiro);
+
+        ultimoTabuleiroDetectado = tabuleiro;
+
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
         snapshotAtual += "Jogada " + (partida.numeroDeJogadasFeitas() + 1) + "\n";
         snapshotAtual += "\n";
-
-        if (!pausado) processaTabuleiroDetectado(tabuleiro);
-
-        ultimoTabuleiroDetectado = tabuleiro;
 
         Log.d(TestesActivity.TAG, "TEMPO (onCameraFrame()): " + (System.currentTimeMillis() - tempoEntrou));
         return imagemFonte;
@@ -331,7 +332,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
                 novaJogadaFoiAdicionada();
                 adicionarAoLog(snapshotAtual.toString());
-                salvarScreenshotDoTabuleiroOrtogonal();
             }
         } else momentoDaUltimaMudancaDeTabuleiro = SystemClock.elapsedRealtime();
     }
@@ -594,6 +594,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         soundPool.play(beepId, 1, 1, 0, 0, 1);
         if (contadorDeJogadas % 5 == 0) salvarArquivoNoDisco();
         atualizarBotaoDeVoltar();
+        salvarScreenshotDoTabuleiroOrtogonal();
     }
 
 	private void atualizarBotaoDeVoltar() {
