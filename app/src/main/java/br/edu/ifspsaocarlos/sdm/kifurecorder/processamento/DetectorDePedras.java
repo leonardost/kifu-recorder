@@ -69,6 +69,7 @@ public class DetectorDePedras {
         boolean podeSerPedraBranca = partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA);
         double[][] coresMedias       = new double[3][imagemDoTabuleiro.channels()];
         int[] contadores             = new int[3];
+        HipoteseDeCor hipoteseDeCor = new HipoteseDeCor(imagemDoTabuleiro);
 
         snapshot = new StringBuilder();
 
@@ -79,11 +80,17 @@ public class DetectorDePedras {
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
 
+                if (posicaoJaContemPedra(ultimoTabuleiro, i, j)) continue;
+
+                HipoteseDeJogada hipotese = hipoteseDeCor.processar(i, j);
+                hipotesesDeJogadasEncontradas.add(hipotese);
+
+
+
 //                Log.i(TestesActivity.TAG, "(" + i + ", " + j + ")\n");
                 snapshot.append(String.format("(%1$2d, %2$2d)", i, j) + "\n");
 
-                // Ignora as interseções das jogadas que já foram feitas
-                if (ultimoTabuleiro.getPosicao(i, j) != Tabuleiro.VAZIO) continue;
+
 
                 double[] corAoRedorDaPosicao = recuperarCorMediaNaPosicao(i, j);
 
@@ -125,7 +132,7 @@ public class DetectorDePedras {
         }
 
         // Escolhe a jogada que obteve maior confiança
-        // IMPORTANTE: Poderia verificar se a diferença de confiança entre as
+        // TODO: Poderia verificar se a diferença de confiança entre as
         // duas jogadas mais prováveis for muito pequena, desconsiderar ambas,
         // porque é um sinal que o detector está confuso
         
@@ -138,17 +145,24 @@ public class DetectorDePedras {
             }
         }
 
-        if (jogadaEscolhida != null && (podeSerPedraPreta && jogadaEscolhida.cor == Tabuleiro.PEDRA_PRETA ||
-                podeSerPedraBranca && jogadaEscolhida.cor == Tabuleiro.PEDRA_BRANCA)) {
+        if (jogadaFoiDetectada(jogadaEscolhida, podeSerPedraPreta, podeSerPedraBranca)) {
             snapshot.append("Jogada escolhida = " + jogadaEscolhida + " com confiança " + maiorConfianca + "\n");
-        }
-        else {
+        } else {
             snapshot.append("Nenhuma jogada detectada.\n");
             jogadaEscolhida = null;
         }
 
         Log.d(TestesActivity.TAG, "TEMPO (detectar()): " + (System.currentTimeMillis() - tempoEntrou));
         return ultimoTabuleiro.gerarNovoTabuleiroComAJogada(jogadaEscolhida);
+    }
+
+    private boolean posicaoJaContemPedra(Tabuleiro tabuleiro, int linha, int coluna) {
+        return tabuleiro.getPosicao(linha, coluna) != Tabuleiro.VAZIO;
+    }
+
+    private boolean jogadaFoiDetectada(Jogada jogadaEscolhida, boolean podeSerPedraPreta, boolean podeSerPedraBranca) {
+        return jogadaEscolhida != null && (podeSerPedraPreta && jogadaEscolhida.cor == Tabuleiro.PEDRA_PRETA ||
+            podeSerPedraBranca && jogadaEscolhida.cor == Tabuleiro.PEDRA_BRANCA);
     }
 
     private void encontrarCoresMedias(Tabuleiro ultimoTabuleiro, double[][] coresMedias, int[] contadores) {
@@ -159,12 +173,12 @@ public class DetectorDePedras {
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
-                int corNaPosicao = ultimoTabuleiro.getPosicao(i, j);
-                contadores[corNaPosicao]++;
+                int tipoDaPosicao = ultimoTabuleiro.getPosicao(i, j);
+                contadores[tipoDaPosicao]++;
                 double[] mediaDeCorNaPosicao = recuperarCorMediaNaPosicao(i, j);
 
                 for (int k = 0; k < imagemDoTabuleiro.channels(); ++k) {
-                    coresMedias[corNaPosicao][k] += mediaDeCorNaPosicao[k];
+                    coresMedias[tipoDaPosicao][k] += mediaDeCorNaPosicao[k];
                 }
             }
         }
