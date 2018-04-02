@@ -11,6 +11,7 @@ import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
@@ -59,12 +60,13 @@ public class DetectorDePedras {
 
     /**
      * Utiliza a informação do último estado do jogo para melhorar a detecção da
-     * última jogada feita. Os parâmetros informam se o detector deve procurar
-     * uma pedra preta, branca, ou ambas, de acordo com o estado atual da
-     * partida.
+     * última jogada feita.
      */
-    public Tabuleiro detectar(Tabuleiro ultimoTabuleiro, boolean podeSerPedraPreta, boolean podeSerPedraBranca) {
+    public Tabuleiro detectar(Partida partida) {
         long tempoEntrou             = System.currentTimeMillis();
+        Tabuleiro ultimoTabuleiro = partida.ultimoTabuleiro();
+        boolean podeSerPedraPreta = partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA);
+        boolean podeSerPedraBranca = partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA);
         double[][] coresMedias       = new double[3][imagemDoTabuleiro.channels()];
         int[] contadores             = new int[3];
 

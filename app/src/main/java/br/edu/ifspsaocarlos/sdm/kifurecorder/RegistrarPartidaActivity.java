@@ -308,11 +308,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         // Desenha o tabuleiro ortogonal na tela
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
-        Tabuleiro tabuleiro = detectorDePedras.detectar(
-                partida.ultimoTabuleiro(),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
-        );
+        Tabuleiro tabuleiro = detectorDePedras.detectar(partida);
 
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
