@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Kifu Recorder</string>
     <string name="nome">Kifu-recorder</string>
-    <string name="versao">0.2</string>
+    <string name="versao">1.1.0</string>
 
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
@@ -12,7 +12,7 @@
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
     <string name="btn_ajuda">Ajuda</string>
-    <string name="lbl_copyright">(c) 2015-2016 LST Softwares</string>
+    <string name="lbl_copyright">(c) 2018 LST</string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
@@ -37,5 +37,4 @@
 
     <string name="sim">Sim</string>
     <string name="nao">Não</string>
-
 </resources>
