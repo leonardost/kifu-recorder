@@ -82,6 +82,7 @@ public class Partida implements Serializable {
             return ehPrimeiraJogada() || apenasPedrasPretasForamJogadas() || ultimaJogadaFoiBranca();
         else if (cor == Tabuleiro.PEDRA_BRANCA)
             return ultimaJogadaFoiPreta();
+        return false;
     }
 
     private boolean ehPrimeiraJogada() {

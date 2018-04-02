@@ -168,9 +168,7 @@ public class Tabuleiro implements Serializable {
         int numeroDePedrasDessaCor = 0;
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[i][j] == cor) {
-                    ++numeroDePedrasDessaCor;
-                }
+                if (tabuleiro[i][j] == cor) ++numeroDePedrasDessaCor;
             }
         }
         return numeroDePedrasDessaCor;

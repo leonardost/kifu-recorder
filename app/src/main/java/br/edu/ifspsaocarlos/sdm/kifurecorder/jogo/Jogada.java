@@ -19,11 +19,6 @@ public class Jogada implements Serializable {
         this.cor = cor;
     }
 
-    public Jogada(int cor) {
-        this.ehPasse = true;
-        this.cor = cor;
-    }
-
     public Posicao posicao() {
         return new Posicao(linha, coluna);
     }

@@ -18,7 +18,7 @@ public class Posicao {
 
     private char adicionarUmParaPularLetraI(int indice) {
         final int INDICE_LETRA_I = 8;
-        return indice + (indice >= INDICE_LETRA_I ? 1 : 0);
+        return (char)(indice + (indice >= INDICE_LETRA_I ? 1 : 0));
     }
 
     @Override
