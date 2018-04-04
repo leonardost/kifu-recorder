@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-
 public class TelaInicialActivity extends Activity implements View.OnClickListener {
 
     @Override
@@ -15,9 +14,9 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
         setContentView(R.layout.activity_tela_inicial);
 
         Button btnIniciarRegistro = (Button) findViewById(R.id.btnIniciarRegistro);
-        Button btnTestes = (Button) findViewById(R.id.btnTestes);
+        Button btnInstrucoes = (Button) findViewById(R.id.btnInstrucoes);
         btnIniciarRegistro.setOnClickListener(this);
-        btnTestes.setOnClickListener(this);
+        btnInstrucoes.setOnClickListener(this);
     }
 
     @Override
@@ -28,32 +27,11 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
                 i = new Intent(this, InformacoesDaPartidaActivity.class);
                 startActivity(i);
                 break;
-            case R.id.btnTestes:
-                i = new Intent(this, TestesActivity.class);
+            case R.id.btnInstrucoes:
+                i = new Intent(this, InstrucoesActivity.class);
                 startActivity(i);
                 break;
         }
     }
 
-    /*@Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_tela_inicial, menu);
-        return true;
-    }*/
-
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
 }

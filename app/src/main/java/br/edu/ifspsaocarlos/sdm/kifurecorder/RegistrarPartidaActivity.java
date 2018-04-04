@@ -47,6 +47,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
+    private boolean DEBUG = false;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     Partida partida;
     Tabuleiro ultimoTabuleiroDetectado;
@@ -147,7 +148,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
 
-        pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "sgfs_salvos");
+        pastaDeRegistro = new File(Environment.getExternalStorageDirectory(), "kifu_recorder");
         if (!criarPastaDeRegistroSeNaoExistir()) {
             finish();
             return;
@@ -326,10 +327,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
 					novaJogadaFoiAdicionada();
-                    adicionarAoLog(snapshotAtual.toString());
-                    Mat imagemFormatoDeCorCerto = new Mat();
-                    Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-                    Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
+					if (DEBUG) {
+                        adicionarAoLog(snapshotAtual.toString());
+                        Mat imagemFormatoDeCorCerto = new Mat();
+                        Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+                        Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
+                    }
                 }
             } else {
                 tempoDesdeUltimaMudancaDeTabuleiro = 0;
@@ -416,12 +419,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
             Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
 
-            FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
-            fos.write(snapshotAtual.getBytes());
-            fos.flush();
-            fos.close();
+            if (DEBUG) {
+                FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
+                fos.write(snapshotAtual.getBytes());
+                fos.flush();
+                fos.close();
+            }
 
-            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + getFile("txt").getName() + ".", Toast.LENGTH_LONG).show();
+            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + getFile("jpg").getName() + ".", Toast.LENGTH_LONG).show();
             Log.i(TestesActivity.TAG, "Snapshot salva: " + getFile("txt").getName() + " com conteúdo " + snapshotAtual);
         }
         catch (IOException e) {
@@ -512,6 +517,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 	}
 
     private void adicionarAoLog(String conteudo) {
+	    if (!DEBUG) return;
         try {
             FileOutputStream fos = new FileOutputStream(arquivoDeLog, true);
             fos.write(conteudo.getBytes());

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Kifu Recorder</string>
     <string name="nome">Kifu-recorder</string>
-    <string name="versao">0.2</string>
+    <string name="versao">1.1.1</string>
 
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
@@ -11,8 +11,27 @@
     <string name="titulo">Kifu Recorder</string>
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
-    <string name="btn_ajuda">Ajuda</string>
-    <string name="lbl_copyright">(c) 2015-2016 LST Softwares</string>
+    <string name="btn_instrucoes">Instruções</string>
+    <string name="lbl_copyright">(c) 2018 LST</string>
+
+    <string name="instrucoes_titulo">Instruções</string>
+    <string name="instrucoes_paragrafo1">
+        Fixe seu celular de forma que sua câmera tenha uma visão compelta do tabuleiro de Go.
+        Quanto maior o ângulo de visão, melhor.
+    </string>
+    <string name="instrucoes_paragrafo2">
+        Durante o registro da partida, não mova o celular nem o tabuleiro. Mesmo pequenas
+        movimentações podem atrapalhar. Quando uma jogada é detectada, o app emite um bipe
+        sonoro.
+    </string>
+    <string name="instrucoes_paragrafo3">
+        Se uma jogada errada foi detectada, clique no botão "voltar" na interface e deixe o
+        aplicativo tentar detectar novamente.
+    </string>
+    <string name="instrucoes_paragrafo4">
+        Sua partida será salva em uma pasta chamada "kifu_recorder" no sistema de arquivos do
+        celular.
+    </string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
