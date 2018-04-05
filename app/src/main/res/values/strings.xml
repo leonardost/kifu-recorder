@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Kifu Recorder</string>
     <string name="nome">Kifu-recorder</string>
-    <string name="versao">1.1.1</string>
+    <string name="versao">v1.1.2</string>
 
     <string name="title_activity_tela_inicial">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
@@ -12,6 +12,7 @@
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
     <string name="btn_instrucoes">Instruções</string>
+    <string name="btn_politica_de_privacidade">Política de privacidade</string>
     <string name="lbl_copyright">(c) 2018 LST</string>
 
     <string name="instrucoes_titulo">Instruções</string>
@@ -31,6 +32,21 @@
     <string name="instrucoes_paragrafo4">
         Sua partida será salva em uma pasta chamada "kifu_recorder" no sistema de arquivos do
         celular.
+    </string>
+
+    <string name="titulo_politica_de_privacidade">Política de Privacidade</string>
+    <string name="politica_de_privacidade1">
+        O Kifu Recorder é um app gratuito que utiliza a câmera de seu dispositivo móvel para o
+        registro de partidas de Go e apenas isso. Nenhuma informação pessoal do usuário é coletada,
+        armazenada ou distribuída de qualquer forma. As partidas detectadas e capturas de tela são
+        armazenadas no próprio dispositivo móvel, cabendo ao usuário cuidar delas.
+    </string>
+    <string name="politica_de_privacidade2">
+        Esta política de privacidade pode sofrer alterações em versões futuras do aplicativo.
+    </string>
+    <string name="politica_de_privacidade3">
+        Em caso de dúvidas sobre esta política de privacidade, contate o desenvolvedor em
+        leotaba@gmail.com.
     </string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>

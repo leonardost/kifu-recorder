@@ -15,8 +15,10 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
 
         Button btnIniciarRegistro = (Button) findViewById(R.id.btnIniciarRegistro);
         Button btnInstrucoes = (Button) findViewById(R.id.btnInstrucoes);
+        Button btnPoliticaDePrivacidade = (Button) findViewById(R.id.btnPoliticaDePrivacidade);
         btnIniciarRegistro.setOnClickListener(this);
         btnInstrucoes.setOnClickListener(this);
+        btnPoliticaDePrivacidade.setOnClickListener(this);
     }
 
     @Override
@@ -29,6 +31,10 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
                 break;
             case R.id.btnInstrucoes:
                 i = new Intent(this, InstrucoesActivity.class);
+                startActivity(i);
+                break;
+            case R.id.btnPoliticaDePrivacidade:
+                i = new Intent(this, PoliticaDePrivacidadeActivity.class);
                 startActivity(i);
                 break;
         }

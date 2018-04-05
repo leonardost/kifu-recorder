@@ -35,7 +35,19 @@
         android:text="@string/btn_instrucoes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:id="@+id/btnPoliticaDePrivacidade"
+        android:text="@string/btn_politica_de_privacidade"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
+    <TextView
+        android:text="@string/versao"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|bottom"
+        android:paddingTop="32dp" />
     <TextView
         android:text="@string/lbl_copyright"
         android:textColor="@android:color/white"

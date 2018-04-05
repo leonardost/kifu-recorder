@@ -13,8 +13,6 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -32,22 +30,23 @@
         <activity
             android:name=".TestesActivity"
             android:configChanges="keyboardHidden|orientation"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".InformacoesDaPartidaActivity"
             android:label="@string/title_activity_informacoes_da_partida"
-            android:noHistory="true"></activity>
+            android:noHistory="true" />
         <activity
             android:name=".DetectarTabuleiroActivity"
             android:label="@string/title_activity_detectar_tabuleiro"
             android:noHistory="true"
-            android:screenOrientation="landscape"></activity>
+            android:screenOrientation="landscape" />
         <activity
             android:name=".RegistrarPartidaActivity"
             android:label="@string/title_activity_registrar_partida"
             android:noHistory="true"
-            android:screenOrientation="landscape"></activity>
-        <activity android:name=".InstrucoesActivity"></activity>
+            android:screenOrientation="landscape" />
+        <activity android:name=".InstrucoesActivity" />
+        <activity android:name=".PoliticaDePrivacidadeActivity"></activity>
     </application>
 
 </manifest>
