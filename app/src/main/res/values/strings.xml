@@ -1,19 +1,19 @@
 <resources>
-    <string name="app_name">Kifu Recorder</string>
-    <string name="nome">Kifu-recorder</string>
-    <string name="versao">v1.1.2</string>
+    <string name="app_name" translatable="false">Kifu Recorder</string>
+    <string name="nome" translatable="false">Kifu-recorder</string>
+    <string name="versao" translatable="false">v1.1.3</string>
 
-    <string name="title_activity_tela_inicial">TelaInicialActivity</string>
-    <string name="title_activity_informacoes_da_partida">InformacoesDaPartidaActivity</string>
-    <string name="title_activity_detectar_tabuleiro">DetectarTabuleiroActivity</string>
-    <string name="title_activity_registrar_partida">RegistrarPartidaActivity</string>
+    <string name="title_activity_tela_inicial" translatable="false">TelaInicialActivity</string>
+    <string name="title_activity_informacoes_da_partida" translatable="false">InformacoesDaPartidaActivity</string>
+    <string name="title_activity_detectar_tabuleiro" translatable="false">DetectarTabuleiroActivity</string>
+    <string name="title_activity_registrar_partida" translatable="false">RegistrarPartidaActivity</string>
 
-    <string name="titulo">Kifu Recorder</string>
+    <string name="titulo" translatable="false">Kifu Recorder</string>
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
     <string name="btn_instrucoes">Instruções</string>
     <string name="btn_politica_de_privacidade">Política de privacidade</string>
-    <string name="lbl_copyright">(c) 2018 LST</string>
+    <string name="lbl_copyright" translatable="false">(c) 2018 LST</string>
 
     <string name="instrucoes_titulo">Instruções</string>
     <string name="instrucoes_paragrafo1">
@@ -51,10 +51,10 @@
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
-    <string name="lbl_komi">Komi</string>
+    <string name="lbl_komi" translatable="false">Komi</string>
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
     <string name="lbl_instrucoes">Quando a borda vermelha enquadrar o tabuleiro, toque em OK</string>
-    <string name="btn_fixar_tabuleiro">OK</string>
+    <string name="btn_fixar_tabuleiro" translatable="false">OK</string>
 
     <string name="btn_passar_a_vez">Passar</string>
     <string name="btn_voltar_ultima_jogada">Voltar</string>
