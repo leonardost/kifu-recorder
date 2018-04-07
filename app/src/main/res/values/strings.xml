@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Kifu Recorder</string>
     <string name="nome" translatable="false">Kifu-recorder</string>
-    <string name="versao" translatable="false">v1.1.4</string>
+    <string name="versao" translatable="false">v1.1.5</string>
 
     <string name="title_activity_tela_inicial" translatable="false">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida" translatable="false">InformacoesDaPartidaActivity</string>
@@ -46,7 +46,7 @@
     </string>
     <string name="politica_de_privacidade3">
         Em caso de dúvidas sobre esta política de privacidade, contate o desenvolvedor em
-        leotaba@gmail.com.
+        kifurecorder@gmail.com.
     </string>
 
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
