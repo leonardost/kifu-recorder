@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Kifu Recorder</string>
     <string name="btn_iniciar_registro">Start recording</string>
     <string name="btn_testes">Tests</string>
     <string name="btn_instrucoes">Instructions</string>
