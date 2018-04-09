@@ -13,6 +13,7 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:icon="@mipmap/ic_launcher"
@@ -46,7 +47,7 @@
             android:noHistory="true"
             android:screenOrientation="landscape" />
         <activity android:name=".InstrucoesActivity" />
-        <activity android:name=".PoliticaDePrivacidadeActivity"></activity>
+        <activity android:name=".PoliticaDePrivacidadeActivity" />
     </application>
 
 </manifest>

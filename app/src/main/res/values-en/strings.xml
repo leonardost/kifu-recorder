@@ -31,4 +31,5 @@
     <string name="politica_de_privacidade1">Kifu Recorder is a free app that uses your mobile device\'s camera to record Go games and only that. No personal information of the user is collected, stored or distributed in any form or means. The detected games and screenshots are stored in the mobile device itself, being the user\'s concern to take care of them.</string>
     <string name="politica_de_privacidade2">This privacy policy can be updated in future versions of the app.</string>
     <string name="politica_de_privacidade3">"If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com "</string>
+    <string name="toast_permissao_camera">Permission to access the camera was denied. This app needs to use the camera to work.</string>
 </resources>

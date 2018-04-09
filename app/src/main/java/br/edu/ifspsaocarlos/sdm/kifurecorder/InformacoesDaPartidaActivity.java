@@ -1,19 +1,20 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
+import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import android.widget.Toast;
 
 public class InformacoesDaPartidaActivity extends Activity implements View.OnClickListener {
+
+    public static final int PERMISSION_REQUEST_CODE = 123;
 
     EditText edtJogadorPretas;
     EditText edtJogadorBrancas;
@@ -50,16 +51,42 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
                     return;
                 }
 
-                String jogadorDePretas = edtJogadorPretas.getText().toString();
-                String jogadorDeBrancas = edtJogadorBrancas.getText().toString();
-                String komi = edtkomi.getText().toString();
-
-                Intent i = new Intent(this, DetectarTabuleiroActivity.class);
-                i.putExtra("jogadorDePretas", jogadorDePretas);
-                i.putExtra("jogadorDeBrancas", jogadorDeBrancas);
-                i.putExtra("komi", komi);
-                startActivity(i);
+                checkCameraPermission();
                 break;
         }
     }
+
+    private void checkCameraPermission() {
+        if (ContextCompat.checkSelfPermission(InformacoesDaPartidaActivity.this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(InformacoesDaPartidaActivity.this, new String[]{Manifest.permission.CAMERA},
+                    PERMISSION_REQUEST_CODE);
+        } else iniciarActivityDetectarTabuleiro();
+    }
+
+    private void iniciarActivityDetectarTabuleiro() {
+        String jogadorDePretas = edtJogadorPretas.getText().toString();
+        String jogadorDeBrancas = edtJogadorBrancas.getText().toString();
+        String komi = edtkomi.getText().toString();
+
+        Intent i = new Intent(this, DetectarTabuleiroActivity.class);
+        i.putExtra("jogadorDePretas", jogadorDePretas);
+        i.putExtra("jogadorDeBrancas", jogadorDeBrancas);
+        i.putExtra("komi", komi);
+        startActivity(i);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    iniciarActivityDetectarTabuleiro();
+                } else {
+                    Toast.makeText(InformacoesDaPartidaActivity.this, getResources().getString(R.string.toast_permissao_camera), Toast.LENGTH_SHORT).show();
+                }
+        }
+    }
+
 }

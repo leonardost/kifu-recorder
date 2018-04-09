@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Kifu Recorder</string>
     <string name="nome" translatable="false">Kifu-recorder</string>
-    <string name="versao" translatable="false">v1.1.5</string>
+    <string name="versao" translatable="false">v1.1.6</string>
 
     <string name="title_activity_tela_inicial" translatable="false">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida" translatable="false">InformacoesDaPartidaActivity</string>
@@ -52,6 +52,8 @@
     <string name="lbl_jogador_pretas">Jogador de pretas</string>
     <string name="lbl_jogador_brancas">Jogador de brancas</string>
     <string name="lbl_komi" translatable="false">Komi</string>
+    <string name="toast_permissao_camera">Permissão negada para acessar a câmera. Este aplicativo necessita da câmera para funcionar.</string>
+
     <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
     <string name="lbl_instrucoes">Quando a borda vermelha enquadrar o tabuleiro, toque em OK</string>
     <string name="btn_fixar_tabuleiro" translatable="false">OK</string>
