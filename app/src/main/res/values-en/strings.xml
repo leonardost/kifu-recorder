@@ -32,4 +32,7 @@
     <string name="politica_de_privacidade2">This privacy policy can be updated in future versions of the app.</string>
     <string name="politica_de_privacidade3">"If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com "</string>
     <string name="toast_permissao_camera">Permission to access the camera was denied. This app needs to use the camera to work.</string>
+    <string name="creditos_titulo">Development</string>
+    <string name="desenvolvimento">This project was initially developed as a conclusion project for IFSP\'s São Carlos campus\'s specialization course in Systems Development for Mobile Devices. It is open-source and its code can be found at https://github.com/leonardost/kifu-recorder/.</string>
+    <string name="btn_creditos">Credits</string>
 </resources>

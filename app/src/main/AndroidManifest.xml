@@ -48,6 +48,7 @@
             android:screenOrientation="landscape" />
         <activity android:name=".InstrucoesActivity" />
         <activity android:name=".PoliticaDePrivacidadeActivity" />
+        <activity android:name=".CreditosActivity"></activity>
     </application>
 
 </manifest>

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name" translatable="false">Kifu Recorder</string>
     <string name="nome" translatable="false">Kifu-recorder</string>
-    <string name="versao" translatable="false">v1.1.6</string>
+    <string name="versao" translatable="false">v1.1.7</string>
 
     <string name="title_activity_tela_inicial" translatable="false">TelaInicialActivity</string>
     <string name="title_activity_informacoes_da_partida" translatable="false">InformacoesDaPartidaActivity</string>
@@ -12,6 +12,7 @@
     <string name="btn_iniciar_registro">Iniciar registro de partida</string>
     <string name="btn_testes">Testes</string>
     <string name="btn_instrucoes">Instruções</string>
+    <string name="btn_creditos">Créditos</string>
     <string name="btn_politica_de_privacidade">Política de privacidade</string>
     <string name="lbl_copyright" translatable="false">(c) 2018 LST</string>
 
@@ -32,6 +33,14 @@
     <string name="instrucoes_paragrafo4">
         Sua partida será salva em uma pasta chamada "kifu_recorder" no sistema de arquivos do
         celular.
+    </string>
+
+    <string name="creditos_titulo">Desenvolvimento</string>
+    <string name="desenvolvimento">
+        Este projeto foi desenvolvido inicialmente como projeto de conclusão do curso de
+        Especialização em Desenvolvimento de Sistemas para Dispositivos Móveis do IFSP, campus
+        São Carlos. Ele é open-source e seu código pode ser encontrado em
+        https://github.com/leonardost/kifu-recorder/.
     </string>
 
     <string name="titulo_politica_de_privacidade">Política de Privacidade</string>

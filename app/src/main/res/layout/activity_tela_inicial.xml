@@ -25,19 +25,14 @@
         android:text="@string/btn_iniciar_registro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
-    <!--<Button-->
-        <!--android:id="@+id/btnTestes"-->
-        <!--android:text="@string/btn_testes"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content" />-->
     <Button
         android:id="@+id/btnInstrucoes"
         android:text="@string/btn_instrucoes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
-        android:id="@+id/btnPoliticaDePrivacidade"
-        android:text="@string/btn_politica_de_privacidade"
+        android:id="@+id/btnCreditos"
+        android:text="@string/btn_creditos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
