@@ -37,7 +37,7 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:text="@string/versao"
+        android:id="@+id/lblVersao"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

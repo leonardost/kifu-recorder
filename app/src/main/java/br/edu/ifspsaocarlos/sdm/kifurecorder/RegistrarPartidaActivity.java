@@ -195,6 +195,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     public void onPause()
     {
         super.onPause();
+        Log.d(TestesActivity.TAG, "RegistrarPartidaActivity.onPause");
         guardaPartidaTemporariamente();  // TODO: Isto estava em cima, ver se não quebrou nada
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
@@ -496,7 +497,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 // Isto tem que rodar na thread de UI porque a activity é fechada após o toast ser mostrado
                 runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(RegistrarPartidaActivity.this, "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".", Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegistrarPartidaActivity.this, "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".", Toast.LENGTH_LONG).show();
                     }
                 });
                 Log.i(TestesActivity.TAG, "Partida salva: " + arquivoDeRegistro.getName() + " com conteúdo " + conteudoDaPartida);
@@ -506,7 +507,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
             finally {
 				if (sairDepoisDeSalvar) {
-					finish();
+                    Intent intent = new Intent(getApplicationContext(), TelaInicialActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
 				}
 			}
         }
@@ -610,7 +613,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     // TODO: Verificar se isto está sendo chamado
     @Override
     public void onBackPressed() {
-        temCertezaQueDesejaFinalizarORegisro();
+        Log.d(TestesActivity.TAG, "RegistrarPartidaActivity.onBackPressed()");
+	    temCertezaQueDesejaFinalizarORegisro();
     }
 
     private void adicionarJogadaAoRegistro() {
