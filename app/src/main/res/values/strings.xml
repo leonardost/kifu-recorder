@@ -83,8 +83,4 @@
     <string name="sim">Sim</string>
     <string name="nao">Não</string>
 
-    <string name="preferences_jogador_pretas">1</string>
-    <string name="preferences_jogador_brancas">2</string>
-    <string name="preferences_komi">3</string>
-
 </resources>
