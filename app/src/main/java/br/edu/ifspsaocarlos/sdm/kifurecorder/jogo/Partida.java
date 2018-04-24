@@ -9,6 +9,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.BuildConfig;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
@@ -184,7 +185,7 @@ public class Partida implements Serializable {
         escreverProperiedade(sgf, "CA", "UTF-8");
         escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimensao());
         escreverProperiedade(sgf, "DT", data);
-        escreverProperiedade(sgf, "AP", "Kifu Recorder 0.2");
+        escreverProperiedade(sgf, "AP", "Kifu Recorder v" + BuildConfig.VERSION_NAME);
         escreverProperiedade(sgf, "KM", komi);
         escreverProperiedade(sgf, "PW", jogadorDeBrancas);
         escreverProperiedade(sgf, "PB", jogadorDePretas);

@@ -2,14 +2,11 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,8 +16,6 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
 
     public static final int PERMISSION_REQUEST_CODE = 123;
 
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
     EditText edtJogadorPretas;
     EditText edtJogadorBrancas;
     EditText edtkomi;
@@ -59,52 +54,9 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
                     return;
                 }
 
-//                savePreferences();
                 checkCameraPermission();
                 break;
         }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        savePreferences();
-        Log.d(TestesActivity.TAG, "onPause");
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        Log.d(TestesActivity.TAG, "onStop");
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        restorePreferences();
-        Log.d(TestesActivity.TAG, "onResume");
-    }
-
-    @Override
-    public void onRestart() {
-        super.onRestart();
-        Log.d(TestesActivity.TAG, "onRestart");
-    }
-
-    private void savePreferences() {
-        preferences = getPreferences(Context.MODE_PRIVATE);
-        editor = preferences.edit();
-        editor.putString(getString(R.string.preferences_jogador_pretas), edtJogadorPretas.getText().toString());
-        editor.putString(getString(R.string.preferences_jogador_brancas), edtJogadorBrancas.getText().toString());
-        editor.putString(getString(R.string.preferences_komi), edtkomi.getText().toString());
-        editor.commit();
-    }
-
-    private void restorePreferences() {
-        preferences = getPreferences(Context.MODE_PRIVATE);
-        edtJogadorPretas.setText(preferences.getString(getString(R.string.preferences_jogador_pretas), ""));
-        edtJogadorBrancas.setText(preferences.getString(getString(R.string.preferences_jogador_brancas), ""));
-        edtkomi.setText(preferences.getString(getString(R.string.preferences_komi), ""));
     }
 
     private void checkCameraPermission() {
