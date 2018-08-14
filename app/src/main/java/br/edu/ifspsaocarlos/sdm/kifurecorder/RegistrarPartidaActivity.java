@@ -21,10 +21,13 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -35,8 +38,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
@@ -47,7 +52,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     Partida partida;
     Tabuleiro ultimoTabuleiroDetectado;
@@ -65,6 +70,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     int[] cantosDoTabuleiro;                   // Pontos dos cantos do tabuleiro
     Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
+    Mat[] imagemDoscantosDoTabuleiro;
+    Mat[] imagemDasregioesAoRedorDosCantosDoTabuleiro;
+    Mat[] imagensTemporarias1;
+    Mat[] imagensTemporarias2;
+    Mat[] imagensTemporarias3;
+    Mat[] imagensTemporarias4;
 	MatOfPoint contornoDoTabuleiro;
 
     private File pastaDeRegistro;              // Local onde os registros e arquivos de log serão salvos
@@ -115,7 +126,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         dimensaoDoTabuleiro     = i.getIntExtra("dimensaoDoTabuleiro", -1);
         cantosDoTabuleiro       = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 		detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
-
 
         processarCantosDoTabuleiro();
 
@@ -290,6 +300,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
+        atualizarPosicaoDoTabuleiro(imagemFonte);
+
         // Throttling, processa 2 vezes por segundo
         if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
             tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
@@ -298,6 +310,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             return imagemFonte;
         }
         else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
+
+        recordDebugImages(inputFrame);
 
         tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(imagemFonte, posicaoDoTabuleiroNaImagem);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,6 +333,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
         snapshotAtual += "Jogada " + (partida.numeroDeJogadasFeitas() + 1) + "\n";
+        snapshotAtual += "Cantos do tabuleiro:";
+        snapshotAtual += "(" + cantosDoTabuleiro[0] + ", " + cantosDoTabuleiro[1] + ")\n";
+        snapshotAtual += "(" + cantosDoTabuleiro[2] + ", " + cantosDoTabuleiro[3] + ")\n";
+        snapshotAtual += "(" + cantosDoTabuleiro[4] + ", " + cantosDoTabuleiro[5] + ")\n";
+        snapshotAtual += "(" + cantosDoTabuleiro[6] + ", " + cantosDoTabuleiro[7] + ")\n";
         snapshotAtual += "\n";
 
         if (!pausado) {
@@ -329,7 +348,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
 					novaJogadaFoiAdicionada();
 					if (DEBUG) {
-                        adicionarAoLog(snapshotAtual.toString());
+//                        adicionarAoLog(snapshotAtual.toString());
                         Mat imagemFormatoDeCorCerto = new Mat();
                         Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
                         Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
@@ -345,6 +364,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         ultimoTabuleiroDetectado = tabuleiro;
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+
+        if (DEBUG) {
+            adicionarAoLog(snapshotAtual.toString());
+            Mat imagemCameraFormatoDeCorCerto = new Mat();
+            Imgproc.cvtColor(imagemFonte, imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+        }
+
         if (pausado) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
             Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
@@ -355,6 +382,210 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Log.d(TestesActivity.TAG, "TEMPO (onCameraFrame()): " + (System.currentTimeMillis() - tempoEntrou));
         return imagemFonte;
+    }
+
+    private void atualizarPosicaoDoTabuleiro(Mat imagem) {
+        initializeCornerObjectsIfNeeded();
+
+        for (int i = 0; i < 4; i++) {
+
+            // Pega região de interesse ao redor dos pontos dos cantos
+            int x = cantosDoTabuleiro[i * 2] - 50 > 0 ? cantosDoTabuleiro[i * 2] - 50 : 0;
+            int y = cantosDoTabuleiro[i * 2 + 1] - 50 > 0 ? cantosDoTabuleiro[i * 2 + 1] - 50 : 0;
+            int w = x + 100 < imagem.cols() ? 100 : imagem.cols() - x;
+            int h = y + 100 < imagem.rows() ? 100 : imagem.rows() - y;
+
+            Rect regionOfInterest = new Rect(x, y, w, h);
+            imagemDasregioesAoRedorDosCantosDoTabuleiro[i] = new Mat(imagem, regionOfInterest);
+            Mat regionImage = new Mat(imagem, regionOfInterest);
+
+            // Transforma em imagem escala de cinza
+            Mat correctColorFormatImage = new Mat(imagem, regionOfInterest);
+            Imgproc.cvtColor(regionImage, correctColorFormatImage, Imgproc.COLOR_BGR2GRAY);
+
+//            Imgproc.cvtColor(imagemDaRegiao, imagemDaRegiao, Imgproc.COLOR_RGBA2GRAY);
+//            imagensTemporarias1[i] = imagemDaRegiao.clone();
+
+            // Converte para imagem com 1 canal de cinza (é iesso mesmo?)
+            Mat gray = new Mat();
+            correctColorFormatImage.convertTo(gray, CvType.CV_32F);
+            // Aplica algoritmo Harris de detecção de cantos
+            Mat dst = new Mat();
+            Imgproc.cornerHarris(gray, dst, 2, 3, 0.04);
+
+//            Mat imagemComCantosReconhecidos = new Mat(imagemDaRegiao.size(), CvType.CV_32FC1, Scalar.all((0)));
+//            Imgproc.cornerHarris(imagemDaRegiao, imagemComCantosReconhecidos, 2, 3, 0.04);
+
+            // Dilata imagem para atenuar ruídos pequenos
+            Imgproc.dilate(dst, dst, new Mat());
+
+////            Core.normalize(imagemComCantosReconhecidos, imagemComCantosReconhecidos, 0, 255, Core.NORM_MINMAX, CvType.CV_32FC1, new Mat());
+//            imagensTemporarias2[i] = imagemComCantosReconhecidos.clone();
+////            Core.convertScaleAbs(imagemComCantosReconhecidos, imagemComCantosReconhecidos);
+//            imagensTemporarias3[i] = imagemComCantosReconhecidos.clone();
+//            Imgproc.dilate(imagemComCantosReconhecidos, imagemComCantosReconhecidos, Mat.ones(3, 3, CvType.CV_32F));
+//            imagensTemporarias4[i] = imagemComCantosReconhecidos.clone();
+//            Core.MinMaxLocResult minmax = Core.minMaxLoc(imagemComCantosReconhecidos);
+
+            // Pega ponto mais claro da imagem
+            double[] red = {0, 0, 255, 0};
+            double max = dst.get(0, 0)[0];
+            for (int a = 0; a < dst.height(); a++) {
+                for (int j = 0; j < dst.width(); j++) {
+                    if (dst.get(a, j)[0] > max) {
+                        max = dst.get(a, j)[0];
+                    }
+                }
+            }
+            // Threshould é 1% do máximo
+            double threshouldCorner = 0.01 * max;
+
+            // Marca tudo que é maior que o threshold de vermelho
+            for (int a = 0; a < dst.height(); a++) {
+                for (int j = 0; j < dst.width(); j++) {
+                    if (dst.get(a, j)[0] > threshouldCorner) {
+                        regionImage.put(a, j, red);
+                    }
+                }
+            }
+
+
+//            Mat foundCorners = new Mat();
+//            Imgproc.cvtColor(imagemComCantosReconhecidos, foundCorners, Imgproc.COLOR_GRAY2RGBA);
+//            for(int j = 0; j < foundCorners.rows(); j++) {
+//                for(int k = 0; k < foundCorners.cols(); k++) {
+//                    if ((int) foundCorners.get(j,k)[0] > minmax.maxVal * 0.8) {
+//                        Imgproc.circle(foundCorners, new Point(j,k), 1, new Scalar(255, 0, 0), 1 ,8 , 0);
+//                    }
+//                }
+//            }
+
+            // Cria imagem toda preta
+            Mat centerCornerImage = new Mat(100, 100, CvType.CV_8UC3);
+            // byte[] blue = {(byte)255, 0, 0};
+            byte[] black = {0, 0, 0};
+            for (int a = 0; a < dst.height(); a++) {
+                for (int j = 0; j < dst.width(); j++) {
+                    centerCornerImage.put(a, j, black);
+                }
+            }
+
+            // Adiciona pontos marcados a clusters de pontos
+//            System.out.println(centerCornerImage);
+            double smallestDistance = 999999999;
+            Ponto closestPoint = new Ponto(-1, -1);
+            List<PointCluster> pointClusters = new ArrayList<>();
+            pointClusters.add(new PointCluster());
+
+            for (int a = 0; a < dst.height(); a++) {
+                for (int j = 0; j < dst.width(); j++) {
+                    if (regionImage.get(a, j)[0] == 0 && regionImage.get(a, j)[1] == 0 && regionImage.get(a, j)[2] == 255) {
+                        addPointToClosestPointCluster(new Ponto(j, a), pointClusters);
+                    }
+                }
+            }
+
+            List<Ponto> possibleCenters = new ArrayList<>();
+
+            // Marca o centroide de cada cluster em azul
+            byte[] blue = {(byte)255, 0, 0};
+            for (PointCluster pointCluster : pointClusters) {
+//                Ponto centroid = pointCluster.getCentroid();
+                possibleCenters.add(pointCluster.getCentroid());
+//                centerCornerImage.put(centroid.y, centroid.x, blue);
+            }
+//            Imgcodecs.imwrite("canto" + index + ".jpg", centerCornerImage);
+
+            Ponto pointClosesToCenterOfRegion = getNearestPointToCenter(possibleCenters);
+
+            if (pointClosesToCenterOfRegion != null) {
+                cantosDoTabuleiro[i * 2] = pointClosesToCenterOfRegion.x;
+                cantosDoTabuleiro[i * 2 + 1] = pointClosesToCenterOfRegion.y;
+            }
+
+            imagemDasregioesAoRedorDosCantosDoTabuleiro[i] = centerCornerImage;
+        }
+
+/*
+Se imagemDosCantosDoTabuleiro for vazio
+    Pega imagem dos cantos do tabuleiro
+Fim
+Pega imagem da região ao redor dos cantos do tabuleiro
+Procura imagem dos cantos do tabuleiro nas imagens das regiões ao redor dos cantos do tabuleiro
+Atualiza posições dos cantos de acordo com as posições encontradas
+ */
+    }
+
+    private Ponto getNearestPointToCenter(List<Ponto> points) {
+        Ponto center = new Ponto(50, 50);
+        Ponto nearestPoint = null;
+        double minimumDistance = 999999999;
+        for (Ponto point : points) {
+            if (point.distanceTo(center) < minimumDistance) {
+                minimumDistance = point.distanceTo(center);
+                nearestPoint = point;
+            }
+        }
+        return nearestPoint;
+    }
+
+    private static void addPointToClosestPointCluster(Ponto point, List<PointCluster> pointClusters) {
+        double distanceThreshouldForPointCluster = 100;
+        boolean foundCluster = false;
+
+        for (PointCluster pointCluster : pointClusters) {
+            if (pointCluster.distanceTo(point) < distanceThreshouldForPointCluster) {
+                pointCluster.add(point);
+                foundCluster = true;
+            }
+        }
+
+        if (!foundCluster) {
+            PointCluster pointCluster = new PointCluster();
+            pointCluster.add(point);
+            pointClusters.add(pointCluster);
+        }
+    }
+
+    private void recordDebugImages(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        if (DEBUG) {
+            Mat imagemCameraFormatoDeCorCerto = new Mat();
+            Imgproc.cvtColor(inputFrame.rgba(), imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+
+            for (int i = 0; i < 4; i++) {
+                Mat regiaoAoRedorDoCanto = new Mat();
+//                Imgproc.cvtColor(imagensTemporarias1[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+//                Imgcodecs.imwrite(getFile("temporario1_" + (i + 1), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+//                Imgproc.cvtColor(imagensTemporarias2[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+//                Imgcodecs.imwrite(getFile("temporario2_" + (i + 1), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+//                Imgproc.cvtColor(imagensTemporarias3[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+//                Imgcodecs.imwrite(getFile("temporario3_" + (i + 1), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+//                Imgproc.cvtColor(imagensTemporarias4[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+//                Imgcodecs.imwrite(getFile("temporario4_" + (i + 1), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+                Imgproc.cvtColor(imagemDasregioesAoRedorDosCantosDoTabuleiro[i], regiaoAoRedorDoCanto, Imgproc.COLOR_RGBA2BGR);
+//                Imgproc.cvtColor(imagemDasregioesAoRedorDosCantosDoTabuleiro[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+                Imgcodecs.imwrite(getFile("regiao_do_canto_" + (i + 1) + "_" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+            }
+        }
+    }
+
+    private void initializeCornerObjectsIfNeeded() {
+        if (imagemDasregioesAoRedorDosCantosDoTabuleiro == null) {
+            imagemDasregioesAoRedorDosCantosDoTabuleiro = new Mat[4];
+        }
+        if (imagensTemporarias1 == null) {
+            imagensTemporarias1 = new Mat[4];
+        }
+        if (imagensTemporarias2 == null) {
+            imagensTemporarias2 = new Mat[4];
+        }
+        if (imagensTemporarias3 == null) {
+            imagensTemporarias3 = new Mat[4];
+        }
+        if (imagensTemporarias4 == null) {
+            imagensTemporarias4 = new Mat[4];
+        }
     }
 
     public void onClick(View v) {
@@ -666,5 +897,59 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         });
 	}
+
+}
+
+
+
+
+
+
+
+
+//////////////////
+
+
+class Ponto {
+    public int x;
+    public int y;
+    Ponto() {}
+    Ponto(int x, int y) { this.x = x; this.y = y; }
+    double distanceTo(Ponto point) {
+        return (y - point.y) * (y - point.y) + (x - point.x) * (x - point.x);
+    }
+}
+
+class PointCluster {
+    private Ponto centroid;
+    private List<Ponto> points;
+
+    public PointCluster() {
+        centroid = new Ponto(-1, -1);
+        points = new ArrayList<>();
+    }
+
+    public Ponto getCentroid() { return centroid; }
+
+    public void add(Ponto ponto) {
+        points.add(ponto);
+        updateCentroid();
+    }
+
+    private void updateCentroid() {
+        int accumulatedY = 0;
+        int accumulatedX = 0;
+        for (Ponto point: points) {
+            accumulatedY = accumulatedY + point.y;
+            accumulatedX = accumulatedX + point.x;
+        }
+        centroid.y = accumulatedY / points.size();
+        centroid.x = accumulatedX / points.size();
+    }
+
+    public double distanceTo(Ponto point) {
+        if (centroid.y == -1) return 0;
+        return centroid.distanceTo(point);
+    }
 
 }
