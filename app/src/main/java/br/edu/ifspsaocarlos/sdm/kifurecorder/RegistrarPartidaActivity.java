@@ -44,6 +44,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DebugHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 
@@ -111,6 +112,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
 //        mOpenCvCameraView.setMaxFrameSize(1000, 1000);
         mOpenCvCameraView.setCvCameraViewListener(this);
+
+        LoggingConfiguration.activateLogging(LoggingConfiguration.RAW_CAMERA_IMAGE);
+        LoggingConfiguration.activateLogging(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR);
+        LoggingConfiguration.activateLogging(LoggingConfiguration.CORNER_POSITIONS);
 
         Intent i = getIntent();
         String jogadorDePretas  = i.getStringExtra("jogadorDePretas");
@@ -366,11 +371,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (DEBUG) {
             adicionarAoLog(snapshotAtual.toString());
-            // TODO: Verificar se está funcionando OK
-            DebugHelper.writeImage(imagemFonte, Imgproc.COLOR_RGBA2BGR, "jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno.jpg");
-//            Mat imagemCameraFormatoDeCorCerto = new Mat();
-//            Imgproc.cvtColor(imagemFonte, imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-//            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+            if (LoggingConfiguration.shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR)) {
+                DebugHelper.writeImage(imagemFonte, Imgproc.COLOR_RGBA2BGR, "jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno.jpg");
+            }
         }
 
         if (pausado) {
@@ -388,14 +391,30 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void atualizarPosicaoDoTabuleiro(Mat image) {
         initializeCornerObjectsIfNeeded();
 
+        Ponto[] possibleNewCorners = new Ponto[4];
         for (int i = 0; i < 4; i++) {
-            Ponto possibleNewCorner = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
-            if (possibleNewCorner != null) {
-                cantosDoTabuleiro[i] = possibleNewCorner;
+            possibleNewCorners[i] = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
+        }
+        if (areNewConersValid(possibleNewCorners)) {
+            for (int i = 0; i < 4; i++) {
+                cantosDoTabuleiro[i] = possibleNewCorners[i];
+            }
+            if (LoggingConfiguration.shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
+                adicionarAoLog("New corner positions:");
+                for (int i = 0; i < 4; i++) {
+                    adicionarAoLog(cantosDoTabuleiro[i].toString());
+                }
             }
         }
 
         processarCantosDoTabuleiro();
+    }
+
+    private boolean areNewConersValid(Ponto[] newCorners) {
+        for (int i = 0; i < 4; i++) {
+            if (newCorners[i] == null) return false;
+        }
+        return true;
     }
 
     /*
