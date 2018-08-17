@@ -20,7 +20,7 @@ public class CornerDetector {
     public Ponto updateCorner(Mat image, Ponto corner, int cornerIndex) {
 
         Mat regionImage = getRegionOfInterestAround(corner, image);
-        DebugHelper.writeImage(regionImage, Imgproc.COLOR_RGBA2BGR, "debug_1_regiao_ao_redor_do_canto_" + cornerIndex + ".jpg");
+//        DebugHelper.writeImage(regionImage, Imgproc.COLOR_RGBA2BGR, "debug_1_regiao_ao_redor_do_canto_" + cornerIndex + ".jpg");
         Mat correctColorFormatImage = convertImageToCorrectColorFormat(regionImage);
         Mat grayscaleImage = convertToGrayscale(correctColorFormatImage);
         Mat resultOfCornerHarris = applyCornerHarrisTo(grayscaleImage);

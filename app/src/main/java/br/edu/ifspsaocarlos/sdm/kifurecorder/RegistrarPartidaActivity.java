@@ -41,6 +41,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DebugHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
@@ -346,6 +347,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 					novaJogadaFoiAdicionada();
 					if (DEBUG) {
 //                        adicionarAoLog(snapshotAtual.toString());
+
                         Mat imagemFormatoDeCorCerto = new Mat();
                         Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
                         Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
@@ -364,9 +366,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (DEBUG) {
             adicionarAoLog(snapshotAtual.toString());
-            Mat imagemCameraFormatoDeCorCerto = new Mat();
-            Imgproc.cvtColor(imagemFonte, imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+            // TODO: Verificar se está funcionando OK
+            DebugHelper.writeImage(imagemFonte, Imgproc.COLOR_RGBA2BGR, "jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno.jpg");
+//            Mat imagemCameraFormatoDeCorCerto = new Mat();
+//            Imgproc.cvtColor(imagemFonte, imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+//            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
         }
 
         if (pausado) {
@@ -392,16 +396,17 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
 
         processarCantosDoTabuleiro();
-
-/*
-Se imagemDosCantosDoTabuleiro for vazio
-    Pega imagem dos cantos do tabuleiro
-Fim
-Pega imagem da região ao redor dos cantos do tabuleiro
-Procura imagem dos cantos do tabuleiro nas imagens das regiões ao redor dos cantos do tabuleiro
-Atualiza posições dos cantos de acordo com as posições encontradas
- */
     }
+
+    /*
+    Hipótese de tracking de canto 2:
+    Se imagemDosCantosDoTabuleiro for vazio
+        Pega imagem dos cantos do tabuleiro
+    Fim
+    Pega imagem da região ao redor dos cantos do tabuleiro
+    Procura imagem dos cantos do tabuleiro nas imagens das regiões ao redor dos cantos do tabuleiro
+    Atualiza posições dos cantos de acordo com as posições encontradas
+    */
 
     private void recordDebugImages(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
         if (DEBUG) {
@@ -626,7 +631,7 @@ Atualiza posições dos cantos de acordo com as posições encontradas
 
     private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String extensao) {
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
         String contador = "";
         if (contadorDeNomeRepetido > 0) {
@@ -647,7 +652,7 @@ Atualiza posições dos cantos de acordo com as posições encontradas
 
     private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String nome, String extensao) {
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
         String contador = "";
         if (contadorDeNomeRepetido > 0) {
