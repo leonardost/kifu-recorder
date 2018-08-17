@@ -24,7 +24,6 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
-import org.opencv.core.Point;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -41,14 +40,18 @@ import java.util.Date;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DebugHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
-    private boolean DEBUG = false;
+    private boolean DEBUG = true;
     DetectorDePedras detectorDePedras = new DetectorDePedras();
+    CornerDetector cornerDetector = new CornerDetector();
     Partida partida;
     Tabuleiro ultimoTabuleiroDetectado;
 
@@ -62,9 +65,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long tempoDesdeUltimoProcessamentoDeImagem;
 
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
-    int[] cantosDoTabuleiro;                   // Pontos dos cantos do tabuleiro
+    Ponto[] cantosDoTabuleiro;
     Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
+    Mat[] imagemDasregioesAoRedorDosCantosDoTabuleiro;
 	MatOfPoint contornoDoTabuleiro;
 
     private File pastaDeRegistro;              // Local onde os registros e arquivos de log serão salvos
@@ -113,10 +117,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         String jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
         String komi             = i.getStringExtra("komi");
         dimensaoDoTabuleiro     = i.getIntExtra("dimensaoDoTabuleiro", -1);
-        cantosDoTabuleiro       = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
+        int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
 		detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
-
+		cantosDoTabuleiro = new Ponto[4];
+		cantosDoTabuleiro[0] = new Ponto(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
+        cantosDoTabuleiro[1] = new Ponto(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
+        cantosDoTabuleiro[2] = new Ponto(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
+        cantosDoTabuleiro[3] = new Ponto(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
         processarCantosDoTabuleiro();
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
@@ -162,16 +170,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void processarCantosDoTabuleiro() {
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
         posicaoDoTabuleiroNaImagem.put(0, 0,
-                cantosDoTabuleiro[0], cantosDoTabuleiro[1],
-                cantosDoTabuleiro[2], cantosDoTabuleiro[3],
-                cantosDoTabuleiro[4], cantosDoTabuleiro[5],
-                cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
+                cantosDoTabuleiro[0].x, cantosDoTabuleiro[0].y,
+                cantosDoTabuleiro[1].x, cantosDoTabuleiro[1].y,
+                cantosDoTabuleiro[2].x, cantosDoTabuleiro[2].y,
+                cantosDoTabuleiro[3].x, cantosDoTabuleiro[3].y);
 
-        Point[] cantos = new Point[4];
-        cantos[0] = new Point(cantosDoTabuleiro[0], cantosDoTabuleiro[1]);
-        cantos[1] = new Point(cantosDoTabuleiro[2], cantosDoTabuleiro[3]);
-        cantos[2] = new Point(cantosDoTabuleiro[4], cantosDoTabuleiro[5]);
-        cantos[3] = new Point(cantosDoTabuleiro[6], cantosDoTabuleiro[7]);
+        org.opencv.core.Point[] cantos = new org.opencv.core.Point[4];
+        cantos[0] = new org.opencv.core.Point(cantosDoTabuleiro[0].x, cantosDoTabuleiro[0].y);
+        cantos[1] = new org.opencv.core.Point(cantosDoTabuleiro[1].x, cantosDoTabuleiro[1].y);
+        cantos[2] = new org.opencv.core.Point(cantosDoTabuleiro[2].x, cantosDoTabuleiro[2].y);
+        cantos[3] = new org.opencv.core.Point(cantosDoTabuleiro[3].x, cantosDoTabuleiro[3].y);
         contornoDoTabuleiro = new MatOfPoint(cantos);
     }
 
@@ -251,7 +259,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 partida = (Partida) ois.readObject();
                 arquivoDeRegistro = (File) ois.readObject();
-                cantosDoTabuleiro = (int[]) ois.readObject();
+                cantosDoTabuleiro = (Ponto[]) ois.readObject();
                 ois.close();
                 fis.close();
                 Log.i(TestesActivity.TAG, "Partida recuperada.");
@@ -290,6 +298,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         long tempoEntrou = System.currentTimeMillis();
         Mat imagemFonte = inputFrame.rgba();
 
+        atualizarPosicaoDoTabuleiro(imagemFonte);
+
         // Throttling, processa 2 vezes por segundo
         if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
             tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
@@ -298,6 +308,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             return imagemFonte;
         }
         else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
+
+        recordDebugImages(inputFrame);
 
         tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(imagemFonte, posicaoDoTabuleiroNaImagem);
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -319,6 +331,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         snapshotAtual = detectorDePedras.snapshot.toString();
         snapshotAtual += partida.ultimoTabuleiro();
         snapshotAtual += "Jogada " + (partida.numeroDeJogadasFeitas() + 1) + "\n";
+        snapshotAtual += "Cantos do tabuleiro:";
+        snapshotAtual += cantosDoTabuleiro[0] + "\n";
+        snapshotAtual += cantosDoTabuleiro[1] + "\n";
+        snapshotAtual += cantosDoTabuleiro[2] + "\n";
+        snapshotAtual += cantosDoTabuleiro[3] + "\n";
         snapshotAtual += "\n";
 
         if (!pausado) {
@@ -329,7 +346,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
 					novaJogadaFoiAdicionada();
 					if (DEBUG) {
-                        adicionarAoLog(snapshotAtual.toString());
+//                        adicionarAoLog(snapshotAtual.toString());
+
                         Mat imagemFormatoDeCorCerto = new Mat();
                         Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
                         Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
@@ -345,6 +363,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         ultimoTabuleiroDetectado = tabuleiro;
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+
+        if (DEBUG) {
+            adicionarAoLog(snapshotAtual.toString());
+            // TODO: Verificar se está funcionando OK
+            DebugHelper.writeImage(imagemFonte, Imgproc.COLOR_RGBA2BGR, "jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno.jpg");
+//            Mat imagemCameraFormatoDeCorCerto = new Mat();
+//            Imgproc.cvtColor(imagemFonte, imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+//            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera_com_contorno", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+        }
+
         if (pausado) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
             Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
@@ -355,6 +383,50 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Log.d(TestesActivity.TAG, "TEMPO (onCameraFrame()): " + (System.currentTimeMillis() - tempoEntrou));
         return imagemFonte;
+    }
+
+    private void atualizarPosicaoDoTabuleiro(Mat image) {
+        initializeCornerObjectsIfNeeded();
+
+        for (int i = 0; i < 4; i++) {
+            Ponto possibleNewCorner = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
+            if (possibleNewCorner != null) {
+                cantosDoTabuleiro[i] = possibleNewCorner;
+            }
+        }
+
+        processarCantosDoTabuleiro();
+    }
+
+    /*
+    Hipótese de tracking de canto 2:
+    Se imagemDosCantosDoTabuleiro for vazio
+        Pega imagem dos cantos do tabuleiro
+    Fim
+    Pega imagem da região ao redor dos cantos do tabuleiro
+    Procura imagem dos cantos do tabuleiro nas imagens das regiões ao redor dos cantos do tabuleiro
+    Atualiza posições dos cantos de acordo com as posições encontradas
+    */
+
+    private void recordDebugImages(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
+        if (DEBUG) {
+            Mat imagemCameraFormatoDeCorCerto = new Mat();
+            Imgproc.cvtColor(inputFrame.rgba(), imagemCameraFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
+            Imgcodecs.imwrite(getFile("jogada" + partida.numeroDeJogadasFeitas() + "_camera", "jpg").getAbsolutePath(), imagemCameraFormatoDeCorCerto);
+
+//            for (int i = 0; i < 4; i++) {
+//                Mat regiaoAoRedorDoCanto = new Mat();
+//                Imgproc.cvtColor(imagemDasregioesAoRedorDosCantosDoTabuleiro[i], regiaoAoRedorDoCanto, Imgproc.COLOR_RGBA2BGR);
+//                Imgproc.cvtColor(imagemDasregioesAoRedorDosCantosDoTabuleiro[i], regiaoAoRedorDoCanto, Imgproc.COLOR_GRAY2BGR);
+//                Imgcodecs.imwrite(getFile("regiao_do_canto_" + (i + 1) + "_" + partida.numeroDeJogadasFeitas(), "jpg").getAbsolutePath(), regiaoAoRedorDoCanto);
+//            }
+        }
+    }
+
+    private void initializeCornerObjectsIfNeeded() {
+        if (imagemDasregioesAoRedorDosCantosDoTabuleiro == null) {
+            imagemDasregioesAoRedorDosCantosDoTabuleiro = new Mat[4];
+        }
     }
 
     public void onClick(View v) {
@@ -436,29 +508,21 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void rotacionar(int direcao) {
-        int[] cantosDoTabuleiroRotacionados = new int[8];
+        Ponto[] cantosDoTabuleiroRotacionados = new Ponto[4];
 
 		// Anti-horário
         if (direcao == -1) {
-            cantosDoTabuleiroRotacionados[0] = cantosDoTabuleiro[2];
-            cantosDoTabuleiroRotacionados[1] = cantosDoTabuleiro[3];
-            cantosDoTabuleiroRotacionados[2] = cantosDoTabuleiro[4];
-            cantosDoTabuleiroRotacionados[3] = cantosDoTabuleiro[5];
-            cantosDoTabuleiroRotacionados[4] = cantosDoTabuleiro[6];
-            cantosDoTabuleiroRotacionados[5] = cantosDoTabuleiro[7];
-            cantosDoTabuleiroRotacionados[6] = cantosDoTabuleiro[0];
-            cantosDoTabuleiroRotacionados[7] = cantosDoTabuleiro[1];
+            cantosDoTabuleiroRotacionados[0].set(cantosDoTabuleiro[1]);
+            cantosDoTabuleiroRotacionados[1].set(cantosDoTabuleiro[2]);
+            cantosDoTabuleiroRotacionados[2].set(cantosDoTabuleiro[3]);
+            cantosDoTabuleiroRotacionados[3].set(cantosDoTabuleiro[0]);
         }
         // Horário
         else if (direcao == 1) {
-            cantosDoTabuleiroRotacionados[0] = cantosDoTabuleiro[6];
-            cantosDoTabuleiroRotacionados[1] = cantosDoTabuleiro[7];
-            cantosDoTabuleiroRotacionados[2] = cantosDoTabuleiro[0];
-            cantosDoTabuleiroRotacionados[3] = cantosDoTabuleiro[1];
-            cantosDoTabuleiroRotacionados[4] = cantosDoTabuleiro[2];
-            cantosDoTabuleiroRotacionados[5] = cantosDoTabuleiro[3];
-            cantosDoTabuleiroRotacionados[6] = cantosDoTabuleiro[4];
-            cantosDoTabuleiroRotacionados[7] = cantosDoTabuleiro[5];
+            cantosDoTabuleiroRotacionados[0].set(cantosDoTabuleiro[3]);
+            cantosDoTabuleiroRotacionados[1].set(cantosDoTabuleiro[0]);
+            cantosDoTabuleiroRotacionados[2].set(cantosDoTabuleiro[1]);
+            cantosDoTabuleiroRotacionados[3].set(cantosDoTabuleiro[2]);
         }
 
         cantosDoTabuleiro = cantosDoTabuleiroRotacionados;
@@ -567,7 +631,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String extensao) {
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
         String contador = "";
         if (contadorDeNomeRepetido > 0) {
@@ -588,7 +652,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private String gerarNomeDeArquivo(int contadorDeNomeRepetido, String nome, String extensao) {
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
-        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String data = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
         String contador = "";
         if (contadorDeNomeRepetido > 0) {
