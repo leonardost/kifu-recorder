@@ -159,6 +159,8 @@ public class Partida implements Serializable {
         jogadas = jogadasRotacionadas;
     }
 
+    // SGF methods should be extracted to a SgfBuilder class that receives a Partida as parameter
+
     /**
      * Exporta a partida em formato SGF.
      * Referência: http://www.red-bean.com/sgf/
