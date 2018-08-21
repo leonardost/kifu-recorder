@@ -29,14 +29,6 @@ public class LoggingConfiguration {
         activatedFlags.add(flag);
     }
 
-    public static void deactivateLogging() {
-        activatedFlags.remove(LOGGING_ENABLED);
-    }
-
-    public static void deactivateLogging(int flag) {
-        activatedFlags.remove(flag);
-    }
-
     public static boolean shouldLog(int flag) {
         return isLoggingEnabled() && activatedFlags.contains(flag);
     }

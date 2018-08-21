@@ -33,8 +33,11 @@ public class Logger {
     public void increaseFrameNumber() {
         frameNumber++;
         logText = new StringBuilder();
-        addToLog("=====");
+        addToLog("===============================");
         addToLog("Frame " + frameNumber);
+        addToLog("");
+        addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
+        addToLog("");
     }
 
     public void addToLog(String text) {
@@ -59,10 +62,11 @@ public class Logger {
 
     public void setCornerPositions(Ponto[] cornerPositions) {
         if (LoggingConfiguration.shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
-            addToLog("    Corner positions:");
+            addToLog("Corner positions:");
             for (int i = 0; i < 4; i++) {
-                addToLog("        " + cornerPositions[i].toString());
+                addToLog("    " + cornerPositions[i].toString());
             }
+            addToLog("");
         }
     }
 
@@ -80,7 +84,7 @@ public class Logger {
             fileHelper.writeJpgImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageLogFilename("tabuleiro_ortogonal"));
         }
 
-        addToLog("    Tempo de processamento: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
+        addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
 
         writeToLogFile();
 
