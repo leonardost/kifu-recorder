@@ -2,6 +2,7 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -11,6 +12,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class InformacoesDaPartidaActivity extends Activity implements View.OnClickListener {
 
@@ -60,12 +64,19 @@ public class InformacoesDaPartidaActivity extends Activity implements View.OnCli
     }
 
     private void checkCameraPermission() {
-        if (ContextCompat.checkSelfPermission(InformacoesDaPartidaActivity.this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
+        List<String> neededPermissions = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(InformacoesDaPartidaActivity.this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            neededPermissions.add(Manifest.permission.CAMERA);
+        }
+        if (ContextCompat.checkSelfPermission(InformacoesDaPartidaActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            neededPermissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
 
-            ActivityCompat.requestPermissions(InformacoesDaPartidaActivity.this, new String[]{Manifest.permission.CAMERA},
-                    PERMISSION_REQUEST_CODE);
-        } else iniciarActivityDetectarTabuleiro();
+        if (!neededPermissions.isEmpty()) {
+            ActivityCompat.requestPermissions(InformacoesDaPartidaActivity.this, neededPermissions.toArray(new String[neededPermissions.size()]), PERMISSION_REQUEST_CODE);
+        } else {
+            iniciarActivityDetectarTabuleiro();
+        }
     }
 
     private void iniciarActivityDetectarTabuleiro() {
