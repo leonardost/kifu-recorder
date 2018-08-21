@@ -44,6 +44,8 @@ proguard/
 .idea/runConfigurations.xml
 .idea/dictionaries/
 .idea/inspectionProfiles/
+.idea/caches/
+.idea/codeStyles/
 *.iml
 
 # External library
