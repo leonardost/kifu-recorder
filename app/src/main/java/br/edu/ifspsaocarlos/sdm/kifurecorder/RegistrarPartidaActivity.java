@@ -274,8 +274,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
         );
 
-        logger.addToLog("    Número de jogadas feitas: " + (partida.numeroDeJogadasFeitas()));
-
 //        snapshotAtual = detectorDePedras.snapshot.toString();
 //        snapshotAtual += partida.ultimoTabuleiro();
 //        snapshotAtual += "\n";
