@@ -57,8 +57,6 @@ public class Logger {
         logText = new StringBuilder();
         addToLog("===============================");
         addToLog("Frame " + frameNumber);
-        addToLog("");
-        addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
         addToLog();
     }
 
@@ -112,6 +110,9 @@ public class Logger {
     }
 
     public void log() {
+
+        addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
+        addToLog();
 
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
 

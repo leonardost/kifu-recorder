@@ -50,11 +50,11 @@ public class FileHelper {
     }
 
     public File getGameFile() {
-        File file = new File(gameRecordFolder, generateFilename(0, gameName, "sgf"));
+        File file = new File(gameRecordFolder, generateFilename(0, "", "sgf"));
         int counter = 1;
 
         while (file.exists()) {
-            String newFilename = generateFilename(counter, gameName, "sgf");
+            String newFilename = generateFilename(counter, "", "sgf");
             file = new File(gameRecordFolder, newFilename);
             counter++;
         }
