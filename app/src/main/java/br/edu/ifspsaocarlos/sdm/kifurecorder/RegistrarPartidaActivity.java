@@ -39,7 +39,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
     public static int STATE_RUNNING = 1;
-    public static int STATE_LOST_BOARD = 2;
+    public static int STATE_LOOKING_FOR_BOARD = 2;
     private int state;
 
     Logger logger;
@@ -247,7 +247,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
      */
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-        logger.increaseFrameNumber();
+        logger.startLoggingFrame();
         logger.setStartProcessingTime(System.currentTimeMillis());
         logger.setCameraFrame(inputFrame.rgba().clone());
 
@@ -257,7 +257,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         updateCornersPosition(imagemFonte);
 
-        if (state == STATE_LOST_BOARD) {
+        if (state == STATE_LOOKING_FOR_BOARD) {
             logger.addToLog("Board is not inside contour");
             logger.addToLog("");
             tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
@@ -287,8 +287,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
-        // Desenha o tabuleiro ortogonal na tela
-        tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
         Tabuleiro tabuleiro = detectorDePedras.detectar(
                 partida.ultimoTabuleiro(),
@@ -297,8 +295,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         );
 
 //        snapshotAtual = detectorDePedras.snapshot.toString();
-//        snapshotAtual += partida.ultimoTabuleiro();
-//        snapshotAtual += "\n";
+        logger.logCurrentBoardState();
 
         if (!pausado) {
 
@@ -319,6 +316,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         logger.setCameraImageWithBoardContour(imagemFonte.clone());
+
+        // Desenha o tabuleiro ortogonal na tela
+        tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
         if (pausado) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
@@ -346,21 +346,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             processarCantosDoTabuleiro();
             state = STATE_RUNNING;
         } else {
-            state = STATE_LOST_BOARD;
+            state = STATE_LOOKING_FOR_BOARD;
         }
         logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
-        logger.setCornerPositions(cantosDoTabuleiro);
+        logger.logCornerPositions(cantosDoTabuleiro);
     }
-
-    /*
-    Hipótese de tracking de canto 2:
-    Se imagemDosCantosDoTabuleiro for vazio
-        Pega imagem dos cantos do tabuleiro
-    Fim
-    Pega imagem da região ao redor dos cantos do tabuleiro
-    Procura imagem dos cantos do tabuleiro nas imagens das regiões ao redor dos cantos do tabuleiro
-    Atualiza posições dos cantos de acordo com as posições encontradas
-    */
 
     public void onClick(View v) {
         switch (v.getId()) {
@@ -378,7 +368,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 break;
             case R.id.btnPausar:
                 pausado = !pausado;
-                atualizarBotaoDePausa();
+                updatePauseButton();
                 break;
             case R.id.btnFinalizar:
                 temCertezaQueDesejaFinalizarORegisro();
@@ -392,7 +382,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
     }
 
-	private void atualizarBotaoDePausa() {
+	private void updatePauseButton() {
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -472,7 +462,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    salvarArquivoNoDiscoESair();
+                    saveGameRecordOnDiskAndExit();
                 }
             })
             .setNegativeButton(R.string.nao, null)
@@ -483,7 +473,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 	 * Salva o arquivo da partida e o log no armazenamento secundário. Se o
 	 * parâmetro 'sair' for verdadeiro, finaliza o registro depois de salvar.
 	 */
-	private void salvarArquivoNoDiscoESair() {
+	private void saveGameRecordOnDiskAndExit() {
         saveGameRecordOnDisk();
 
         Intent intent = new Intent(getApplicationContext(), TelaInicialActivity.class);

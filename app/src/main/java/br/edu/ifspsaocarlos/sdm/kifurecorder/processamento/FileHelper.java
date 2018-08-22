@@ -24,10 +24,12 @@ public class FileHelper {
 
     private String gameName;
     private File gameRecordFolder;
+    private File gameRecordLogFolder;
 
     public FileHelper(Partida partida) {
         gameName = generateGameName(partida);
-        gameRecordFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder/" + gameName);
+        gameRecordFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder");
+        gameRecordLogFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder/" + gameName);
         createGameRecordFolder();
     }
 
@@ -40,20 +42,33 @@ public class FileHelper {
     }
 
     public void createGameRecordFolder() {
-        if (!gameRecordFolder.exists() && !gameRecordFolder.mkdirs()) {
+        if (!gameRecordLogFolder.exists() && !gameRecordLogFolder.mkdirs()) {
             // TODO: Throw an exception
-//            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + gameRecordFolder.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
-            Log.e(TestesActivity.TAG, "Folder " + gameRecordFolder.toString() + " could not be created, check your device's storage configuration.");
+//            Toast.makeText(RegistrarPartidaActivity.this, "ERRO: Diretório " + gameRecordLogFolder.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
+            Log.e(TestesActivity.TAG, "Folder " + gameRecordLogFolder.toString() + " could not be created, check your device's storage configuration.");
         }
     }
 
+    public File getGameFile() {
+        File file = new File(gameRecordFolder, generateFilename(0, gameName, "sgf"));
+        int counter = 1;
+
+        while (file.exists()) {
+            String newFilename = generateFilename(counter, gameName, "sgf");
+            file = new File(gameRecordFolder, newFilename);
+            counter++;
+        }
+
+        return file;
+    }
+
     public File getFile(String nome, String extensao) {
-        File arquivo = new File(gameRecordFolder, generateFilename(0, nome, extensao));
+        File arquivo = new File(gameRecordLogFolder, generateFilename(0, nome, extensao));
         int contador = 1;
 
         while (arquivo.exists()) {
             String newFilename = generateFilename(contador, nome, extensao);
-            arquivo = new File(gameRecordFolder, newFilename);
+            arquivo = new File(gameRecordLogFolder, newFilename);
             contador++;
         }
 
@@ -78,7 +93,7 @@ public class FileHelper {
     }
 
     public boolean saveGameFile(Partida partida) {
-        File gameFile = getFile("", "sgf");
+        File gameFile = getGameFile();
         String conteudoDaPartida = partida.sgf();
 
         if (isExternalStorageWritable()) {

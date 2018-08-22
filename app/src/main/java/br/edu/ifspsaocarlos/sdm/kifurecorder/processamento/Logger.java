@@ -9,35 +9,61 @@ import java.io.IOException;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 
+/**
+ * Log file format:
+ *
+ * ============================================
+ * Frame X:
+ *
+ * Number of plays: X
+ *
+ * Corners:
+ *     (X1, Y1), (X2, Y2), (X3, Y3)...
+ *
+ * Stone detection:
+ *     (1, 1):
+ *         asdf
+ *     (2, 1):
+ *         qwer
+ *     ...
+ * ============================================
+ * Frame X + 1:
+ * ...
+ */
+
 public class Logger {
 
     private long frameNumber = 0;
     private StringBuilder logText;
     private FileHelper fileHelper;
-
     private long startProcessingTime;
+
     private Mat cameraFrame;
     private Mat cameraImageWithBoardContour;
     private Mat ortogonalBoardImage;
     private Partida partida;
 
-    private File arquivoDeLog;                 // Guarda informacoes de debug referentes a partida
+    private File logFile;
 
     public Logger(Partida partida, FileHelper fileHelper) {
         this.partida = partida;
         this.fileHelper = fileHelper;
 
-        arquivoDeLog = fileHelper.getFile("", "log");
+        logFile = fileHelper.getFile("", "log");
     }
 
-    public void increaseFrameNumber() {
+    public void startLoggingFrame() {
         frameNumber++;
         logText = new StringBuilder();
         addToLog("===============================");
         addToLog("Frame " + frameNumber);
         addToLog("");
         addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
-        addToLog("");
+        addToLog();
+    }
+
+    public void addToLog() {
+        logText.append("\n");
     }
 
     public void addToLog(String text) {
@@ -60,70 +86,61 @@ public class Logger {
         this.ortogonalBoardImage = image;
     }
 
-    public void setCornerPositions(Ponto[] cornerPositions) {
-        if (LoggingConfiguration.shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
+    public void logCornerPositions(Ponto[] cornerPositions) {
+        if (shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
             addToLog("Corner positions:");
             for (int i = 0; i < 4; i++) {
                 addToLog("    " + cornerPositions[i].toString());
             }
-            addToLog("");
+            addToLog();
         }
     }
 
     public void logNumberOfQuadrilateralsFoundByBoardDetector(int numberOfQuadrilaterals) {
-        if (LoggingConfiguration.shouldLog(LoggingConfiguration.NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR)) {
+        if (shouldLog(LoggingConfiguration.NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR)) {
             addToLog("Number of quadrilaterals found by board detector: " + numberOfQuadrilaterals);
-            addToLog("");
+            addToLog();
+        }
+    }
+
+    public void logCurrentBoardState() {
+        if (shouldLog(LoggingConfiguration.CURRENT_BOARD_STATE)) {
+            addToLog("Current board state");
+            addToLog(partida.ultimoTabuleiro().toString());
+            addToLog();
         }
     }
 
     public void log() {
 
-        if (LoggingConfiguration.shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE)) {
-            fileHelper.writeJpgImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageLogFilename("camera"));
-        }
-
-        if (LoggingConfiguration.shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR)) {
-            fileHelper.writeJpgImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageLogFilename("camera_com_contorno"));
-        }
-
-        if (LoggingConfiguration.shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE)) {
-            fileHelper.writeJpgImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageLogFilename("tabuleiro_ortogonal"));
-        }
-
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
 
+        if (shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE)) {
+            fileHelper.writeJpgImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera"));
+        }
+
+        if (shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR)) {
+            fileHelper.writeJpgImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera_com_contorno"));
+        }
+
+        if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE)) {
+            fileHelper.writeJpgImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
+        }
+
         writeToLogFile();
-
-        // add text information to log
-
-        // Output images
-        // Output everything to a file
-        //
-
-        // ============================================
-        // Frame X:
-        //
-        // Number of plays: X
-        //
-        // Corners:
-        //    (X1, Y1), (X2, Y2), (X3, Y3)...
-        //
-        // Stone detection:
-        //    (1, 1):
-        //        asdf
-        //    (2, 1):
-        //        qwer
-        // ============================================
     }
 
-    private String generateImageLogFilename(String filename) {
+    private boolean shouldLog(int flag) {
+        return LoggingConfiguration.shouldLog(flag);
+    }
+
+    private String generateImageFilename(String filename) {
         return "frame_" + frameNumber + "_" + "jogada_" + partida.numeroDeJogadasFeitas() + "_" + filename;
     }
 
     private void writeToLogFile() {
         try {
-            FileOutputStream fos = new FileOutputStream(arquivoDeLog, true);
+            FileOutputStream fos = new FileOutputStream(logFile, true);
             fos.write(logText.toString().getBytes());
             fos.close();
         } catch (IOException e) {

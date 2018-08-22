@@ -17,6 +17,7 @@ public class LoggingConfiguration {
     public static int CORNER_POSITIONS = 6;
     public static int STONE_DETECTION_INFORMATION = 7;
     public static int NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR = 8;
+    public static int CURRENT_BOARD_STATE = 9;
 
     private static Set<Integer> activatedFlags = new HashSet<>();
 
