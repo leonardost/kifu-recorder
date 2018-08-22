@@ -57,6 +57,12 @@ public class Desenhista {
         Imgproc.drawContours(imagem, listaContorno, -1, mRed, 6);
     }
 
+    public static void drawLostBoardContour(Mat imagem, MatOfPoint boardContour) {
+        List<MatOfPoint> contour = new ArrayList<MatOfPoint>();
+        contour.add(boardContour);
+        Imgproc.drawContours(imagem, contour, -1, mBlue, 6);
+    }
+
     /**
      * Desenha o tabuleiro sobre a matriz 'imagem' com a origem nas coordenadas 'x' e 'y' passadas
      * como parâmetro e com tamanho 'tamanhoImagem'. O desenho é feito respeitando a dimensão do

@@ -26,6 +26,7 @@ import org.opencv.core.MatOfPoint;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
@@ -37,9 +38,14 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
+    public static int STATE_RUNNING = 1;
+    public static int STATE_LOST_BOARD = 2;
+    private int state;
+
     Logger logger;
     FileHelper fileHelper;
 
+    BoardDetector boardDetector = new BoardDetector();
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     CornerDetector cornerDetector = new CornerDetector();
     Partida partida;
@@ -92,6 +98,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registrar_partida);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        state = STATE_RUNNING;
 
         initializeCamera();
         initializeProcessing();
@@ -129,6 +136,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         cantosDoTabuleiro[2] = new Ponto(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
         cantosDoTabuleiro[3] = new Ponto(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
         processarCantosDoTabuleiro();
+
+        boardDetector.init();
     }
 
     private void initializeUserInterface() {
@@ -161,6 +170,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         LoggingConfiguration.activateLogging(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR);
         LoggingConfiguration.activateLogging(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE);
         LoggingConfiguration.activateLogging(LoggingConfiguration.CORNER_POSITIONS);
+        LoggingConfiguration.activateLogging(LoggingConfiguration.NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR);
 
         fileHelper = new FileHelper(partida);
         logger = new Logger(partida, fileHelper);
@@ -243,7 +253,19 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Mat imagemFonte = inputFrame.rgba();
 
+        boardDetector.setImage(imagemFonte);
+
         updateCornersPosition(imagemFonte);
+
+        if (state == STATE_LOST_BOARD) {
+            logger.addToLog("Board is not inside contour");
+            logger.addToLog("");
+            tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
+            Desenhista.drawLostBoardContour(imagemFonte, contornoDoTabuleiro);
+            Desenhista.desenharTabuleiro(imagemFonte, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+            logger.log();
+            return imagemFonte;
+        }
 
         // Throttling, processa 2 vezes por segundo
         if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
@@ -316,21 +338,18 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         for (int i = 0; i < 4; i++) {
             possibleNewCorners[i] = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
         }
-        if (areNewConersValid(possibleNewCorners)) {
+
+        if (boardDetector.isBoardInsideContour(possibleNewCorners)) {
             for (int i = 0; i < 4; i++) {
                 cantosDoTabuleiro[i] = possibleNewCorners[i];
             }
             processarCantosDoTabuleiro();
+            state = STATE_RUNNING;
+        } else {
+            state = STATE_LOST_BOARD;
         }
+        logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
         logger.setCornerPositions(cantosDoTabuleiro);
-    }
-
-    private boolean areNewConersValid(Ponto[] newCorners) {
-        // TODO: Implement real checkings here
-        for (int i = 0; i < 4; i++) {
-            if (newCorners[i] == null) return false;
-        }
-        return true;
     }
 
     /*

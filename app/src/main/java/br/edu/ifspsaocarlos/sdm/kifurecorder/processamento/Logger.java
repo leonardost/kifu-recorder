@@ -70,6 +70,13 @@ public class Logger {
         }
     }
 
+    public void logNumberOfQuadrilateralsFoundByBoardDetector(int numberOfQuadrilaterals) {
+        if (LoggingConfiguration.shouldLog(LoggingConfiguration.NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR)) {
+            addToLog("Number of quadrilaterals found by board detector: " + numberOfQuadrilaterals);
+            addToLog("");
+        }
+    }
+
     public void log() {
 
         if (LoggingConfiguration.shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE)) {
