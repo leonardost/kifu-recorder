@@ -174,8 +174,8 @@ public class BoardDetector {
         if (state == STATE_BOARD_IS_INSIDE) {
             return isFirstDetection() || calculateDifferenceOfDetectedQuadrilaterals() < THRESHOULD;
         } else {
-            return Math.abs(lastNumberOfQuadrilateralsFoundWhileBoardWasInsideContour - numberOfQuadrilateralsFound)
-                    <= RECOVERY_THRESHOULD;
+            return lastNumberOfQuadrilateralsFoundWhileBoardWasInsideContour - numberOfQuadrilateralsFound
+                <= RECOVERY_THRESHOULD;
         }
     }
 
@@ -184,7 +184,7 @@ public class BoardDetector {
     }
 
     public int calculateDifferenceOfDetectedQuadrilaterals() {
-        return Math.abs(lastNumberOfQuadrilateralsFound - numberOfQuadrilateralsFound);
+        return lastNumberOfQuadrilateralsFound - numberOfQuadrilateralsFound;
     }
 
     public int getNumberOfQuadrilateralsFound() {
