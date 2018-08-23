@@ -25,11 +25,13 @@ public class FileHelper {
     private String gameName;
     private File gameRecordFolder;
     private File gameRecordLogFolder;
+    private File gameFile;
 
     public FileHelper(Partida partida) {
         gameName = generateGameName(partida);
         gameRecordFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder");
         gameRecordLogFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder/" + gameName);
+        gameFile = getGameFile();
         createGameRecordFolder();
     }
 
@@ -49,7 +51,7 @@ public class FileHelper {
         }
     }
 
-    public File getGameFile() {
+    private File getGameFile() {
         File file = new File(gameRecordFolder, generateFilename(0, "", "sgf"));
         int counter = 1;
 
@@ -93,7 +95,6 @@ public class FileHelper {
     }
 
     public boolean saveGameFile(Partida partida) {
-        File gameFile = getGameFile();
         String conteudoDaPartida = partida.sgf();
 
         if (isExternalStorageWritable()) {
