@@ -26,15 +26,16 @@ import org.opencv.core.MatOfPoint;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Logger;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -136,8 +137,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         cantosDoTabuleiro[2] = new Ponto(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
         cantosDoTabuleiro[3] = new Ponto(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
         processarCantosDoTabuleiro();
-
-        boardDetector.init();
     }
 
     private void initializeUserInterface() {
@@ -253,8 +252,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Mat imagemFonte = inputFrame.rgba();
 
-        boardDetector.setImage(imagemFonte);
-
         updateCornersPosition(imagemFonte);
 
         if (state == STATE_LOOKING_FOR_BOARD) {
@@ -339,7 +336,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             possibleNewCorners[i] = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
         }
 
-        if (boardDetector.isBoardInsideContour(possibleNewCorners)) {
+        Mat ortogonalBoardImage = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
+
+        if (boardDetector.isBoardContainedIn(ortogonalBoardImage)) {
             for (int i = 0; i < 4; i++) {
                 cantosDoTabuleiro[i] = possibleNewCorners[i];
             }
@@ -348,7 +347,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         } else {
             state = STATE_LOOKING_FOR_BOARD;
         }
-        logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
+//        logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
         logger.logCornerPositions(cantosDoTabuleiro);
     }
 
