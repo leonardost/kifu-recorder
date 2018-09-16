@@ -9,6 +9,7 @@ import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -202,60 +203,61 @@ public class CornerDetector {
         Mat imageWithEllipsis = image.clone();
 
         // Blur image to smooth noise
-        Mat blurredImage = image.clone();
-        Imgproc.medianBlur(blurredImage, blurredImage, 13);
-        Imgcodecs.imwrite("processing/corner_region_" + cornerIndex + "_blurred_" + imageIndex + ".jpg", blurredImage);
+        Mat preprocessedImage = image.clone();
+        Imgproc.blur(preprocessedImage, preprocessedImage, new Size(3, 3));
         // Detect borders
-        Mat imageWithBordersDetected = detectBordersIn(blurredImage);
+        preprocessedImage = detectSimpleBorders(preprocessedImage);
+        Imgproc.dilate(preprocessedImage, preprocessedImage, Mat.ones(3, 3, CvType.CV_32F), new Point(-1, -1), 3);
+        Imgproc.erode(preprocessedImage, preprocessedImage, Mat.ones(3, 3, CvType.CV_32F), new Point(-1, -1), 3);
         // Invert regions
-        Mat imageRegions = new Mat();
-        Core.bitwise_not(imageWithBordersDetected, imageRegions);
+        Core.bitwise_not(preprocessedImage, preprocessedImage);
+        Imgproc.erode(preprocessedImage, preprocessedImage, Mat.ones(3, 3, CvType.CV_32F), new Point(-1, -1), 1);
         // Detect contours
-        List<MatOfPoint> contours = detectContoursIn(imageRegions);
-        outputImageWithContours(image, contours, "processing/corner_region_" + cornerIndex + "_all_ellipses_" + imageIndex + ".jpg");
-
-        // Find contour that best fits an ellipse
-        Ponto bestCornerCandidate = null;
-        int minimumPointsFound = 999999999;
+        List<MatOfPoint> contours = detectContoursIn(preprocessedImage);
+//        outputImageWithContours(image, contours, "processing/corner_region_" + cornerIndex + "_all_ellipses_" + imageIndex + ".jpg");
 
         List<MatOfPoint> approximatedContours = new ArrayList<>();
+        List<Ponto> candidatePoints = new ArrayList<>();
 
-        for (MatOfPoint contour : contours) {
+        for (int i = 0; i < contours.size(); i++) {
 
-            if (!canContourBeEllipsis(contour)) continue;
-
-            approximatedContours.add(approximateContour(contour));
+            if (!canContourBeEllipsis(contours.get(i))) continue;
+            approximatedContours.add(approximateContour(contours.get(i)));
 
             MatOfPoint2f contour2f = new MatOfPoint2f();
-            contour.convertTo(contour2f, CvType.CV_32FC2);
+            contours.get(i).convertTo(contour2f, CvType.CV_32FC2);
 
             RotatedRect ellipse = Imgproc.fitEllipse(contour2f);
+            Ponto center = new Ponto((int)ellipse.center.x, (int)ellipse.center.y);
+            if (!isInsideRegionOfInterest(center)) continue;
 
             Mat maskContour = new Mat(image.rows(), image.cols(), CvType.CV_8U, new Scalar(0));
+            Imgproc.drawContours(maskContour, contours, i, new Scalar(255), -1);
             Mat maskEllipse = new Mat(image.rows(), image.cols(), CvType.CV_8U, new Scalar(0));
+            Imgproc.ellipse(maskEllipse, ellipse, new Scalar(255), -1);
             Mat leftover = new Mat(image.rows(), image.cols(), CvType.CV_8U, new Scalar(0));
             // The leftover is the difference between the contour found and the ellipse we're trying to fit.
             // The less leftover there is, the more the ellipse fits the contour.
             Core.bitwise_xor(maskContour, maskEllipse, leftover);
 
             int leftoverCount = Core.countNonZero(leftover);
-            Ponto center = new Ponto((int)ellipse.center.x, (int)ellipse.center.y);
-            if (leftoverCount < minimumPointsFound) {
-                minimumPointsFound = leftoverCount;
-                bestCornerCandidate = center;
+            int maskEllipseCount = Core.countNonZero(maskEllipse);
+            double leftoverRatio = (double)leftoverCount / (double)maskEllipseCount;
+
+            if (leftoverRatio < 0.15) {
+                candidatePoints.add(center);
                 Imgproc.ellipse(imageWithEllipsis, ellipse, new Scalar(0, 255, 0));
             }
         }
         outputImageWithContours(image, approximatedContours, "processing/corner_region_" + cornerIndex + "_approximated_contours_" + imageIndex + ".jpg");
         Imgcodecs.imwrite("processing/corner_region_" + cornerIndex + "_ellipsis_fit_" + imageIndex + ".jpg", imageWithEllipsis);
 
-        return bestCornerCandidate;
+        return getNearestPointToCenterOfRegionOfInterest(candidatePoints);
     }
 
-    private Mat detectBordersIn(Mat image) {
+    private Mat detectSimpleBorders(Mat image) {
         Mat imageWithBordersDetected = new Mat();
-        Imgproc.Canny(image, imageWithBordersDetected, 50, 100);
-        Imgproc.dilate(imageWithBordersDetected, imageWithBordersDetected, Mat.ones(3, 3, CvType.CV_32F));
+        Imgproc.Canny(image, imageWithBordersDetected, 50, 150);
         return imageWithBordersDetected;
     }
 
@@ -268,14 +270,18 @@ public class CornerDetector {
         return contours;
     }
 
-    private void removeSmallContours(List<MatOfPoint> contours)
-    {
+    private void removeSmallContours(List<MatOfPoint> contours) {
         for (Iterator<MatOfPoint> it = contours.iterator(); it.hasNext();) {
             MatOfPoint contour = it.next();
             if (Imgproc.contourArea(contour) < 200) {
                 it.remove();
             }
         }
+    }
+
+    private boolean isInsideRegionOfInterest(Ponto point) {
+        return point.x >= 0 && point.x < RADIUS_OF_REGION_OF_INTEREST * 2
+                && point.y >= 0 && point.y < RADIUS_OF_REGION_OF_INTEREST * 2;
     }
 
     private static void outputImageWithContours(Mat image, List<MatOfPoint> contours, String filename) {
