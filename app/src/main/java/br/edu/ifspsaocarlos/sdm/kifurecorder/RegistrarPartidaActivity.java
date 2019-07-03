@@ -32,7 +32,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Logger;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
@@ -422,7 +421,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 temCertezaQueDesejaFinalizarORegisro();
                 break;
             case R.id.btnSnapshot:
-                tirarSnapshot();
+                takeSnapshot();
                 break;
             case R.id.btnAdicionarPedra:
                 adicionarJogadaAoRegistro();
@@ -457,7 +456,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .show();
     }
 
-    private void tirarSnapshot() {
+    private void takeSnapshot() {
 //        try {
 //
 //            Mat imagemFormatoDeCorCerto = new Mat();
