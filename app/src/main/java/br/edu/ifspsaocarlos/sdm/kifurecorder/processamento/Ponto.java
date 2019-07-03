@@ -16,6 +16,10 @@ public class Ponto {
         return (y - point.y) * (y - point.y) + (x - point.x) * (x - point.x);
     }
 
+    public int manhattanDistanceTo(Ponto point) {
+        return Math.abs(y - point.y) + Math.abs(x - point.x);
+    }
+
     public Ponto add(Ponto point) {
         Ponto newPoint = new Ponto(x, y);
         newPoint.x += point.x;

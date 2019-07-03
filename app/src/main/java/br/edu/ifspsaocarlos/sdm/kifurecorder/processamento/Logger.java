@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 
 /**
  * Log file format:
@@ -84,7 +85,7 @@ public class Logger {
         this.ortogonalBoardImage = image;
     }
 
-    public void logCornerPositions(Ponto[] cornerPositions) {
+    public void logCornerPositions(Corner[] cornerPositions) {
         if (shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
             addToLog("Corner positions:");
             for (int i = 0; i < 4; i++) {

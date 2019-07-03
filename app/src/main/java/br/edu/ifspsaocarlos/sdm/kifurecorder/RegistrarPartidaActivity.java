@@ -26,7 +26,6 @@ import org.opencv.core.MatOfPoint;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.CornerDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
@@ -36,6 +35,8 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.CornerDetector;
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -48,7 +49,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     BoardDetector boardDetector = new BoardDetector();
     DetectorDePedras detectorDePedras = new DetectorDePedras();
-    CornerDetector cornerDetector = new CornerDetector();
+    CornerDetector[] cornerDetector;
     Partida partida;
     Tabuleiro ultimoTabuleiroDetectado;
 
@@ -62,7 +63,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     // Domain objects
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
-    Ponto[] cantosDoTabuleiro;
+    Corner[] boardCorners;
     Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
 	MatOfPoint contornoDoTabuleiro;
@@ -131,11 +132,16 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
         tempoDesdeUltimoProcessamentoDeImagem = 0;
 
-        cantosDoTabuleiro = new Ponto[4];
-        cantosDoTabuleiro[0] = new Ponto(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
-        cantosDoTabuleiro[1] = new Ponto(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
-        cantosDoTabuleiro[2] = new Ponto(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
-        cantosDoTabuleiro[3] = new Ponto(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
+        boardCorners = new Corner[4];
+        boardCorners[0] = new Corner(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
+        boardCorners[1] = new Corner(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
+        boardCorners[2] = new Corner(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
+        boardCorners[3] = new Corner(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
+        cornerDetector = new CornerDetector[4];
+        for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+            cornerDetector[cornerIndex].setCorner(boardCorners[cornerIndex]);
+            cornerDetector[cornerIndex].setCornerIndex(cornerIndex + 1);
+        }
         processarCantosDoTabuleiro();
     }
 
@@ -178,23 +184,23 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void processarCantosDoTabuleiro() {
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
         posicaoDoTabuleiroNaImagem.put(0, 0,
-                cantosDoTabuleiro[0].x, cantosDoTabuleiro[0].y,
-                cantosDoTabuleiro[1].x, cantosDoTabuleiro[1].y,
-                cantosDoTabuleiro[2].x, cantosDoTabuleiro[2].y,
-                cantosDoTabuleiro[3].x, cantosDoTabuleiro[3].y);
+                boardCorners[0].getX(), boardCorners[0].getY(),
+                boardCorners[1].getX(), boardCorners[1].getY(),
+                boardCorners[2].getX(), boardCorners[2].getY(),
+                boardCorners[3].getX(), boardCorners[3].getY());
 
         org.opencv.core.Point[] cantos = new org.opencv.core.Point[4];
-        cantos[0] = new org.opencv.core.Point(cantosDoTabuleiro[0].x, cantosDoTabuleiro[0].y);
-        cantos[1] = new org.opencv.core.Point(cantosDoTabuleiro[1].x, cantosDoTabuleiro[1].y);
-        cantos[2] = new org.opencv.core.Point(cantosDoTabuleiro[2].x, cantosDoTabuleiro[2].y);
-        cantos[3] = new org.opencv.core.Point(cantosDoTabuleiro[3].x, cantosDoTabuleiro[3].y);
+        cantos[0] = new org.opencv.core.Point(boardCorners[0].getX(), boardCorners[0].getY());
+        cantos[1] = new org.opencv.core.Point(boardCorners[1].getX(), boardCorners[1].getY());
+        cantos[2] = new org.opencv.core.Point(boardCorners[2].getX(), boardCorners[2].getY());
+        cantos[3] = new org.opencv.core.Point(boardCorners[3].getX(), boardCorners[3].getY());
         contornoDoTabuleiro = new MatOfPoint(cantos);
     }
 
     @Override
     public void onRestoreInstanceState(Bundle savedInstaceState) {
         super.onRestoreInstanceState(savedInstaceState);
-        fileHelper.restoreGameStoredTemporarily(partida, cantosDoTabuleiro);
+        fileHelper.restoreGameStoredTemporarily(partida, boardCorners);
         processarCantosDoTabuleiro();
     }
 
@@ -202,7 +208,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     public void onPause() {
         super.onPause();
         Log.d(TestesActivity.TAG, "RegistrarPartidaActivity.onPause");
-        fileHelper.storeGameTemporarily(partida, cantosDoTabuleiro);
+        fileHelper.storeGameTemporarily(partida, boardCorners);
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
         }
@@ -252,7 +258,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Mat imagemFonte = inputFrame.rgba();
 
-        updateCornersPosition(imagemFonte);
+        updateCornerPositions(imagemFonte);
 
         if (state == STATE_LOOKING_FOR_BOARD) {
             logger.addToLog("Board is not inside contour");
@@ -330,25 +336,68 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         return imagemFonte;
     }
 
-    private void updateCornersPosition(Mat image) {
-        Ponto[] possibleNewCorners = new Ponto[4];
+    private void updateCornerPositions(Mat image) {
+        Corner[] possibleNewCorners = new Corner[4];
+        boolean wereAllCornersFound = true;
         for (int i = 0; i < 4; i++) {
-            possibleNewCorners[i] = cornerDetector.updateCorner(image, cantosDoTabuleiro[i], i);
+            possibleNewCorners[i] = cornerDetector[i].detectCornerIn(image);
+            if (possibleNewCorners[i] == null) {
+                wereAllCornersFound = false;
+            }
         }
 
         Mat ortogonalBoardImage = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
 
-        if (boardDetector.isBoardContainedIn(ortogonalBoardImage)) {
+        if (boardDetector.isBoardContainedIn(ortogonalBoardImage) && wereAllCornersFound) {
+            System.out.println("Board is inside countour");
+            int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
+            System.out.println("Number of corners that moved: " + numberOfCornersThatMoved);
+            double[] distanceToNewPoint = new double[4];
             for (int i = 0; i < 4; i++) {
-                cantosDoTabuleiro[i] = possibleNewCorners[i];
+                distanceToNewPoint[i] = possibleNewCorners[i].distanceTo(boardCorners[i]);
+                System.out.println("Distance to old corner point " + (i + 1) + " = " + distanceToNewPoint[i]);
             }
+
+            for (int i = 0; i < 4; i++) {
+                if (numberOfCornersThatMoved < 4) {
+                    // Not all corners moved, so this is probably a corner adjustment
+                    // Update relative corner position of possible corners with stones
+                    if (possibleNewCorners[i].isStone) {
+                        if (!boardCorners[i].isStone) {
+                            possibleNewCorners[i].updateDisplacementVectorRelativeTo(boardCorners[i].position);
+                        } else {
+                            possibleNewCorners[i].updateDisplacementVectorRelativeTo(boardCorners[i].getRealCornerPosition());
+                        }
+                    }
+                } else if (possibleNewCorners[i].isStone) {
+                    // All corners moved together, so this is probably a board displacemente and we
+                    // don't update the corners's relative position to the real corners
+                    possibleNewCorners[i].displacementToRealCorner = boardCorners[i].displacementToRealCorner;
+                }
+
+                boardCorners[i] = possibleNewCorners[i];
+            }
+
             processarCantosDoTabuleiro();
             state = STATE_RUNNING;
         } else {
             state = STATE_LOOKING_FOR_BOARD;
+            System.out.println("Board is NOT inside countour");
         }
+
 //        logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
-        logger.logCornerPositions(cantosDoTabuleiro);
+        logger.logCornerPositions(boardCorners);
+    }
+
+    private static int getNumberOfCornersThatMoved(Corner[] possibleNewCorners, Corner[] corners) {
+        int MOVEMENT_THRESHOULD = 10;
+        int numberOfCornersThatMoved = 0;
+        for (int i = 0; i < 4; i++) {
+            if (possibleNewCorners[i].distanceTo(corners[i]) > MOVEMENT_THRESHOULD) {
+                numberOfCornersThatMoved++;
+            }
+        }
+        return numberOfCornersThatMoved;
     }
 
     public void onClick(View v) {
@@ -431,24 +480,24 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void rotacionar(int direcao) {
-        Ponto[] cantosDoTabuleiroRotacionados = new Ponto[4];
+        Corner[] cantosDoTabuleiroRotacionados = new Corner[4];
 
 		// Anti-horário
         if (direcao == -1) {
-            cantosDoTabuleiroRotacionados[0].set(cantosDoTabuleiro[1]);
-            cantosDoTabuleiroRotacionados[1].set(cantosDoTabuleiro[2]);
-            cantosDoTabuleiroRotacionados[2].set(cantosDoTabuleiro[3]);
-            cantosDoTabuleiroRotacionados[3].set(cantosDoTabuleiro[0]);
+            cantosDoTabuleiroRotacionados[0].set(boardCorners[1]);
+            cantosDoTabuleiroRotacionados[1].set(boardCorners[2]);
+            cantosDoTabuleiroRotacionados[2].set(boardCorners[3]);
+            cantosDoTabuleiroRotacionados[3].set(boardCorners[0]);
         }
         // Horário
         else if (direcao == 1) {
-            cantosDoTabuleiroRotacionados[0].set(cantosDoTabuleiro[3]);
-            cantosDoTabuleiroRotacionados[1].set(cantosDoTabuleiro[0]);
-            cantosDoTabuleiroRotacionados[2].set(cantosDoTabuleiro[1]);
-            cantosDoTabuleiroRotacionados[3].set(cantosDoTabuleiro[2]);
+            cantosDoTabuleiroRotacionados[0].set(boardCorners[3]);
+            cantosDoTabuleiroRotacionados[1].set(boardCorners[0]);
+            cantosDoTabuleiroRotacionados[2].set(boardCorners[1]);
+            cantosDoTabuleiroRotacionados[3].set(boardCorners[2]);
         }
 
-        cantosDoTabuleiro = cantosDoTabuleiroRotacionados;
+        boardCorners = cantosDoTabuleiroRotacionados;
         processarCantosDoTabuleiro();
 
         partida.rotacionar(direcao);

@@ -19,6 +19,7 @@ import java.util.Date;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 
 public class FileHelper {
 
@@ -126,7 +127,7 @@ public class FileHelper {
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    public void storeGameTemporarily(Partida partida, Ponto[] cantosDoTabuleiro) {
+    public void storeGameTemporarily(Partida partida, Corner[] cantosDoTabuleiro) {
         File arquivo = getTempFile();
         if (isExternalStorageWritable()) {
             try {
@@ -147,7 +148,7 @@ public class FileHelper {
         }
     }
 
-    public void restoreGameStoredTemporarily(Partida partida, Ponto[] cantosDoTabuleiro) {
+    public void restoreGameStoredTemporarily(Partida partida, Corner[] cantosDoTabuleiro) {
         File arquivo = getTempFile();
         // TODO: Precisa fazer esta checagem aqui? Porque aqui só é feita a leitura de arquivos
         if (isExternalStorageWritable()) {
@@ -155,7 +156,7 @@ public class FileHelper {
                 FileInputStream fis = new FileInputStream(arquivo);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 partida = (Partida) ois.readObject();
-                cantosDoTabuleiro = (Ponto[]) ois.readObject();
+                cantosDoTabuleiro = (Corner[]) ois.readObject();
                 ois.close();
                 fis.close();
                 Log.i(TestesActivity.TAG, "Partida recuperada.");
