@@ -43,7 +43,7 @@
             android:label="@string/title_activity_registrar_partida"
             android:screenOrientation="landscape" />
         <activity android:name=".InstrucoesActivity" />
-        <activity android:name=".PoliticaDePrivacidadeActivity" />
+        <activity android:name=".PrivacyPolicyActivity" />
         <activity android:name=".CreditosActivity"></activity>
     </application>
 

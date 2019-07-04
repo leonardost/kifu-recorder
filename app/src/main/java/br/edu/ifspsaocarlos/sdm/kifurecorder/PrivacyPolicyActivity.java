@@ -3,7 +3,7 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder;
 import android.app.Activity;
 import android.os.Bundle;
 
-public class PoliticaDePrivacidadeActivity extends Activity {
+public class PrivacyPolicyActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
