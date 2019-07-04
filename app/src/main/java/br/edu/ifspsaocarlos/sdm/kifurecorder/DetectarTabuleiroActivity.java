@@ -19,6 +19,7 @@ import org.opencv.core.Point;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 
 public class DetectarTabuleiroActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
@@ -29,6 +30,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     private Mat posicaoDoTabuleiroNaImagem = null;
     private MatOfPoint contornoDoTabuleiro;
     DetectorDeTabuleiro detectorDeTabuleiro;
+    BoardDetector boardDetector;
 
     private String jogadorDePretas;
     private String jogadorDeBrancas;
@@ -64,6 +66,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
         btnFixarTabuleiro.setEnabled(false);
 
         detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+        boardDetector = new BoardDetector();
 
         Intent i = getIntent();
         jogadorDePretas = i.getStringExtra("jogadorDePretas");
