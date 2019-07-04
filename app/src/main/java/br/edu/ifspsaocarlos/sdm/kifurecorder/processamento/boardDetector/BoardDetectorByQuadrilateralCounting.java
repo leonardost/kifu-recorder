@@ -6,15 +6,15 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class BoardDetectorByQuadrilateralCounting implements BoardDetectorInterface {
-
+public class BoardDetectorByQuadrilateralCounting implements BoardDetectorInterface
+{
+    // This is the threshould of vanished quadrilaterals to consider the board was lost
     public static final int THRESHOULD = 10;
     // This is the threshould of quadrilaterals to consider that the board was found again
     public static final int RECOVERY_THRESHOULD = 4;
