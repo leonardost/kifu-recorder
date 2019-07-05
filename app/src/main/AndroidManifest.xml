@@ -2,8 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="br.edu.ifspsaocarlos.sdm.kifurecorder">
 
-    <uses-sdk android:minSdkVersion="8" />
-
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />

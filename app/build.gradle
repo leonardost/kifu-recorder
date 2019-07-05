@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 26
-    buildToolsVersion '27.0.3'
+//    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "br.edu.ifspsaocarlos.sdm.kifurecorder"
-        minSdkVersion 15
-        targetSdkVersion 26
         versionCode 10
         versionName "1.2.0-alpha.1"
+        minSdkVersion 14
+        targetSdkVersion 26
     }
     buildTypes {
         release {
@@ -17,12 +17,16 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
+    }
+    buildToolsVersion = '28.0.3'
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:23.4.0'
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile project(':opencv')
+    implementation 'com.android.support:support-compat:26.1.0'
+    implementation project(path: ':opencv')
     // Unit testing dependencies
-    testCompile 'junit:junit:4.12'
+//    testCompile 'junit:junit:4.12'
 }
