@@ -100,13 +100,9 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
             mOpenCvCameraView.disableView();
     }
 
-    public void onCameraViewStarted(int width, int height) {
+    public void onCameraViewStarted(int width, int height) {}
 
-    }
-
-    public void onCameraViewStopped() {
-
-    }
+    public void onCameraViewStopped() {}
 
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 //        return inputFrame.rgba();
