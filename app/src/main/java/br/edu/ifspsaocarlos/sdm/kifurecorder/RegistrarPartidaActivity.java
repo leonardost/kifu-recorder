@@ -56,13 +56,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
     long momentoDaUltimaDeteccaoDeTabuleiro;
     long tempoDesdeUltimaMudancaDeTabuleiro;
-    boolean pausado = false;
+    boolean paused = false;
     long momentoDoUltimoProcessamentoDeImagem;
     long tempoDesdeUltimoProcessamentoDeImagem;
+    boolean isCornerTrackingActive = true;
 
     // Domain objects
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
     Corner[] boardCorners;
+    Corner[] originalBoardCorners;
     Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
 	MatOfPoint contornoDoTabuleiro;
@@ -74,6 +76,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private ImageButton btnPausar;
     private ImageButton btnSnapshot;
     private ImageButton btnAdicionarJogada;
+    private ImageButton btnToggleCornerTracking;
+    private ImageButton btnResetBoardPosition;
     private Button btnFinalizar;
     private SoundPool soundPool;
     private int beepId;
@@ -131,6 +135,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
         tempoDesdeUltimoProcessamentoDeImagem = 0;
 
+        originalBoardCorners = new Corner[4];
+        originalBoardCorners[0] = new Corner(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
+        originalBoardCorners[1] = new Corner(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
+        originalBoardCorners[2] = new Corner(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
+        originalBoardCorners[3] = new Corner(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
         boardCorners = new Corner[4];
         boardCorners[0] = new Corner(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
         boardCorners[1] = new Corner(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
@@ -299,7 +308,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 //        snapshotAtual = detectorDePedras.snapshot.toString();
         logger.logCurrentBoardState();
 
-        if (!pausado) {
+        if (!paused) {
 
             if (ultimoTabuleiroDetectado.equals(tabuleiro)) {
                 tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
@@ -322,7 +331,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         // Desenha o tabuleiro ortogonal na tela
         tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
-        if (pausado) {
+        if (paused) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
             Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
         }
@@ -414,7 +423,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 rotacionar(1);
                 break;
             case R.id.btnPausar:
-                pausado = !pausado;
+                paused = !paused;
                 updatePauseButton();
                 break;
             case R.id.btnFinalizar:
@@ -433,7 +442,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnPausar.setImageResource(pausado ? R.drawable.play : R.drawable.pause);
+                btnPausar.setImageResource(paused ? R.drawable.play : R.drawable.pause);
             }
         });
 	}
