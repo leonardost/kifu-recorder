@@ -172,6 +172,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         btnSnapshot.setOnClickListener(this);
         btnAdicionarJogada = (ImageButton) findViewById(R.id.btnAdicionarPedra);
         btnAdicionarJogada.setOnClickListener(this);
+        btnToggleCornerTracking = findViewById(R.id.btnToggleCornerTracking);
+        btnToggleCornerTracking.setOnClickListener(this);
+        btnResetBoardPosition = findViewById(R.id.btnResetBoardPosition);
+        btnResetBoardPosition.setOnClickListener(this);
 
         soundPool = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
         beepId = soundPool.load(this, R.raw.beep, 1);
@@ -423,7 +427,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 rotacionar(1);
                 break;
             case R.id.btnPausar:
-                paused = !paused;
                 updatePauseButton();
                 break;
             case R.id.btnFinalizar:
@@ -435,10 +438,17 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             case R.id.btnAdicionarPedra:
                 adicionarJogadaAoRegistro();
                 break;
+            case R.id.btnToggleCornerTracking:
+                toggleCornerTracking();
+                break;
+            case R.id.btnResetBoardPosition:
+                resetCornersToTheirOriginalPositions();
+                break;
         }
     }
 
 	private void updatePauseButton() {
+        paused = !paused;
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -604,5 +614,21 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         });
 	}
+
+	private void toggleCornerTracking() {
+	    isCornerTrackingActive = !isCornerTrackingActive;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                btnPausar.setImageResource(isCornerTrackingActive ? R.drawable.add: R.drawable.add);
+            }
+        });
+    }
+
+	private void resetCornersToTheirOriginalPositions() {
+	    for (int i = 0; i < 4; i++) {
+	        boardCorners[i].set(originalBoardCorners[i]);
+        }
+    }
 
 }

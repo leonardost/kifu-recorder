@@ -15,11 +15,21 @@
         android:layout_height="fill_parent"
         android:layout_marginRight="6dp"
         android:layout_gravity="center_vertical|right" >
-        <ImageButton
-            android:id="@+id/btnSalvar"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/save" />
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btnSalvar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/save" />
+            <ImageButton
+                android:id="@+id/btnSnapshot"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/snapshot" />
+        </LinearLayout>
         <ImageButton
             android:id="@+id/btnVoltarUltimaJogada"
             android:layout_width="wrap_content"
@@ -51,20 +61,26 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_finalizar_registro" />
         <ImageButton
-            android:id="@+id/btnSnapshot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/snapshot" />
-        <ImageButton
             android:id="@+id/btnAdicionarPedra"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/add"/>
-        <!--<Button
-            android:id="@+id/btnVisualizarRegistro"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_visualizar_registro" />-->
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btnResetBoardPosition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add" />
+            <ImageButton
+                android:id="@+id/btnToggleCornerTracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </FrameLayout>
