@@ -154,23 +154,23 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void initializeUserInterface() {
-        btnSalvar = (ImageButton) findViewById(R.id.btnSalvar);
+        btnSalvar = findViewById(R.id.btnSalvar);
         btnSalvar.setOnClickListener(this);
         btnSalvar.setEnabled(true);
-        btnVoltarUltimaJogada = (ImageButton) findViewById(R.id.btnVoltarUltimaJogada);
+        btnVoltarUltimaJogada = findViewById(R.id.btnVoltarUltimaJogada);
         btnVoltarUltimaJogada.setOnClickListener(this);
         btnVoltarUltimaJogada.setEnabled(false);
-        btnRotacionarEsquerda = (ImageButton) findViewById(R.id.btnRotacionarEsquerda);
+        btnRotacionarEsquerda = findViewById(R.id.btnRotacionarEsquerda);
         btnRotacionarEsquerda.setOnClickListener(this);
-        btnRotacionarDireita = (ImageButton) findViewById(R.id.btnRotacionarDireita);
+        btnRotacionarDireita = findViewById(R.id.btnRotacionarDireita);
         btnRotacionarDireita.setOnClickListener(this);
-        btnPausar = (ImageButton) findViewById(R.id.btnPausar);
+        btnPausar = findViewById(R.id.btnPausar);
         btnPausar.setOnClickListener(this);
-        btnFinalizar = (Button) findViewById(R.id.btnFinalizar);
+        btnFinalizar = findViewById(R.id.btnFinalizar);
         btnFinalizar.setOnClickListener(this);
-        btnSnapshot = (ImageButton) findViewById(R.id.btnSnapshot);
+        btnSnapshot = findViewById(R.id.btnSnapshot);
         btnSnapshot.setOnClickListener(this);
-        btnAdicionarJogada = (ImageButton) findViewById(R.id.btnAdicionarPedra);
+        btnAdicionarJogada = findViewById(R.id.btnAdicionarPedra);
         btnAdicionarJogada.setOnClickListener(this);
         btnToggleCornerTracking = findViewById(R.id.btnToggleCornerTracking);
         btnToggleCornerTracking.setOnClickListener(this);
@@ -270,7 +270,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         Mat imagemFonte = inputFrame.rgba();
 
-        updateCornerPositions(imagemFonte);
+        if (isCornerTrackingActive) {
+            updateCornerPositions(imagemFonte);
+        }
 
         if (state == STATE_LOOKING_FOR_BOARD) {
             logger.addToLog("Board is not inside contour");
@@ -282,7 +284,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             return imagemFonte;
         }
 
-        // Throttling, processa 2 vezes por segundo
+        // Throttling, processes twice per second
         if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
             tabuleiroOrtogonal.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
             Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
@@ -620,7 +622,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnPausar.setImageResource(isCornerTrackingActive ? R.drawable.add: R.drawable.add);
+                btnPausar.setImageResource(isCornerTrackingActive ? R.drawable.corner_tracking_active: R.drawable.corner_tracking_inactive);
             }
         });
     }

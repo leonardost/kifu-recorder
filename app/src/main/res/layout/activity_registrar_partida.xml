@@ -30,11 +30,6 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/snapshot" />
         </LinearLayout>
-        <ImageButton
-            android:id="@+id/btnVoltarUltimaJogada"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/undo" />
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -50,11 +45,21 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/rotate_right" />
         </LinearLayout>
-        <ImageButton
-            android:id="@+id/btnPausar"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/pause" />
+            android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/btnVoltarUltimaJogada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/undo" />
+            <ImageButton
+                android:id="@+id/btnPausar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/play" />
+        </LinearLayout>
         <Button
             android:id="@+id/btnFinalizar"
             android:layout_width="wrap_content"
@@ -71,14 +76,14 @@
             android:orientation="horizontal">
             <ImageButton
                 android:id="@+id/btnResetBoardPosition"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/add" />
+                android:src="@drawable/reset_board_position" />
             <ImageButton
                 android:id="@+id/btnToggleCornerTracking"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/add" />
+                android:src="@drawable/corner_tracking_inactive" />
         </LinearLayout>
 
     </LinearLayout>
