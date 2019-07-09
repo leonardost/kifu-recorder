@@ -54,7 +54,7 @@ public class BoardDetectorByQuadrilateralCounting implements BoardDetectorInterf
         List<MatOfPoint> quadrilaterals = detectQuadrilateralsAmong(contours);
         outputImageWithQuadrilaterals(ortogonalBoardImage, quadrilaterals);
 
-        System.out.println("Number of quadrilaterals found: " + quadrilaterals.size());
+//        System.out.println("Number of quadrilaterals found: " + quadrilaterals.size());
 
         return quadrilaterals.size();
     }

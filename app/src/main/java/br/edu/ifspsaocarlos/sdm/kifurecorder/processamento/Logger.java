@@ -111,22 +111,21 @@ public class Logger {
     }
 
     public void log() {
-
         addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
         addToLog();
 
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
 
         if (shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE)) {
-            fileHelper.writeJpgImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera"));
+            fileHelper.writePngImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera"));
         }
 
         if (shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR)) {
-            fileHelper.writeJpgImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera_com_contorno"));
+            fileHelper.writePngImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera_com_contorno"));
         }
 
         if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE)) {
-            fileHelper.writeJpgImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
+            fileHelper.writePngImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
         }
 
         writeToLogFile();

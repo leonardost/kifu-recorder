@@ -364,14 +364,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (boardDetector.isBoardContainedIn(ortogonalBoardImage) && wereAllCornersFound) {
             logger.addToLog("Board is inside countour");
-//            System.out.println("Board is inside countour");
             int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
             logger.addToLog("Number of corners that moved: " + numberOfCornersThatMoved);
-            System.out.println("Number of corners that moved: " + numberOfCornersThatMoved);
             double[] distanceToNewPoint = new double[4];
             for (int i = 0; i < 4; i++) {
                 distanceToNewPoint[i] = possibleNewCorners[i].distanceTo(boardCorners[i]);
-                System.out.println("Distance to old corner point " + (i + 1) + " = " + distanceToNewPoint[i]);
+                logger.addToLog("Distance to old corner point " + (i + 1) + " = " + distanceToNewPoint[i]);
             }
 
             for (int i = 0; i < 4; i++) {
@@ -398,10 +396,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             state = STATE_RUNNING;
         } else {
             state = STATE_LOOKING_FOR_BOARD;
-            System.out.println("Board is NOT inside countour");
+            logger.addToLog("Board is NOT inside countour");
         }
 
-//        logger.logNumberOfQuadrilateralsFoundByBoardDetector(boardDetector.getNumberOfQuadrilateralsFound());
         logger.logCornerPositions(boardCorners);
     }
 
