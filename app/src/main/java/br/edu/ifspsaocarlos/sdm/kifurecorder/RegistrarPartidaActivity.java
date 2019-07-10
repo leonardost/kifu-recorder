@@ -147,6 +147,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         boardCorners[3] = new Corner(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
         cornerDetector = new CornerDetector[4];
         for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+            cornerDetector[cornerIndex] = new CornerDetector();
             cornerDetector[cornerIndex].setCorner(boardCorners[cornerIndex]);
             cornerDetector[cornerIndex].setCornerIndex(cornerIndex + 1);
         }
@@ -277,7 +278,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         if (state == STATE_LOOKING_FOR_BOARD) {
             logger.addToLog("Board is not inside contour");
             logger.addToLog("");
-            tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+            if (tabuleiroOrtogonal != null) {
+                tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+            }
             Desenhista.drawLostBoardContour(originalImage, contornoDoTabuleiro);
             Desenhista.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
             logger.log();
@@ -286,7 +289,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         // Throttling, processes twice per second
         if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
-            tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+            if (tabuleiroOrtogonal != null) {
+                tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+            }
             Desenhista.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
             Desenhista.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
             logger.log();
@@ -335,7 +340,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         logger.setCameraImageWithBoardContour(originalImage.clone());
 
         // Desenha o tabuleiro ortogonal na tela
-        tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+        if (tabuleiroOrtogonal != null) {
+            tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+        }
 
         if (paused) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
@@ -360,9 +367,11 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             }
         }
 
-        Mat ortogonalBoardImage = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
+        Mat ortogonalBoardImage = wereAllCornersFound
+            ? ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners)
+            : null;
 
-        if (boardDetector.isBoardContainedIn(ortogonalBoardImage) && wereAllCornersFound) {
+        if (wereAllCornersFound && boardDetector.isBoardContainedIn(ortogonalBoardImage)) {
             logger.addToLog("Board is inside countour");
             int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
             logger.addToLog("Number of corners that moved: " + numberOfCornersThatMoved);
