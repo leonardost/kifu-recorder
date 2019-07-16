@@ -173,16 +173,14 @@ public class FileHelper {
         }
     }
 
-    public void writeJpgImage(Mat image, int colorConversionCode, String filename) {
-        Mat correctColorFormatImage = new Mat();
-        Imgproc.cvtColor(image, correctColorFormatImage, colorConversionCode);
-        Imgcodecs.imwrite(getFile(filename, "jpg").getAbsolutePath(), correctColorFormatImage);
-    }
-
     public void writePngImage(Mat image, int colorConversionCode, String filename) {
         Mat correctColorFormatImage = new Mat();
         Imgproc.cvtColor(image, correctColorFormatImage, colorConversionCode);
         Imgcodecs.imwrite(getFile(filename, "png").getAbsolutePath(), correctColorFormatImage);
+    }
+
+    public void writePngImage(Mat image, String filename) {
+        Imgcodecs.imwrite(getFile(filename, "png").getAbsolutePath(), image);
     }
 
 }
