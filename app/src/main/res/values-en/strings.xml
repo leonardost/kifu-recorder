@@ -35,4 +35,7 @@
     <string name="creditos_titulo">Development</string>
     <string name="desenvolvimento">This project was initially developed as a conclusion project for IFSP\'s São Carlos campus\'s specialization course in Systems Development for Mobile Devices. It is open-source and its code can be found at https://github.com/leonardost/kifu-recorder/.</string>
     <string name="btn_creditos">Credits</string>
+    <string name="toast_activate_corner_tracking">Activated board tracking</string>
+    <string name="toast_deactivate_corner_tracking">Inactivated board tracking</string>
+    <string name="toast_restore_original_corner_positions">Restored original board position</string>
 </resources>

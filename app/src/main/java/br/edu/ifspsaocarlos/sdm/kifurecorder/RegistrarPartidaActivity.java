@@ -14,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -22,6 +23,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.imgproc.Imgproc;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
@@ -192,6 +194,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         fileHelper = new FileHelper(partida);
         logger = new Logger(partida, fileHelper);
+
+        for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
+            cornerDetector[cornerIndex].setFileHelper(fileHelper);
+        }
     }
 
     private void processBoardCorners() {
@@ -266,13 +272,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
         logger.startLoggingFrame();
-        logger.setStartProcessingTime(System.currentTimeMillis());
         logger.setCameraFrame(inputFrame.rgba().clone());
 
         Mat originalImage = inputFrame.rgba();
 
         if (isCornerTrackingActive) {
-            updateCornerPositions(originalImage);
+            for (int i = 0; i < 4; i++) {
+                cornerDetector[i].setImageIndex((int)logger.getFrameNumber());
+            }
+            updateCornerPositions(originalImage.clone());
         }
 
         if (state == STATE_LOOKING_FOR_BOARD) {
@@ -358,10 +366,20 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void updateCornerPositions(Mat image) {
+        Imgproc.cvtColor(image, image, Imgproc.COLOR_RGBA2BGR);
+
         Corner[] possibleNewCorners = new Corner[4];
         boolean wereAllCornersFound = true;
         for (int i = 0; i < 4; i++) {
+            long start = System.currentTimeMillis();
             possibleNewCorners[i] = cornerDetector[i].detectCornerIn(image);
+            long duration = System.currentTimeMillis() - start;
+            if (possibleNewCorners[i] != null) {
+                logger.addToLog(possibleNewCorners[i].toString());
+            } else {
+                logger.addToLog("Corner " + i + " was not found");
+            }
+            logger.addToLog("Time to process corner " + i + " = " + duration + "ms");
             if (possibleNewCorners[i] == null) {
                 wereAllCornersFound = false;
             }
@@ -399,6 +417,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 }
 
                 boardCorners[i] = possibleNewCorners[i];
+                cornerDetector[i].setCorner(possibleNewCorners[i]);
             }
 
             processBoardCorners();
@@ -406,6 +425,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         } else {
             state = STATE_LOOKING_FOR_BOARD;
             logger.addToLog("Board is NOT inside countour");
+            logger.addToLog("were all corners found = " + wereAllCornersFound);
         }
 
         logger.logCornerPositions(boardCorners);
@@ -630,15 +650,27 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnPausar.setImageResource(isCornerTrackingActive ? R.drawable.corner_tracking_active: R.drawable.corner_tracking_inactive);
+                btnToggleCornerTracking.setImageResource(isCornerTrackingActive ? R.drawable.corner_tracking_active: R.drawable.corner_tracking_inactive);
+                Toast.makeText(
+                    RegistrarPartidaActivity.this,
+                    isCornerTrackingActive ? R.string.toast_activate_corner_tracking : R.string.toast_deactivate_corner_tracking,
+                    Toast.LENGTH_LONG
+                ).show();
             }
         });
     }
 
 	private void resetCornersToTheirOriginalPositions() {
+	    logger.addToLog("Resetting corners to their original positions");
 	    for (int i = 0; i < 4; i++) {
 	        boardCorners[i].set(originalBoardCorners[i]);
         }
+        Toast.makeText(
+            RegistrarPartidaActivity.this,
+            R.string.toast_restore_original_corner_positions,
+            Toast.LENGTH_LONG
+        ).show();
+        processBoardCorners();
     }
 
 }

@@ -79,6 +79,9 @@
     <string name="dialog_voltar_ultima_jogada">Deseja voltar a última jogada?</string>
     <string name="dialog_finalizar_registro">Deseja finalizar o registro da partida?</string>
     <string name="dialog_adicionar_jogada">Adicionar jogada à partida</string>
+    <string name="toast_activate_corner_tracking">Tracking do tabuleiro ativado</string>
+    <string name="toast_deactivate_corner_tracking">Tracking do tabuleiro desativado</string>
+    <string name="toast_restore_original_corner_positions">Posição original do tabuleiro restaurada</string>
 
     <string name="sim">Sim</string>
     <string name="nao">Não</string>
