@@ -53,8 +53,13 @@ public class Logger {
         logFile = fileHelper.getFile("", "log");
     }
 
+    public long getFrameNumber() {
+        return frameNumber;
+    }
+
     public void startLoggingFrame() {
         frameNumber++;
+        startProcessingTime = System.currentTimeMillis();
         logText = new StringBuilder();
         addToLog("===============================");
         addToLog("Frame " + frameNumber);
@@ -67,10 +72,6 @@ public class Logger {
 
     public void addToLog(String text) {
         logText.append(text + "\n");
-    }
-
-    public void setStartProcessingTime(long time) {
-        this.startProcessingTime = time;
     }
 
     public void setCameraFrame(Mat cameraFrame) {
@@ -116,15 +117,15 @@ public class Logger {
 
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
 
-        if (shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE)) {
+        if (shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE) && cameraFrame != null) {
             fileHelper.writePngImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera"));
         }
 
-        if (shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR)) {
+        if (shouldLog(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR) && cameraImageWithBoardContour != null) {
             fileHelper.writePngImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera_com_contorno"));
         }
 
-        if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE)) {
+        if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE) && ortogonalBoardImage != null) {
             fileHelper.writePngImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
         }
 
