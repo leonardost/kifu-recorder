@@ -529,6 +529,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     private void rotacionar(int direcao) {
         Corner[] cantosDoTabuleiroRotacionados = new Corner[4];
+        for (int i = 0; i < 4; i++) {
+            cantosDoTabuleiroRotacionados[i] = new Corner();
+        }
 
 		// Anti-horário
         if (direcao == -1) {
@@ -601,22 +604,22 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         final EditText input = new EditText(RegistrarPartidaActivity.this);
 
         dialogo.setTitle(R.string.dialog_adicionar_jogada)
-                .setMessage(getString(R.string.dialog_adicionar_jogada))
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                        Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
-                        if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
-                            novaJogadaFoiAdicionada();
-                            partida.adicionouJogadaManualmente();
+            .setMessage(getString(R.string.dialog_adicionar_jogada))
+            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
+                    Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
+                    if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
+                        novaJogadaFoiAdicionada();
+                        partida.adicionouJogadaManualmente();
 //                            adicionarAoLog("Jogada " + adicionadaManualmente + " foi adicionada manualmente.\n\n");
-                        }
                     }
-                })
-                .setNegativeButton(R.string.nao, null)
-                .setView(input)
-                .show();
+                }
+            })
+            .setNegativeButton(R.string.nao, null)
+            .setView(input)
+            .show();
     }
     
     private Jogada processarJogadaManual(String textoJogada) {

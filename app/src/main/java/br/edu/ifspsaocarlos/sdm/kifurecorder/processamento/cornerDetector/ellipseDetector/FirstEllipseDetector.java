@@ -79,8 +79,8 @@ public class FirstEllipseDetector implements EllipseDetectorInterface {
 
             // Let's increase the ellipse size to encompass the entire stone and some more
             // The perspective should be taken into account here, but let's leave it like this for now
-            ellipse.size.width *= 1.4;
-            ellipse.size.height *= 1.3;
+            ellipse.size.width *= 1.2;
+            ellipse.size.height *= 1.1;
             ellipses.add(ellipse);
             Imgproc.ellipse(imageWithEllipses, ellipse, new Scalar(0, 255, 0));
         }
