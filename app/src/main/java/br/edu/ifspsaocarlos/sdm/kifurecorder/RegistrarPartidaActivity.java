@@ -23,6 +23,7 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
@@ -34,6 +35,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Logger;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
@@ -201,19 +203,24 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void processBoardCorners() {
+        Point[] cornerPoints = new Point[4];
+        for (int i = 0; i < 4; i++) {
+            if (boardCorners[i] instanceof Corner) {
+                Ponto ponto = boardCorners[i].getRealCornerPosition();
+                cornerPoints[i] = new Point(ponto.x, ponto.y);
+            } else {
+                cornerPoints[i] = new Point(boardCorners[i].getX(), boardCorners[i].getY());
+            }
+        }
+
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
         posicaoDoTabuleiroNaImagem.put(0, 0,
-                boardCorners[0].getX(), boardCorners[0].getY(),
-                boardCorners[1].getX(), boardCorners[1].getY(),
-                boardCorners[2].getX(), boardCorners[2].getY(),
-                boardCorners[3].getX(), boardCorners[3].getY());
+                cornerPoints[0].x, cornerPoints[0].y,
+                cornerPoints[1].x, cornerPoints[1].y,
+                cornerPoints[2].x, cornerPoints[2].y,
+                cornerPoints[3].x, cornerPoints[3].y);
 
-        org.opencv.core.Point[] cantos = new org.opencv.core.Point[4];
-        cantos[0] = new org.opencv.core.Point(boardCorners[0].getX(), boardCorners[0].getY());
-        cantos[1] = new org.opencv.core.Point(boardCorners[1].getX(), boardCorners[1].getY());
-        cantos[2] = new org.opencv.core.Point(boardCorners[2].getX(), boardCorners[2].getY());
-        cantos[3] = new org.opencv.core.Point(boardCorners[3].getX(), boardCorners[3].getY());
-        contornoDoTabuleiro = new MatOfPoint(cantos);
+        contornoDoTabuleiro = new MatOfPoint(cornerPoints);
     }
 
     @Override
