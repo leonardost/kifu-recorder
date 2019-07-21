@@ -40,11 +40,14 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabule
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.CornerDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.similarityCalculator.FingerprintMatching;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.similarityCalculator.SimilarityCalculatorInterface;
 
 public class RegistrarPartidaActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
     public static int STATE_RUNNING = 1;
     public static int STATE_LOOKING_FOR_BOARD = 2;
+    private static int MOVEMENT_THRESHOLD = 10;
     private int state;
 
     Logger logger;
@@ -64,6 +67,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     long momentoDoUltimoProcessamentoDeImagem;
     long tempoDesdeUltimoProcessamentoDeImagem;
     boolean isCornerTrackingActive = true;
+    Mat lastValidOrtogonalBoardImage = null;
+    SimilarityCalculatorInterface fingerprintMatching = new FingerprintMatching();
+
+    // This array stores the number of frames that each corner has stayed without
+    // ellipses being detected over them. This is used for false positive checking
+    int[] numberOfFramesWithoutStone = { 0, 0, 0, 0 };
 
     // Domain objects
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
@@ -400,6 +409,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             logger.addToLog("Board is inside countour");
             int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
             logger.addToLog("Number of corners that moved: " + numberOfCornersThatMoved);
+            int numberOfEmptyCornersThatMoved = getNumberOfEmptyCornersThatMoved(possibleNewCorners, boardCorners);
+            logger.addToLog("Number of empty corners that moved: " + numberOfCornersThatMoved);
             double[] distanceToNewPoint = new double[4];
             for (int i = 0; i < 4; i++) {
                 distanceToNewPoint[i] = possibleNewCorners[i].distanceTo(boardCorners[i]);
@@ -422,9 +433,43 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     // don't update the corners's relative position to the real corners
                     possibleNewCorners[i].displacementToRealCorner = boardCorners[i].displacementToRealCorner;
                 }
+            }
 
-                boardCorners[i] = possibleNewCorners[i];
-                cornerDetector[i].setCorner(possibleNewCorners[i]);
+            Mat ortogonalBoardImage2 = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
+            double similarity = lastValidOrtogonalBoardImage != null ? fingerprintMatching.calculateSimilatiryBetween(lastValidOrtogonalBoardImage, ortogonalBoardImage2) : -1;
+            logger.addToLog("Similarity between new ortogonal board image to last valid one = " + similarity);
+
+            if (lastValidOrtogonalBoardImage == null || fingerprintMatching.areImagesSimilar(lastValidOrtogonalBoardImage, ortogonalBoardImage2)) {
+                logger.addToLog("New ortogonal board image is similar to last valid one");
+                for (int i = 0; i < 4; i++) {
+                    if (!possibleNewCorners[i].isStone) {
+                        numberOfFramesWithoutStone[i]++;
+                    } else {
+                        numberOfFramesWithoutStone[i] = 0;
+                    }
+
+                    if (!boardCorners[i].isStone && !possibleNewCorners[i].isStone && numberOfCornersThatMoved < 3 && numberOfEmptyCornersThatMoved == 1) {
+                        // This means a single empty corner moved by itself, which is not possible. This addresses a wrong
+                        // corner detection in frame 70 of sequence 16.
+                        logger.addToLog("Corner " + i + " - This empty corner moved by itself");
+                        continue;
+                    }
+                    if (!possibleNewCorners[i].isStone && boardCorners[i].isStone && possibleNewCorners[i].distanceTo(boardCorners[i].getRealCornerPosition()) > MOVEMENT_THRESHOLD
+                            // This condition should be time based instead of frame based, something like 2 or 3 seconds or so
+                            && numberOfFramesWithoutStone[i] < 5
+                    ) {
+                        // If a corner was a stone and is not anymore, the new empty corner should match the real corner
+                        // position that the stone was on. This addresses a wrong corner detection in frame 74 of sequence 14.
+                        logger.addToLog("Corner " + i + " - This now empty corner is in a wrong position");
+                        logger.addToLog("Number of frames without stone = " + numberOfFramesWithoutStone[i]);
+                        continue;
+                    }
+                    boardCorners[i] = possibleNewCorners[i];
+                    cornerDetector[i].setCorner(possibleNewCorners[i]);
+                }
+                lastValidOrtogonalBoardImage = ortogonalBoardImage2.clone();
+            } else {
+                logger.addToLog("New ortogonal board image is NOT similar to last valid one");
             }
 
             processBoardCorners();
@@ -438,15 +483,26 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         logger.logCornerPositions(boardCorners);
     }
 
-    private static int getNumberOfCornersThatMoved(Corner[] possibleNewCorners, Corner[] corners) {
-        int MOVEMENT_THRESHOULD = 10;
+    private int getNumberOfCornersThatMoved(Corner[] possibleNewCorners, Corner[] corners) {
         int numberOfCornersThatMoved = 0;
         for (int i = 0; i < 4; i++) {
-            if (possibleNewCorners[i].distanceTo(corners[i]) > MOVEMENT_THRESHOULD) {
+            if (possibleNewCorners[i].distanceTo(corners[i]) > MOVEMENT_THRESHOLD) {
                 numberOfCornersThatMoved++;
             }
         }
         return numberOfCornersThatMoved;
+    }
+
+    private int getNumberOfEmptyCornersThatMoved(Corner[] possibleNewCorners, Corner[] corners) {
+        int numberOfEmptyCornersThatMoved = 0;
+        for (int i = 0; i < 4; i++) {
+            if (!possibleNewCorners[i].isStone
+                    // && !corners[i].isStone
+                    && possibleNewCorners[i].distanceTo(corners[i]) > MOVEMENT_THRESHOLD) {
+                numberOfEmptyCornersThatMoved++;
+            }
+        }
+        return numberOfEmptyCornersThatMoved;
     }
 
     public void onClick(View v) {
