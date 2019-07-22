@@ -48,4 +48,36 @@
         android:gravity="fill_horizontal"
         android:paddingTop="16dp" />
 
+    <TextView
+        android:text="@string/instrucoes_novidades1"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="fill_horizontal"
+        android:paddingTop="32dp"/>
+    <TextView
+        android:text="@string/instrucoes_novidades2"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="fill_horizontal"
+        android:paddingTop="16dp"/>
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/reset_board_position"/>
+    <TextView
+        android:text="@string/instrucoes_novidades3"
+        android:textColor="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="fill_horizontal"
+        android:paddingTop="16dp"/>
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:src="@drawable/corner_tracking_active"/>
+
 </LinearLayout>

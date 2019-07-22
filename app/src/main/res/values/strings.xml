@@ -13,7 +13,7 @@
     <string name="btn_instrucoes">Instruções</string>
     <string name="btn_creditos">Créditos</string>
     <string name="btn_politica_de_privacidade">Política de privacidade</string>
-    <string name="lbl_copyright" translatable="false">(c) 2018 LST</string>
+    <string name="lbl_copyright" translatable="false">(c) 2019 LST</string>
 
     <string name="instrucoes_titulo">Instruções</string>
     <string name="instrucoes_paragrafo1">
@@ -21,9 +21,8 @@
         Quanto maior o ângulo de visão, melhor.
     </string>
     <string name="instrucoes_paragrafo2">
-        Durante o registro da partida, não mova o celular nem o tabuleiro. Mesmo pequenas
-        movimentações podem atrapalhar. Quando uma jogada é detectada, o app emite um bipe
-        sonoro.
+        Inicialmente, é feita a detecção do tabuleiro. Em seguida, o aplicativo irá iniciar
+        a detecção das jogadas. Quando uma jogada é detectada, o app emite um bipe sonoro.
     </string>
     <string name="instrucoes_paragrafo3">
         Se uma jogada errada foi detectada, clique no botão "voltar" na interface e deixe o
@@ -31,7 +30,20 @@
     </string>
     <string name="instrucoes_paragrafo4">
         Sua partida será salva em uma pasta chamada "kifu_recorder" no sistema de arquivos do
-        celular.
+        seu dispositivo móvel.
+    </string>
+
+    <string name="instrucoes_novidades1">
+        NOVIDADES DA VERSÃO 1.2.0
+    </string>
+    <string name="instrucoes_novidades2">
+        A partir desta versão, o aplicativo permite pequenas movimentações da câmera e/ou do
+        tabuleiro. Contudo, essa feature ainda é experimental e erros podem ocorrer nesse processo.
+        Se a borda do tabuleiro ficar muito fora da posição real, use o botão "Resetar posição do tabuleiro":
+    </string>
+    <string name="instrucoes_novidades3">
+        Se achar que o tracking da posição do tabuleiro está insatisfatório, ele pode ser desligado
+        apertando o botão "Desativar tracking do taubleiro":
     </string>
 
     <string name="creditos_titulo">Desenvolvimento</string>

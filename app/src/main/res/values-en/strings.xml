@@ -25,9 +25,23 @@
     <string name="sim">Yes</string>
     <string name="nao">No</string>
     <string name="instrucoes_paragrafo1">Fix you cellphone in a way that its camera has complete vision of the Go board. The higher the vision angle, the better.</string>
-    <string name="instrucoes_paragrafo2">During game recording, don\'t move the phone or the board. Even little movements can interfere. When a move is detected, a beep is emitted.</string>
+    <string name="instrucoes_paragrafo2">Initially,  the board position is detected. Next, the app will start detecting moves. When a move is detected, the app emits a beep.</string>
     <string name="instrucoes_paragrafo3">If a wrong move was detected, click on the \"undo\" button on the interface and let the app try again.</string>
-    <string name="instrucoes_paragrafo4">Your game will be saved in a folder called \"kifu_recorder\" in your phone\'s filesystem.</string>
+    <string name="instrucoes_paragrafo4">Your game will be saved in a folder called \"kifu_recorder\" in your mobile devices\'s filesystem.</string>
+
+    <string name="instrucoes_novidades1">
+        WHAT\'S NEW IN VERSION 1.2.0
+    </string>
+    <string name="instrucoes_novidades2">
+        From this version on, the app allows small camera and board movements. However, this is still
+        an experimental feature and errors might occur in the process. If the board contour strays too
+        far from its real position, use the "Reset board position" button:
+    </string>
+    <string name="instrucoes_novidades3">
+        If you think board position tracking is not working well, it can be deactivated by pressing
+        the "Toggle board tracking" button:
+    </string>
+
     <string name="politica_de_privacidade1">Kifu Recorder is a free app that uses your mobile device\'s camera to record Go games and only that. No personal information of the user is collected, stored or distributed in any form or means. The detected games and screenshots are stored in the mobile device itself, being the user\'s concern to take care of them.</string>
     <string name="politica_de_privacidade2">This privacy policy can be updated in future versions of the app.</string>
     <string name="politica_de_privacidade3">"If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com "</string>
