@@ -214,12 +214,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void processBoardCorners() {
         Point[] cornerPoints = new Point[4];
         for (int i = 0; i < 4; i++) {
-            if (boardCorners[i] instanceof Corner) {
-                Ponto ponto = boardCorners[i].getRealCornerPosition();
-                cornerPoints[i] = new Point(ponto.x, ponto.y);
-            } else {
-                cornerPoints[i] = new Point(boardCorners[i].getX(), boardCorners[i].getY());
-            }
+            Ponto ponto = boardCorners[i].getRealCornerPosition();
+            cornerPoints[i] = new Point(ponto.x, ponto.y);
         }
 
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
@@ -596,22 +592,26 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             cantosDoTabuleiroRotacionados[i] = new Corner();
         }
 
-		// Anti-horário
+        // Counter-clockwise
         if (direcao == -1) {
-            cantosDoTabuleiroRotacionados[0].set(boardCorners[1]);
-            cantosDoTabuleiroRotacionados[1].set(boardCorners[2]);
-            cantosDoTabuleiroRotacionados[2].set(boardCorners[3]);
-            cantosDoTabuleiroRotacionados[3].set(boardCorners[0]);
+            cantosDoTabuleiroRotacionados[0] = boardCorners[1];
+            cantosDoTabuleiroRotacionados[1] = boardCorners[2];
+            cantosDoTabuleiroRotacionados[2] = boardCorners[3];
+            cantosDoTabuleiroRotacionados[3] = boardCorners[0];
         }
-        // Horário
+        // Clockwise
         else if (direcao == 1) {
-            cantosDoTabuleiroRotacionados[0].set(boardCorners[3]);
-            cantosDoTabuleiroRotacionados[1].set(boardCorners[0]);
-            cantosDoTabuleiroRotacionados[2].set(boardCorners[1]);
-            cantosDoTabuleiroRotacionados[3].set(boardCorners[2]);
+            cantosDoTabuleiroRotacionados[0] = boardCorners[3];
+            cantosDoTabuleiroRotacionados[1] = boardCorners[0];
+            cantosDoTabuleiroRotacionados[2] = boardCorners[1];
+            cantosDoTabuleiroRotacionados[3] = boardCorners[2];
         }
 
         boardCorners = cantosDoTabuleiroRotacionados;
+        for (int i = 0; i < 4; i++) {
+            cornerDetector[i].setCorner(boardCorners[i]);
+        }
+
         processBoardCorners();
 
         partida.rotacionar(direcao);

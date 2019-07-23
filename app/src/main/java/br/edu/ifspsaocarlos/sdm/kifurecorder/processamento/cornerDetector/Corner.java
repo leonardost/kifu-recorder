@@ -13,6 +13,7 @@ public class Corner {
 
     public Corner() {
         displacementToRealCorner = new Ponto(0, 0);
+        position = new Ponto(0, 0);
         isStone = false;
     }
 
@@ -37,8 +38,10 @@ public class Corner {
     }
 
     public void set(Corner corner) {
-        position = corner.position;
-        displacementToRealCorner = corner.displacementToRealCorner;
+        position.x = corner.position.x;
+        position.y = corner.position.y;
+        displacementToRealCorner.x = corner.displacementToRealCorner.x;
+        displacementToRealCorner.y = corner.displacementToRealCorner.y;
         isStone = corner.isStone;
         stonePosition = corner.stonePosition;
     }
