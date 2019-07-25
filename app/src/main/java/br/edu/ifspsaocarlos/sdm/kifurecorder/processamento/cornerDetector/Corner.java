@@ -54,10 +54,6 @@ public class Corner {
         return position.distanceTo(point);
     }
 
-    public double manhattanDistanceTo(Corner otherCorner) {
-        return position.manhattanDistanceTo(otherCorner.position);
-    }
-
     public void updateDisplacementVectorRelativeTo(Ponto point) {
         displacementToRealCorner = new Ponto(position.x, position.y);
         displacementToRealCorner.x -= point.x;
