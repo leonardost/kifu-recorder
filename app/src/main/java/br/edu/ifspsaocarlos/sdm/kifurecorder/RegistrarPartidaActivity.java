@@ -79,6 +79,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
     Corner[] boardCorners;
     Corner[] originalBoardCorners;
+    Mat cameraFrame;
     Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
 	MatOfPoint contornoDoTabuleiro;
@@ -287,6 +288,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         logger.startLoggingFrame();
         logger.setCameraFrame(inputFrame.rgba().clone());
 
+        cameraFrame = inputFrame.rgba();
         Mat originalImage = inputFrame.rgba();
 
         if (isCornerTrackingActive) {
@@ -567,7 +569,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                         tempoDesdeUltimaMudancaDeTabuleiro = 0;
                         momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
                         atualizarBotaoDeVoltar();
-//                        adicionarAoLog("Voltando jogada " + removida + "\n\n");
+                        logger.addToLog("Undoing last move " + removida);
                     }
                 })
                 .setNegativeButton(R.string.nao, null)
@@ -575,25 +577,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void takeSnapshot() {
-//        try {
-//
-//            Mat imagemFormatoDeCorCerto = new Mat();
-//            Imgproc.cvtColor(tabuleiroOrtogonal, imagemFormatoDeCorCerto, Imgproc.COLOR_RGBA2BGR);
-//            Imgcodecs.imwrite(getFile("jpg").getAbsolutePath(), imagemFormatoDeCorCerto);
-//
-//            if (DEBUG) {
-//                FileOutputStream fos = new FileOutputStream(getFile("txt"), false);
-//                fos.write(snapshotAtual.getBytes());
-//                fos.flush();
-//                fos.close();
-//            }
-//
-//            Toast.makeText(RegistrarPartidaActivity.this, "Snapshot salva no arquivo: " + getFile("jpg").getName() + ".", Toast.LENGTH_LONG).show();
-//            Log.i(TestesActivity.TAG, "Snapshot salva: " + getFile("txt").getName() + " com conteúdo " + snapshotAtual);
-//        }
-//        catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        logger.takeSnapshot(cameraFrame, tabuleiroOrtogonal);
+        Toast.makeText(RegistrarPartidaActivity.this, R.string.toast_save_snapshot, Toast.LENGTH_SHORT).show();
     }
 
     private void rotate(int direction) {
@@ -689,7 +674,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
                         novaJogadaFoiAdicionada();
                         partida.adicionouJogadaManualmente();
-//                            adicionarAoLog("Jogada " + adicionadaManualmente + " foi adicionada manualmente.\n\n");
+                        logger.addToLog("Move " + adicionadaManualmente + " was manually added");
                     }
                 }
             })

@@ -84,9 +84,7 @@ public class CornerDetector {
             System.out.println(point);
             Imgproc.circle(imageWithCornersPlotted, new Point(point.getX(), point.getY()), 1, new Scalar(0, 0, 255), -1);
         }
-//        Imgcodecs.imwrite("processing/corner" + cornerIndex + "_frame" + imageIndex + "_candidate_corners.png", imageWithCornersPlotted);
         fileHelper.writePngImage(imageWithCornersPlotted, "corner" + cornerIndex + "_frame" + imageIndex + "_candidate_corners");
-//        fileHelper.writePngImage(imageWithCornersPlotted, Imgproc.COLOR_RGBA2BGR, "corner" + cornerIndex + "_frame" + imageIndex + "_candidate_corners");
 
         List<Corner> candidateCorners = new ArrayList<>();
         candidateCorners.addAll(candidateCornerHarris);

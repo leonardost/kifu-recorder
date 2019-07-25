@@ -38,6 +38,8 @@ public class Logger {
     private StringBuilder logText;
     private FileHelper fileHelper;
     private long startProcessingTime;
+    private boolean isActive = true;
+    private boolean shouldSaveImages = false;
 
     private Mat cameraFrame;
     private Mat cameraImageWithBoardContour;
@@ -122,10 +124,14 @@ public class Logger {
     }
 
     public void log() {
+        if (!isActive) return;
+
         addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
         addToLog();
-
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
+        writeToLogFile();
+
+        if (!shouldSaveImages) return;
 
         if (shouldLog(LoggingConfiguration.RAW_CAMERA_IMAGE) && cameraFrame != null) {
             fileHelper.writePngImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera"));
@@ -142,11 +148,10 @@ public class Logger {
         if (ortogonalBoardImage2 != null) {
             fileHelper.writePngImage(ortogonalBoardImage2, Imgproc.COLOR_RGBA2BGR, generateImageFilename("segundo_tabuleiro_ortogonal"));
         }
+
         if (lastValidOrtogonalBoardImage != null) {
             fileHelper.writePngImage(lastValidOrtogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("ultimo_tabuleiro_valido"));
         }
-
-        writeToLogFile();
     }
 
     private boolean shouldLog(int flag) {
@@ -165,6 +170,11 @@ public class Logger {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void takeSnapshot(Mat cameraFrame, Mat ortogonalBoard) {
+        fileHelper.writePngImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("snapshot_camera"));
+        fileHelper.writePngImage(ortogonalBoard, Imgproc.COLOR_RGBA2BGR, generateImageFilename("snapshot_ortogonal_board"));
     }
 
 }

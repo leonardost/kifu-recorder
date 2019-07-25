@@ -52,4 +52,5 @@
     <string name="toast_activate_corner_tracking">Activated board tracking</string>
     <string name="toast_deactivate_corner_tracking">Inactivated board tracking</string>
     <string name="toast_restore_original_corner_positions">Restored original board position</string>
+    <string name="toast_save_snapshot">Saved snapshot</string>
 </resources>

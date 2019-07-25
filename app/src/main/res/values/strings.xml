@@ -94,6 +94,7 @@
     <string name="toast_activate_corner_tracking">Tracking do tabuleiro ativado</string>
     <string name="toast_deactivate_corner_tracking">Tracking do tabuleiro desativado</string>
     <string name="toast_restore_original_corner_positions">Posição original do tabuleiro restaurada</string>
+    <string name="toast_save_snapshot">Snapshot salva</string>
 
     <string name="sim">Sim</string>
     <string name="nao">Não</string>
