@@ -42,6 +42,8 @@ public class Logger {
     private Mat cameraFrame;
     private Mat cameraImageWithBoardContour;
     private Mat ortogonalBoardImage;
+    private Mat ortogonalBoardImage2;
+    private Mat lastValidOrtogonalBoardImage;
     private Partida partida;
 
     private File logFile;
@@ -86,6 +88,14 @@ public class Logger {
         this.ortogonalBoardImage = image;
     }
 
+    public void setOrtogonalBoardImage2(Mat image) {
+        this.ortogonalBoardImage2 = image;
+    }
+
+    public void setLastValidOrtogonalBoardImage(Mat image) {
+        this.lastValidOrtogonalBoardImage = image;
+    }
+
     public void logCornerPositions(Corner[] cornerPositions) {
         if (shouldLog(LoggingConfiguration.CORNER_POSITIONS)) {
             addToLog("Corner positions:");
@@ -127,6 +137,13 @@ public class Logger {
 
         if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE) && ortogonalBoardImage != null) {
             fileHelper.writePngImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
+        }
+
+        if (ortogonalBoardImage2 != null) {
+            fileHelper.writePngImage(ortogonalBoardImage2, Imgproc.COLOR_RGBA2BGR, generateImageFilename("segundo_tabuleiro_ortogonal"));
+        }
+        if (lastValidOrtogonalBoardImage != null) {
+            fileHelper.writePngImage(lastValidOrtogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("ultimo_tabuleiro_valido"));
         }
 
         writeToLogFile();
