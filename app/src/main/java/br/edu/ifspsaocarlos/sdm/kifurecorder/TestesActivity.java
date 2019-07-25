@@ -31,7 +31,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
 
 public class TestesActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2 {

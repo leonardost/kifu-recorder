@@ -36,7 +36,6 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Logger;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.LoggingConfiguration;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Ponto;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.CornerDetector;
@@ -427,7 +426,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                         }
                     }
                 } else if (possibleNewCorners[i].isStone) {
-                    // All corners moved together, so this is probably a board displacemente and we
+                    // All corners moved together, so this is probably a board displacement and we
                     // don't update the corners's relative position to the real corners
                     possibleNewCorners[i].displacementToRealCorner = boardCorners[i].displacementToRealCorner;
                 }
@@ -521,10 +520,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
                 break;
             case R.id.btnRotacionarEsquerda:
-                rotacionar(-1);
+                rotate(-1);
                 break;
             case R.id.btnRotacionarDireita:
-                rotacionar(1);
+                rotate(1);
                 break;
             case R.id.btnPausar:
                 updatePauseButton();
@@ -597,38 +596,38 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 //        }
     }
 
-    private void rotacionar(int direcao) {
-        logger.addToLog("Rotated board in direction " + direcao);
+    private void rotate(int direction) {
+        logger.addToLog("Rotated board in direction " + direction);
 
-        Corner[] cantosDoTabuleiroRotacionados = new Corner[4];
+        Corner[] rotatedBoardCorners = new Corner[4];
         for (int i = 0; i < 4; i++) {
-            cantosDoTabuleiroRotacionados[i] = new Corner();
+            rotatedBoardCorners[i] = new Corner();
         }
 
         // Counter-clockwise
-        if (direcao == -1) {
-            cantosDoTabuleiroRotacionados[0] = boardCorners[1];
-            cantosDoTabuleiroRotacionados[1] = boardCorners[2];
-            cantosDoTabuleiroRotacionados[2] = boardCorners[3];
-            cantosDoTabuleiroRotacionados[3] = boardCorners[0];
+        if (direction == -1) {
+            rotatedBoardCorners[0] = boardCorners[1];
+            rotatedBoardCorners[1] = boardCorners[2];
+            rotatedBoardCorners[2] = boardCorners[3];
+            rotatedBoardCorners[3] = boardCorners[0];
         }
         // Clockwise
-        else if (direcao == 1) {
-            cantosDoTabuleiroRotacionados[0] = boardCorners[3];
-            cantosDoTabuleiroRotacionados[1] = boardCorners[0];
-            cantosDoTabuleiroRotacionados[2] = boardCorners[1];
-            cantosDoTabuleiroRotacionados[3] = boardCorners[2];
+        else if (direction == 1) {
+            rotatedBoardCorners[0] = boardCorners[3];
+            rotatedBoardCorners[1] = boardCorners[0];
+            rotatedBoardCorners[2] = boardCorners[1];
+            rotatedBoardCorners[3] = boardCorners[2];
         }
 
-        boardCorners = cantosDoTabuleiroRotacionados;
+        boardCorners = rotatedBoardCorners;
         for (int i = 0; i < 4; i++) {
             cornerDetector[i].setCorner(boardCorners[i]);
         }
         processBoardCorners();
 
-        lastValidOrtogonalBoardImage = ImageUtils.rotateImage(lastValidOrtogonalBoardImage, direcao);
+        lastValidOrtogonalBoardImage = ImageUtils.rotateImage(lastValidOrtogonalBoardImage, direction);
         logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
-        partida.rotacionar(direcao);
+        partida.rotacionar(direction);
     }
 
     private void temCertezaQueDesejaFinalizarORegisro() {
