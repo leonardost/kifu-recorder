@@ -30,6 +30,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.TransformadorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
 
@@ -255,7 +256,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
                 // Transformação da imagem do tabuleiro para a posição ortogonal
                 Mat imagemDoTabuleiroCorrigido =
-                        TransformadorDeTabuleiro.transformarOrtogonalmente(
+                        ImageUtils.transformarOrtogonalmente(
                                 imagemOriginal,
                                 detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()
                         );
@@ -308,7 +309,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
         // Transformação da imagem do tabuleiro para a posição ortogonal
         Mat imagemDoTabuleiroCorrigido =
-                TransformadorDeTabuleiro.transformarOrtogonalmente(
+                ImageUtils.transformarOrtogonalmente(
                     imagemOriginal,
 //                    imagemOriginalPretoEBranco,
                     detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()

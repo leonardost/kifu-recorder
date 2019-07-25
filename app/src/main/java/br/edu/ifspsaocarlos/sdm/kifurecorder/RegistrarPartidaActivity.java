@@ -321,7 +321,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
         else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
 
-        tabuleiroOrtogonal = TransformadorDeTabuleiro.transformarOrtogonalmente(originalImage, posicaoDoTabuleiroNaImagem);
+        tabuleiroOrtogonal = ImageUtils.transformarOrtogonalmente(originalImage, posicaoDoTabuleiroNaImagem);
         logger.setOrtogonalBoardImage(tabuleiroOrtogonal.clone());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -626,7 +626,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         }
         processBoardCorners();
 
-        lastValidOrtogonalBoardImage = TransformadorDeTabuleiro.rotateImage(lastValidOrtogonalBoardImage, direcao);
+        lastValidOrtogonalBoardImage = ImageUtils.rotateImage(lastValidOrtogonalBoardImage, direcao);
         logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
         partida.rotacionar(direcao);
     }
