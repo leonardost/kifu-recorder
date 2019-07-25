@@ -1,12 +1,8 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
-import android.util.Log;
-
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 
 /**
  * Representa um estado de tabuleiro
