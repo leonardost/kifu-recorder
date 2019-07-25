@@ -73,6 +73,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     // This array stores the number of frames that each corner has stayed without
     // ellipses being detected over them. This is used for false positive checking
     int[] numberOfFramesWithoutStone = { 0, 0, 0, 0 };
+    // This is also used to bring the detector back when it's strayed too far away
+    int numberOfFramesWithDissimilarOrtogonalImages = 0;
 
     // Domain objects
     int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
@@ -406,7 +408,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
             logger.addToLog("Number of corners that moved: " + numberOfCornersThatMoved);
             int numberOfEmptyCornersThatMoved = getNumberOfEmptyCornersThatMoved(possibleNewCorners, boardCorners);
-            logger.addToLog("Number of empty corners that moved: " + numberOfCornersThatMoved);
+            logger.addToLog("Number of empty corners that moved: " + numberOfEmptyCornersThatMoved);
             double[] distanceToNewPoint = new double[4];
             for (int i = 0; i < 4; i++) {
                 distanceToNewPoint[i] = possibleNewCorners[i].distanceTo(boardCorners[i]);
@@ -434,9 +436,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             Mat ortogonalBoardImage2 = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
             double similarity = lastValidOrtogonalBoardImage != null ? fingerprintMatching.calculateSimilatiryBetween(lastValidOrtogonalBoardImage, ortogonalBoardImage2) : -1;
             logger.addToLog("Similarity between new ortogonal board image to last valid one = " + similarity);
+            logger.setOrtogonalBoardImage2(ortogonalBoardImage2);
 
-            if (lastValidOrtogonalBoardImage == null || fingerprintMatching.areImagesSimilar(lastValidOrtogonalBoardImage, ortogonalBoardImage2)) {
-                logger.addToLog("New ortogonal board image is similar to last valid one");
+            if (logger.getFrameNumber() <= 3 || numberOfFramesWithDissimilarOrtogonalImages >= 5 || fingerprintMatching.areImagesSimilar(lastValidOrtogonalBoardImage, ortogonalBoardImage2)) {
+                // This condition should be time based and not frame based
+                if (numberOfFramesWithDissimilarOrtogonalImages >= 5) {
+                    logger.addToLog("Forcing ortogonal image to be similar");
+                } else {
+                    logger.addToLog("New ortogonal board image is similar to last valid one");
+                }
                 for (int i = 0; i < 4; i++) {
                     if (!possibleNewCorners[i].isStone) {
                         numberOfFramesWithoutStone[i]++;
@@ -463,9 +471,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     boardCorners[i] = possibleNewCorners[i];
                     cornerDetector[i].setCorner(possibleNewCorners[i]);
                 }
+                numberOfFramesWithDissimilarOrtogonalImages = 0;
                 lastValidOrtogonalBoardImage = ortogonalBoardImage2.clone();
+                logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
             } else {
                 logger.addToLog("New ortogonal board image is NOT similar to last valid one");
+                numberOfFramesWithDissimilarOrtogonalImages++;
             }
 
             processBoardCorners();
@@ -587,6 +598,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void rotacionar(int direcao) {
+        logger.addToLog("Rotated board in direction " + direcao);
+
         Corner[] cantosDoTabuleiroRotacionados = new Corner[4];
         for (int i = 0; i < 4; i++) {
             cantosDoTabuleiroRotacionados[i] = new Corner();
@@ -611,9 +624,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         for (int i = 0; i < 4; i++) {
             cornerDetector[i].setCorner(boardCorners[i]);
         }
-
         processBoardCorners();
 
+        lastValidOrtogonalBoardImage = TransformadorDeTabuleiro.rotateImage(lastValidOrtogonalBoardImage, direcao);
+        logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
         partida.rotacionar(direcao);
     }
 
