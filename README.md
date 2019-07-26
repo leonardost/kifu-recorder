@@ -21,7 +21,7 @@ remain still for the remainder of the game recording. Any movement resulted
 in detection errors. This version solves this problem for small camera or board
 movements.
 
-[[https://github.com/leonardost/kifu-recorder/blob/master/board_tracking.gif|alt=board_tracking_example_gif]]
+![board tracking example gif](https://github.com/leonardost/kifu-recorder/blob/master/board_tracking.gif)
 
 There is still a lot of room for improvement, so if you feel that board
 tracking is not working well, it can be disabled by pressing the "Toggle board
