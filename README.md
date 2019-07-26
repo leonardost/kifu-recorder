@@ -7,7 +7,7 @@ game and creates a SGF game record as output. It works well in optimal
 conditions (bright environment, good camera positioning), but it's still
 a work in progress.
 
-It can be downloaded for free at Google Play on
+It can be downloaded for free on Google Play at
 https://play.google.com/store/apps/details?id=br.edu.ifspsaocarlos.sdm.kifurecorder.
 
 What's new
