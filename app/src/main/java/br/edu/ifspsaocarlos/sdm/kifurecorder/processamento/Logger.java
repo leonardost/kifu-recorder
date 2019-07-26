@@ -38,7 +38,7 @@ public class Logger {
     private StringBuilder logText;
     private FileHelper fileHelper;
     private long startProcessingTime;
-    private boolean isActive = true;
+    private boolean isActive = false;
     private boolean shouldSaveImages = false;
 
     private Mat cameraFrame;
