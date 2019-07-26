@@ -56,12 +56,12 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     DetectorDePedras detectorDePedras = new DetectorDePedras();
     CornerDetector[] cornerDetector;
     Partida partida;
-    Tabuleiro ultimoTabuleiroDetectado;
+    Tabuleiro lastDetectedBoard;
 
     int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
-    long momentoDaUltimaDeteccaoDeTabuleiro;
-    long tempoDesdeUltimaMudancaDeTabuleiro;
+    long timeOfLastBoardDetection;
+    long timeSinceLastBoardChange;
     boolean paused = false;
     long momentoDoUltimoProcessamentoDeImagem;
     long tempoDesdeUltimoProcessamentoDeImagem;
@@ -144,9 +144,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
-        ultimoTabuleiroDetectado = new Tabuleiro(dimensaoDoTabuleiro);
-        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-        tempoDesdeUltimaMudancaDeTabuleiro = 0;
+        lastDetectedBoard = new Tabuleiro(dimensaoDoTabuleiro);
+        timeOfLastBoardDetection = SystemClock.elapsedRealtime();
+        timeSinceLastBoardChange = 0;
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
         tempoDesdeUltimoProcessamentoDeImagem = 0;
 
@@ -344,20 +344,20 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (!paused) {
 
-            if (ultimoTabuleiroDetectado.equals(tabuleiro)) {
-                tempoDesdeUltimaMudancaDeTabuleiro += SystemClock.elapsedRealtime() - momentoDaUltimaDeteccaoDeTabuleiro;
-                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-                if (tempoDesdeUltimaMudancaDeTabuleiro > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
-					novaJogadaFoiAdicionada();
+            if (lastDetectedBoard.equals(tabuleiro)) {
+                timeSinceLastBoardChange += SystemClock.elapsedRealtime() - timeOfLastBoardDetection;
+                timeOfLastBoardDetection = SystemClock.elapsedRealtime();
+                if (timeSinceLastBoardChange > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
+                    newMoveWasAdded();
                 }
             } else {
-                tempoDesdeUltimaMudancaDeTabuleiro = 0;
-                momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
+                timeSinceLastBoardChange = 0;
+                timeOfLastBoardDetection = SystemClock.elapsedRealtime();
             }
 
         }
 
-        ultimoTabuleiroDetectado = tabuleiro;
+        lastDetectedBoard = tabuleiro;
 
         Desenhista.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
         logger.setCameraImageWithBoardContour(originalImage.clone());
@@ -519,7 +519,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 saveGameRecordOnDisk();
                 break;
             case R.id.btnVoltarUltimaJogada:
-                temCertezaQueDesejaVoltarAUltimaJogada(getString(R.string.btn_voltar_ultima_jogada));
+                areYouSureYouWantToUndoTheLastMove(getString(R.string.btn_voltar_ultima_jogada));
                 break;
             case R.id.btnRotacionarEsquerda:
                 rotate(-1);
@@ -531,7 +531,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 updatePauseButton();
                 break;
             case R.id.btnFinalizar:
-                temCertezaQueDesejaFinalizarORegisro();
+                areYouSureYouWantToFinishRecording();
                 break;
             case R.id.btnSnapshot:
                 takeSnapshot();
@@ -558,7 +558,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         });
 	}
 
-    private void temCertezaQueDesejaVoltarAUltimaJogada(String mensagem) {
+    private void areYouSureYouWantToUndoTheLastMove(String mensagem) {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_tem_certeza)
                 .setMessage(mensagem)
@@ -566,9 +566,9 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Jogada removida = partida.voltarUltimaJogada();
-                        tempoDesdeUltimaMudancaDeTabuleiro = 0;
-                        momentoDaUltimaDeteccaoDeTabuleiro = SystemClock.elapsedRealtime();
-                        atualizarBotaoDeVoltar();
+                        timeSinceLastBoardChange = 0;
+                        timeOfLastBoardDetection = SystemClock.elapsedRealtime();
+                        updateUndoButton();
                         logger.addToLog("Undoing last move " + removida);
                     }
                 })
@@ -615,7 +615,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         partida.rotacionar(direction);
     }
 
-    private void temCertezaQueDesejaFinalizarORegisro() {
+    private void areYouSureYouWantToFinishRecording() {
         new AlertDialog.Builder(this)
             .setTitle(R.string.dialog_tem_certeza)
             .setMessage(getString(R.string.dialog_finalizar_registro))
@@ -656,7 +656,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     @Override
     public void onBackPressed() {
         Log.d(TestesActivity.TAG, "RegistrarPartidaActivity.onBackPressed()");
-	    temCertezaQueDesejaFinalizarORegisro();
+	    areYouSureYouWantToFinishRecording();
     }
 
     private void adicionarJogadaAoRegistro() {
@@ -672,7 +672,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                     Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
                     Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
                     if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
-                        novaJogadaFoiAdicionada();
+                        newMoveWasAdded();
                         partida.adicionouJogadaManualmente();
                         logger.addToLog("Move " + adicionadaManualmente + " was manually added");
                     }
@@ -693,14 +693,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 		return new Jogada(linha, coluna, cor);
 	}
 
-    private void novaJogadaFoiAdicionada() {
+    private void newMoveWasAdded() {
         contadorDeJogadas++;
         soundPool.play(beepId, 1, 1, 0, 0, 1);
         if (contadorDeJogadas % 5 == 0) saveGameRecordOnDisk();
-        atualizarBotaoDeVoltar();
+        updateUndoButton();
     }
 
-	private void atualizarBotaoDeVoltar() {
+	private void updateUndoButton() {
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
