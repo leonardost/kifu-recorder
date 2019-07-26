@@ -13,7 +13,7 @@ https://play.google.com/store/apps/details?id=br.edu.ifspsaocarlos.sdm.kifurecor
 What's new
 ==========
 
-### 1.2.0 - 25/08/2019
+### 1.2.0 - 25/07/2019
 
 The main improvement in this release is dynamic board tracking. Up until
 versions 1.1.X, board detection was done once and the board and camera had to
