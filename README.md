@@ -1,6 +1,8 @@
 Kifu Recorder
 =============
 
+![version](https://img.shields.io/badge/version-1.2.0-green)
+
 Kifu Recorder is an app which aims to record go (weiqi, baduk) matches in a
 simple and easy way. It uses a mobile device's camera to watch a go game and
 creates a SGF game record as output. It works well in optimal conditions
@@ -12,7 +14,7 @@ progress.
 It can be downloaded for free on Google Play at
 https://play.google.com/store/apps/details?id=br.edu.ifspsaocarlos.sdm.kifurecorder.
 
-Thanks for using this app and please send any feedback to kifurecorder@gmail.com!
+Please send any feedback to kifurecorder@gmail.com!
 
 How to use
 ==========
@@ -42,26 +44,20 @@ The game recording screen has a lot of buttons, but they are quite
 self-explanatory.
 
 1) Take snapshot
-
 2) Manually add move - If the app is not detecting a stone, you can manually
    add it to the game record.
-
-3 and 4) Rotate left and rotate right - sometimes the app will detect the board
-         in a different orientation than your point of view, so you can use
-         these buttons to fix that.
-
+3) Rotate left and
+4) Rotate right - sometimes the app will detect the board in a different
+   orientation than your point of view, so you can use these buttons to fix
+   that.
 5) Restore board position - Kifu Recorder has a board tracking feature to track
    where the board is in the camera image. Sometimes that tracking can go
    astray, so this button will reset the board to its initial detected position.
-
 6) Toggle board tracking - If you feel board tracking is not working well, you
    can disable it by pressing this button.
-
 7) Undo - Undoes the last detected move. Useful when the app detects a wrong
    stone
-
 8) Pause/Continue - Pauses the game recording
-
 7) Finish - Terminates game recording
 
 Changelog
@@ -69,10 +65,11 @@ Changelog
 
 ### 1.2.1 - 27/07/2019
 
-Minor improvements, just some layout changes.
+Minor improvements
 
 - Save button was removed because the game is saved automatically after every
   detected move now.
+- Improve this README
 
 ### 1.2.0 - 25/07/2019
 
