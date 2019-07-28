@@ -9,7 +9,7 @@ creates a SGF game record as output. It works well in optimal conditions
 (bright environment, good camera positioning), but it's still a work in
 progress.
 
-![Kifu Recorder example gif](https://github.com/leonardost/kifu-recorder/blob/readme/readme/kifu_recorder_example.gif)
+![Kifu Recorder example gif](https://github.com/leonardost/kifu-recorder/blob/master/readme/kifu_recorder_example.gif)
 
 It can be downloaded for free on Google Play at
 https://play.google.com/store/apps/details?id=br.edu.ifspsaocarlos.sdm.kifurecorder.
@@ -31,14 +31,14 @@ with black and white stones and the desired _komi_ - and press the "Detect
 board" button. From this point on, I recommend that you keep your device still
 by using a tripod or some other apparatus.
 
-![board detection screen](https://github.com/leonardost/kifu-recorder/blob/readme/readme/board_detection_screen.jpg)
+![board detection screen](https://github.com/leonardost/kifu-recorder/blob/master/readme/board_detection_screen.jpg)
 
 Your device's camera should have a full view of the game board. When Kifu
 Recorder detects the game board, it draws a red contour around it. When the red
 border is correctly enclosing the board, press "OK". Now the game recording
 phase begins.
 
-![game recording screen](https://github.com/leonardost/kifu-recorder/blob/readme/readme/game_recording_screen.jpg)
+![game recording screen](https://github.com/leonardost/kifu-recorder/blob/master/readme/game_recording_screen.jpg)
 
 The game recording screen has a lot of buttons, but they are quite
 self-explanatory.
@@ -79,7 +79,7 @@ remain still for the remainder of the game recording. Any movement resulted
 in detection errors. This version solves this problem for small camera or board
 movements.
 
-![board tracking example gif](https://github.com/leonardost/kifu-recorder/blob/master/board_tracking.gif)
+![board tracking example gif](https://github.com/leonardost/kifu-recorder/blob/master/readme/board_tracking.gif)
 
 There is still a lot of room for improvement, so if you feel that board
 tracking is not working well, it can be disabled by pressing the "Toggle board
