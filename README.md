@@ -69,7 +69,7 @@ Minor improvements
 
 - Save button was removed because the game is saved automatically after every
   detected move now.
-- Improve this README
+- Improved this README
 
 ### 1.2.0 - 25/07/2019
 
