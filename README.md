@@ -69,7 +69,7 @@ and decided to use the conclusion project of the course as an opportunity to
 implement a Go Kifu Recorder application which could possibly help other
 players.
 
-You can read the resulting monograph here ![monograph link](readme/monograph.pdf)
+You can read the resulting monograph [here](readme/monograph.pdf)
 (Portuguese only for now).
 
 Changelog
