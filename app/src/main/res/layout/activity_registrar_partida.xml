@@ -20,15 +20,15 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageButton
-                android:id="@+id/btnSalvar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/save" />
-            <ImageButton
                 android:id="@+id/btnSnapshot"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/snapshot" />
+            <ImageButton
+                android:id="@+id/btnAdicionarPedra"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/add"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="wrap_content"
@@ -50,6 +50,21 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageButton
+                android:id="@+id/btnResetBoardPosition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/reset_board_position" />
+            <ImageButton
+                android:id="@+id/btnToggleCornerTracking"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/corner_tracking_inactive" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <ImageButton
                 android:id="@+id/btnVoltarUltimaJogada"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,27 +80,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_finalizar_registro" />
-        <ImageButton
-            android:id="@+id/btnAdicionarPedra"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/add"/>
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageButton
-                android:id="@+id/btnResetBoardPosition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:src="@drawable/reset_board_position" />
-            <ImageButton
-                android:id="@+id/btnToggleCornerTracking"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/corner_tracking_inactive" />
-        </LinearLayout>
-
     </LinearLayout>
 
 </FrameLayout>

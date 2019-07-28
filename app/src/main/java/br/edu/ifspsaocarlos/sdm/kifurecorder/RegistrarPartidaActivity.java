@@ -84,7 +84,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
 	MatOfPoint contornoDoTabuleiro;
 
-    private ImageButton btnSalvar;
     private ImageButton btnVoltarUltimaJogada;
     private ImageButton btnRotacionarEsquerda;
     private ImageButton btnRotacionarDireita;
@@ -170,9 +169,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     }
 
     private void initializeUserInterface() {
-        btnSalvar = findViewById(R.id.btnSalvar);
-        btnSalvar.setOnClickListener(this);
-        btnSalvar.setEnabled(true);
         btnVoltarUltimaJogada = findViewById(R.id.btnVoltarUltimaJogada);
         btnVoltarUltimaJogada.setOnClickListener(this);
         btnVoltarUltimaJogada.setEnabled(false);
@@ -515,9 +511,6 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnSalvar:
-                saveGameRecordOnDisk();
-                break;
             case R.id.btnVoltarUltimaJogada:
                 areYouSureYouWantToUndoTheLastMove(getString(R.string.btn_voltar_ultima_jogada));
                 break;
@@ -696,7 +689,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     private void newMoveWasAdded() {
         contadorDeJogadas++;
         soundPool.play(beepId, 1, 1, 0, 0, 1);
-        if (contadorDeJogadas % 5 == 0) saveGameRecordOnDisk();
+        saveGameRecordOnDisk();
         updateUndoButton();
     }
 
