@@ -1,7 +1,7 @@
 Kifu Recorder
 =============
 
-![version](https://img.shields.io/badge/version-1.2.0-green)
+![version](https://img.shields.io/badge/version-1.2.1-green)
 
 Kifu Recorder is an app which aims to record go (weiqi, baduk) matches in a
 simple and easy way. It uses a mobile device's camera to watch a go game and
@@ -9,7 +9,7 @@ creates a SGF game record as output. It works well in optimal conditions
 (bright environment, good camera positioning), but it's still a work in
 progress.
 
-![Kifu Recorder example gif](https://github.com/leonardost/kifu-recorder/blob/master/readme/kifu_recorder_example.gif)
+![Kifu Recorder example gif](readme/kifu_recorder_example.gif)
 
 It can be downloaded for free on Google Play at
 https://play.google.com/store/apps/details?id=br.edu.ifspsaocarlos.sdm.kifurecorder.
@@ -31,14 +31,14 @@ with black and white stones and the desired _komi_ - and press the "Detect
 board" button. From this point on, I recommend that you keep your device still
 by using a tripod or some other apparatus.
 
-![board detection screen](https://github.com/leonardost/kifu-recorder/blob/master/readme/board_detection_screen.jpg)
+![board detection screen](readme/board_detection_screen.jpg)
 
 Your device's camera should have a full view of the game board. When Kifu
 Recorder detects the game board, it draws a red contour around it. When the red
 border is correctly enclosing the board, press "OK". Now the game recording
 phase begins.
 
-![game recording screen](https://github.com/leonardost/kifu-recorder/blob/master/readme/game_recording_screen.jpg)
+![game recording screen](readme/game_recording_screen.jpg)
 
 The game recording screen has a lot of buttons, but they are quite
 self-explanatory.
@@ -59,6 +59,18 @@ self-explanatory.
    stone
 8) Pause/Continue - Pauses the game recording
 7) Finish - Terminates game recording
+
+Motivation
+==========
+
+This app was initially developed as a conclusion work for the mobile systems
+development specialization course of IFSP-São Carlos. I am a Go player myself
+and decided to use the conclusion project of the course as an opportunity to
+implement a Go Kifu Recorder application which could possibly help other
+players.
+
+You can read the resulting monograph here ![monograph link](readme/monograph.pdf)
+(Portuguese only for now).
 
 Changelog
 =========
