@@ -72,7 +72,7 @@ public class StoneDetector {
 
         encontrarCoresMedias(ultimoTabuleiro, coresMedias, contadores);
 
-        List<HipoteseDeJogada> hipotesesDeJogadasEncontradas = new ArrayList<>();
+        List<MoveHypothesis> hipotesesDeJogadasEncontradas = new ArrayList<>();
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
@@ -99,7 +99,7 @@ public class StoneDetector {
                 snapshot.append("    Variância ao redor  = " + variancia(corAoRedorDaPosicao) + "\n");
                 snapshot.append("    ---\n");
 
-                HipoteseDeJogada hipotese = hipoteseDeCor5(corAoRedorDaPosicao, coresMedias, contadores, coresNasPosicoesLivresAdjacentes);
+                MoveHypothesis hipotese = hipoteseDeCor5(corAoRedorDaPosicao, coresMedias, contadores, coresNasPosicoesLivresAdjacentes);
                 hipotese.linha = i;
                 hipotese.coluna = j;
 
@@ -129,7 +129,7 @@ public class StoneDetector {
         
         Jogada jogadaEscolhida = null;
         double maiorConfianca = 0;
-        for (HipoteseDeJogada hipotese : hipotesesDeJogadasEncontradas) {
+        for (MoveHypothesis hipotese : hipotesesDeJogadasEncontradas) {
             if (hipotese.confianca > maiorConfianca) {
                 maiorConfianca = hipotese.confianca;
                 jogadaEscolhida = new Jogada(hipotese.linha, hipotese.coluna, hipotese.cor);
@@ -196,7 +196,7 @@ public class StoneDetector {
         return 0.299 * cor[0] + 0.587 * cor[1] + 0.114 * cor[2];
     }
 
-    private HipoteseDeJogada hipoteseDeCor5(double[] cor, double[][] coresMedias, int[] contadores, double[][] coresNasPosicoesAdjacentes) {
+    private MoveHypothesis hipoteseDeCor5(double[] cor, double[][] coresMedias, int[] contadores, double[][] coresNasPosicoesAdjacentes) {
         double[] preto = {10.0, 10.0, 10.0, 255.0};
 
         double luminanciaSendoVerificada = luminancia(cor);
@@ -249,38 +249,38 @@ public class StoneDetector {
 
         if (contadores[Tabuleiro.PEDRA_PRETA] == 0 && contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (diferencaDeLuminanciaParaOsVizinhos < -30) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 1);
             }
             if (distanciaParaPreto < 50) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 0.9);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 0.9);
             }
             if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 0.7);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 0.7);
             }
-            return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+            return new MoveHypothesis(Tabuleiro.VAZIO, 1);
         }
 
         if (contadores[Tabuleiro.PEDRA_BRANCA] == 0) {
             if (diferencaDeLuminanciaParaOsVizinhos < -30) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 1);
             }
             if (distanciaParaPreto < 50) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 0.9);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 0.9);
             }
             if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 0.7);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 0.7);
             }
             if (diferencaDeLuminanciaParaOsVizinhos > 30) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 1);
+                return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, 1);
             }
             if (diferencaDeLuminanciaParaOsVizinhos > 15) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.9);
+                return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, 0.9);
             }
             // Estes valores para pedras brancas precisariam ser revistos
             /*else if (cor[2] >= 150) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.7);
+                return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, 0.7);
             }*/
-            return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+            return new MoveHypothesis(Tabuleiro.VAZIO, 1);
         }
 
         // Esta condição foi adicionada porque quando uma pedra preta era jogada de forma inválida
@@ -289,22 +289,22 @@ public class StoneDetector {
         // contraste. Verificar se as interseções se parecem com interseções vazias antes de
         // verificar se se parecem com pedras brancas resolve esse problema.
         if (distanciaParaMediaIntersecoes < 20) {
-            return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+            return new MoveHypothesis(Tabuleiro.VAZIO, 1);
         }
         if (distanciaParaPreto < 30 || diferencaDeLuminanciaParaOsVizinhos < -30) {
             if (distanciaParaPretas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaPretas > 100) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, 1);
             }
         }
 /*        if (diferencaDeLuminanciaParaOsVizinhos > 30) {
             // O 0.99 é só para os casos em que uma pedra preta é colocada mas uma pedra branca é detectada
             // erroneamente. Com esta confiança em 0.99, a pedra preta tem prioridade.
-            return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.99);
+            return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, 0.99);
         }*/
         if (diferencaDeLuminanciaParaOsVizinhos > 15) {
             // Esta verificação é importante, por isso resolvi deixar apenas esta condição de > 15 e tirar a de cima
             if (distanciaParaBrancas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaBrancas > 100) {
-                return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, 0.99);
+                return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, 0.99);
             }
         }
 
@@ -322,13 +322,13 @@ public class StoneDetector {
                 probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] > probabilidadeDeSer[Tabuleiro.VAZIO]) {
 
             if (Math.abs(probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] - probabilidadeDeSer[Tabuleiro.VAZIO]) < 100) {
-                return new HipoteseDeJogada(Tabuleiro.VAZIO, 0.5);
+                return new MoveHypothesis(Tabuleiro.VAZIO, 0.5);
             }
 
             double diferencas = probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] - probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA];
             diferencas += probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] - probabilidadeDeSer[Tabuleiro.VAZIO];
             snapshot.append("    Hipótese de ser pedra preta com diferenças de " + (diferencas / 2) + "\n");
-            return new HipoteseDeJogada(Tabuleiro.PEDRA_PRETA, diferencas / 2);
+            return new MoveHypothesis(Tabuleiro.PEDRA_PRETA, diferencas / 2);
         }
 
         if (probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] > probabilidadeDeSer[Tabuleiro.PEDRA_PRETA] &&
@@ -337,16 +337,16 @@ public class StoneDetector {
             // Esta possível pedra branca está quase indistinguível de uma interseção vazia.
             // Para diminuir os falsos positivos, consideramos que é uma interseção bazia.
             if (Math.abs(probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] - probabilidadeDeSer[Tabuleiro.VAZIO]) < 100) {
-                return new HipoteseDeJogada(Tabuleiro.VAZIO, 0.5);
+                return new MoveHypothesis(Tabuleiro.VAZIO, 0.5);
             }
 
             double diferencas = probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] - probabilidadeDeSer[Tabuleiro.PEDRA_PRETA];
             diferencas += probabilidadeDeSer[Tabuleiro.PEDRA_BRANCA] - probabilidadeDeSer[Tabuleiro.VAZIO];
             snapshot.append("    Hipótese de ser pedra branca com diferenças de " + (diferencas / 2) + "\n");
-            return new HipoteseDeJogada(Tabuleiro.PEDRA_BRANCA, diferencas / 2);
+            return new MoveHypothesis(Tabuleiro.PEDRA_BRANCA, diferencas / 2);
         }
 
-        return new HipoteseDeJogada(Tabuleiro.VAZIO, 1);
+        return new MoveHypothesis(Tabuleiro.VAZIO, 1);
     }
 
     private double diferencaDeLuminancia(double cor[], double corNasPosicoesAdjacentes[][]) {
