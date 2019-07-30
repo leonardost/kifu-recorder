@@ -4,8 +4,8 @@ import org.junit.Test;
 
 import android.test.AndroidTestCase;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Board;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
 
 public class JogadaTest extends AndroidTestCase {
 

@@ -26,23 +26,23 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".TestesActivity"
+            android:name=".TestsActivity"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".InformacoesDaPartidaActivity"
+            android:name=".GameInformationActivity"
             android:label="@string/title_activity_informacoes_da_partida" />
         <activity
-            android:name=".DetectarTabuleiroActivity"
+            android:name=".DetectBoardActivity"
             android:label="@string/title_activity_detectar_tabuleiro"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".RegistrarPartidaActivity"
+            android:name=".RecordGameActivity"
             android:label="@string/title_activity_registrar_partida"
             android:screenOrientation="landscape" />
-        <activity android:name=".InstrucoesActivity" />
+        <activity android:name=".InstructionsActivity" />
         <activity android:name=".PrivacyPolicyActivity" />
-        <activity android:name=".CreditosActivity"></activity>
+        <activity android:name=".CreditsActivity"></activity>
     </application>
 
 </manifest>

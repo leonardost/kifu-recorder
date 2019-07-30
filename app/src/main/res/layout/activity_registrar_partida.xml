@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.RegistrarPartidaActivity">
+    tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.RecordGameActivity">
 
     <org.opencv.android.JavaCameraView
         android:id="@+id/camera_registro"

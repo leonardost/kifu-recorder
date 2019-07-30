@@ -29,15 +29,15 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
         Intent i;
         switch (v.getId()) {
             case R.id.btnIniciarRegistro:
-                i = new Intent(this, InformacoesDaPartidaActivity.class);
+                i = new Intent(this, GameInformationActivity.class);
                 startActivity(i);
                 break;
             case R.id.btnInstrucoes:
-                i = new Intent(this, InstrucoesActivity.class);
+                i = new Intent(this, InstructionsActivity.class);
                 startActivity(i);
                 break;
             case R.id.btnCreditos:
-                i = new Intent(this, CreditosActivity.class);
+                i = new Intent(this, CreditsActivity.class);
                 startActivity(i);
                 break;
         }
