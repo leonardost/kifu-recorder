@@ -15,7 +15,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 /**
  * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
  */
-public class Desenhista {
+public class Drawer {
 
     private static Scalar mBlack = new Scalar(  0,   0,   0);
     private static Scalar mWhite = new Scalar(255, 255, 255);

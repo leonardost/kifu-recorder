@@ -27,7 +27,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
@@ -268,11 +268,11 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
                 Tabuleiro tabuleiro = detectorDePedras.detectar();
                 if (tabuleiro != null && tabuleiro.equals(casosDeTeste[indiceImagem - 1].getTabuleiro())) {
-//                    Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+//                    Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
                 }
                 else {
-//                    Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+//                    Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " falhou:");
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " " + tabuleiro);
                     Log.i(TAG, "não bateu com");
@@ -338,7 +338,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
         Tabuleiro tabuleiro = detectorDePedras.detectar();
         if (tabuleiro != null) {
-            Desenhista.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
+            Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
         }
 
         imagemProcessada = imagemFonte;

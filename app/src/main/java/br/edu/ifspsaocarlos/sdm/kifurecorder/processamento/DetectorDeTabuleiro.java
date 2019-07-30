@@ -113,8 +113,8 @@ public class DetectorDeTabuleiro {
         List<Point> cantosDoTabuleiro = ordenarCantos(quadrilateroDoTabuleiro);
 
         if (desenharPreview) {
-//            Desenhista.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
-            Desenhista.desenharContornoDoTabuleiro(imagemDePreview, quadrilateroDoTabuleiro);
+//            Drawer.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
+            Drawer.desenharContornoDoTabuleiro(imagemDePreview, quadrilateroDoTabuleiro);
         }
 
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
@@ -236,7 +236,7 @@ public class DetectorDeTabuleiro {
         }
 
 //        if (desenharPreview) {
-//            Desenhista.desenharContornosRelevantes(imagemDePreview, hierarquiaDeQuadrilateros, contornoMaisProximoDoTabuleiro);
+//            Drawer.desenharContornosRelevantes(imagemDePreview, hierarquiaDeQuadrilateros, contornoMaisProximoDoTabuleiro);
 //        }
 
         return contornoMaisProximoDoTabuleiro;

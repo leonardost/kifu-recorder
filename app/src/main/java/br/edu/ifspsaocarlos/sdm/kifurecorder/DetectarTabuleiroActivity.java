@@ -17,7 +17,7 @@ import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 
@@ -124,7 +124,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
             });
         }
         else if (contornoDoTabuleiro != null) {
-            Desenhista.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+            Drawer.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
         }
 
         return imagemFonte;

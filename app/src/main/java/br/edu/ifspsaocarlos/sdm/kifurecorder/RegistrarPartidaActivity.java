@@ -29,7 +29,7 @@ import org.opencv.imgproc.Imgproc;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Desenhista;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
@@ -300,8 +300,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             if (tabuleiroOrtogonal != null) {
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
-            Desenhista.drawLostBoardContour(originalImage, contornoDoTabuleiro);
-            Desenhista.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+            Drawer.drawLostBoardContour(originalImage, contornoDoTabuleiro);
+            Drawer.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
             logger.log();
             return originalImage;
         }
@@ -311,8 +311,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             if (tabuleiroOrtogonal != null) {
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
-            Desenhista.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
-            Desenhista.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+            Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
+            Drawer.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
             logger.log();
             return originalImage;
         }
@@ -355,7 +355,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         lastDetectedBoard = tabuleiro;
 
-        Desenhista.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
+        Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
         logger.setCameraImageWithBoardContour(originalImage.clone());
 
         // Desenha o tabuleiro ortogonal na tela
@@ -365,10 +365,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (paused) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
-            Desenhista.desenharTabuleiro(originalImage, tabuleiro, 0, 500, 400, null);
+            Drawer.desenharTabuleiro(originalImage, tabuleiro, 0, 500, 400, null);
         }
         else {
-            Desenhista.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
+            Drawer.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
         }
 
         logger.log();
