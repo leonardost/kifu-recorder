@@ -216,8 +216,8 @@ public class Tabuleiro implements Serializable {
     }
 
     private void remove(Grupo grupo) {
-        for (Posicao posicao : grupo.getPosicoes()) {
-            tabuleiro[posicao.linha][posicao.coluna] = VAZIO;
+        for (Position position : grupo.getPosicoes()) {
+            tabuleiro[position.linha][position.coluna] = VAZIO;
         }
     }
 
@@ -251,10 +251,10 @@ public class Tabuleiro implements Serializable {
         posicoesVisitadas[linha][coluna] = true;
 
         if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
-            grupo.adicionarLiberdade(new Posicao(linha, coluna));
+            grupo.adicionarLiberdade(new Position(linha, coluna));
         }
         else if (tabuleiro[linha][coluna] == grupo.getCor()) {
-            grupo.adicionarPosicao(new Posicao(linha, coluna));
+            grupo.adicionarPosicao(new Position(linha, coluna));
 
             delimitarGrupo(linha - 1, coluna, posicoesVisitadas, grupo);
             delimitarGrupo(linha + 1, coluna, posicoesVisitadas, grupo);

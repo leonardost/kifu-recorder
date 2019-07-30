@@ -19,8 +19,8 @@ public class Jogada implements Serializable {
         this.cor = cor;
     }
 
-    public Posicao posicao() {
-        return new Posicao(linha, coluna);
+    public Position posicao() {
+        return new Position(linha, coluna);
     }
 
     public String sgf() {

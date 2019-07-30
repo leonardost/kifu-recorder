@@ -1,10 +1,10 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.jogo;
 
-public class Posicao {
+public class Position {
     public int linha;
     public int coluna;
 
-    public Posicao(int linha, int coluna) {
+    public Position(int linha, int coluna) {
         this.linha = linha;
         this.coluna = coluna;
     }
@@ -23,9 +23,9 @@ public class Posicao {
 
     @Override
     public boolean equals(Object posicao) {
-        if (!(posicao instanceof Posicao)) return false;
-        return linha == ((Posicao)posicao).linha
-            && coluna == ((Posicao)posicao).coluna;
+        if (!(posicao instanceof Position)) return false;
+        return linha == ((Position)posicao).linha
+            && coluna == ((Position)posicao).coluna;
     }
 
     @Override

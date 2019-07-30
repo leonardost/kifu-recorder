@@ -9,8 +9,8 @@ import java.util.Set;
 public class Grupo {
 
     private int cor;
-    private Set<Posicao> posicoes;
-    private Set<Posicao> liberdades;
+    private Set<Position> posicoes;
+    private Set<Position> liberdades;
 
     public Grupo(int cor) {
         this.cor = cor;
@@ -22,15 +22,15 @@ public class Grupo {
         return cor;
     }
 
-    public Set<Posicao> getPosicoes() {
+    public Set<Position> getPosicoes() {
         return posicoes;
     }
 
-    public void adicionarPosicao(Posicao posicao) {
-        posicoes.add(posicao);
+    public void adicionarPosicao(Position position) {
+        posicoes.add(position);
     }
 
-    public void adicionarLiberdade(Posicao liberdade) {
+    public void adicionarLiberdade(Position liberdade) {
         liberdades.add(liberdade);
     }
 
@@ -65,8 +65,8 @@ public class Grupo {
     public String toString() {
         StringBuilder string = new StringBuilder();
         string.append("Grupo de cor " + cor + ": ");
-        for (Posicao posicao : posicoes) {
-            string.append(posicao);
+        for (Position position : posicoes) {
+            string.append(position);
         }
         return string.toString();
     }
