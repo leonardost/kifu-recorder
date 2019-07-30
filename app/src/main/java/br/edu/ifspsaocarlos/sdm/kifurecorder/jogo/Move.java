@@ -28,12 +28,12 @@ public class Move implements Serializable {
         int c = 'a' + coluna;
         String coordenada = "" + (char)c + (char)l;
         if (ehPasse) coordenada = "";
-        char cor = this.cor == Tabuleiro.PEDRA_PRETA ? 'B' : 'W';
+        char cor = this.cor == Board.PEDRA_PRETA ? 'B' : 'W';
         return ";" + cor + "[" + coordenada + "]";
     }
 
     public String toString() {
-        String nomeCor = cor == Tabuleiro.VAZIO ? "Vazio" : cor == Tabuleiro.PEDRA_PRETA ? "Preto" : "Branco";
+        String nomeCor = cor == Board.VAZIO ? "Vazio" : cor == Board.PEDRA_PRETA ? "Preto" : "Branco";
         return "(" + linha + ", " + coluna + ", " + nomeCor + ")";
     }
 

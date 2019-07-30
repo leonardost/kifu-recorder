@@ -9,8 +9,8 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
  * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
@@ -71,18 +71,18 @@ public class Drawer {
      * for nulo, não marca a última jogada.
      *
      * @param imagem
-     * @param tabuleiro
+     * @param board
      * @param x
      * @param y
      * @param tamanhoImagem
      * @param lastMove
      */
-    public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem, Move lastMove) {
+    public static void desenharTabuleiro(Mat imagem, Board board, int x, int y, int tamanhoImagem, Move lastMove) {
         Point p1 = new Point();
         Point p2 = new Point();
-        double distanciaEntreLinhas = tamanhoImagem / (tabuleiro.getDimensao() + 1);
+        double distanciaEntreLinhas = tamanhoImagem / (board.getDimensao() + 1);
         double fimDasLinhas = tamanhoImagem - distanciaEntreLinhas;
-        int raioDaPedra = 29 - tabuleiro.getDimensao(); // estava usando tamanhoImagem / 20 para o 9x9
+        int raioDaPedra = 29 - board.getDimensao(); // estava usando tamanhoImagem / 20 para o 9x9
         p1.x = x;
         p1.y = y;
         p2.x = x + tamanhoImagem;
@@ -91,7 +91,7 @@ public class Drawer {
         Imgproc.rectangle(imagem, p1, p2, mBoardBrown, -1);
 
         // Desenha linhas horizontais
-        for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
+        for (int i = 0; i < board.getDimensao(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
             inicio.x = x + distanciaEntreLinhas;
@@ -102,7 +102,7 @@ public class Drawer {
         }
 
         // Desenha linhas verticais
-        for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
+        for (int i = 0; i < board.getDimensao(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
             inicio.x = x + distanciaEntreLinhas + distanciaEntreLinhas * i;
@@ -113,14 +113,14 @@ public class Drawer {
         }
 
         // Desenha pedras
-        for (int i = 0; i < tabuleiro.getDimensao(); ++i) {
-            for (int j = 0; j < tabuleiro.getDimensao(); ++j) {
+        for (int i = 0; i < board.getDimensao(); ++i) {
+            for (int j = 0; j < board.getDimensao(); ++j) {
                 Point centro = new Point();
                 centro.x = x + distanciaEntreLinhas + j * distanciaEntreLinhas;
                 centro.y = y + distanciaEntreLinhas + i * distanciaEntreLinhas;
-                if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_PRETA) {
+                if (board.getPosicao(i, j) == Board.PEDRA_PRETA) {
                     Imgproc.circle(imagem, centro, raioDaPedra, mBlack, -1);
-                } else if (tabuleiro.getPosicao(i, j) == Tabuleiro.PEDRA_BRANCA) {
+                } else if (board.getPosicao(i, j) == Board.PEDRA_BRANCA) {
                     Imgproc.circle(imagem, centro, raioDaPedra, mWhite, -1);
                     Imgproc.circle(imagem, centro, raioDaPedra, mBlack);
                 }
@@ -132,7 +132,7 @@ public class Drawer {
             Point centro = new Point();
             centro.x = x + distanciaEntreLinhas + lastMove.coluna * distanciaEntreLinhas;
             centro.y = y + distanciaEntreLinhas + lastMove.linha * distanciaEntreLinhas;
-            Scalar corDaMarcacao = lastMove.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
+            Scalar corDaMarcacao = lastMove.cor == Board.PEDRA_PRETA ? mWhite : mBlack;
             Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
             Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }

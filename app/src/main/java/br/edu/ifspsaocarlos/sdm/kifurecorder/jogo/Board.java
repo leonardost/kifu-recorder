@@ -7,7 +7,7 @@ import java.util.Set;
 /**
  * Representa um estado de tabuleiro
  */
-public class Tabuleiro implements Serializable {
+public class Board implements Serializable {
 
     public final static int VAZIO = 0;
     public final static int PEDRA_PRETA = 1;
@@ -16,7 +16,7 @@ public class Tabuleiro implements Serializable {
     private int dimensao;
     private Integer[][] tabuleiro;
 
-    public Tabuleiro(int dimensao) {
+    public Board(int dimensao) {
         this.dimensao = dimensao;
         this.tabuleiro = new Integer[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
@@ -26,12 +26,12 @@ public class Tabuleiro implements Serializable {
         }
     }
 
-    public Tabuleiro(Tabuleiro tabuleiro) {
-        this.dimensao = tabuleiro.dimensao;
+    public Board(Board board) {
+        this.dimensao = board.dimensao;
         this.tabuleiro = new Integer[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                this.tabuleiro[i][j] = tabuleiro.tabuleiro[i][j];
+                this.tabuleiro[i][j] = board.tabuleiro[i][j];
             }
         }
     }
@@ -80,41 +80,41 @@ public class Tabuleiro implements Serializable {
      * Retorna um novo tabuleiro que correponde ao tabuleiro atual rotacionado em sentido horário
      * (direcao = 1) ou anti-horário (direcao = -1).
      */
-    public Tabuleiro rotacionar(int direcao) {
+    public Board rotacionar(int direcao) {
         if (direcao == -1) return rotacionarEmSentidoAntihorario();
         else if (direcao == 1) return rotacionarEmSentidoHorario();
         throw new RuntimeException("Direção de rotação inválida!");
     }
 
-    private Tabuleiro rotacionarEmSentidoHorario() {
-        Tabuleiro tabuleiroRotacionado = new Tabuleiro(dimensao);
+    private Board rotacionarEmSentidoHorario() {
+        Board rotatedBoard = new Board(dimensao);
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[dimensao - 1 - j][i] != Tabuleiro.VAZIO) {
-                    tabuleiroRotacionado.colocarPedra(i, j, tabuleiro[dimensao - 1 - j][i]);
+                if (tabuleiro[dimensao - 1 - j][i] != Board.VAZIO) {
+                    rotatedBoard.colocarPedra(i, j, tabuleiro[dimensao - 1 - j][i]);
                 }
             }
         }
-        return tabuleiroRotacionado;
+        return rotatedBoard;
     }
 
-    private Tabuleiro rotacionarEmSentidoAntihorario() {
-        Tabuleiro tabuleiroRotacionado = new Tabuleiro(dimensao);
+    private Board rotacionarEmSentidoAntihorario() {
+        Board rotatedBoard = new Board(dimensao);
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[j][dimensao - 1 - i] != Tabuleiro.VAZIO) {
-                    tabuleiroRotacionado.colocarPedra(i, j, tabuleiro[j][dimensao - 1 - i]);
+                if (tabuleiro[j][dimensao - 1 - i] != Board.VAZIO) {
+                    rotatedBoard.colocarPedra(i, j, tabuleiro[j][dimensao - 1 - i]);
                 }
             }
         }
-        return tabuleiroRotacionado;
+        return rotatedBoard;
     }
 
-    public boolean identico(Tabuleiro outroTabuleiro) {
-        if (dimensao != outroTabuleiro.dimensao) return false;
+    public boolean identico(Board otherBoard) {
+        if (dimensao != otherBoard.dimensao) return false;
         for (int i = 0; i < dimensao; ++i) {
             for (int j = 0; j < dimensao; ++j) {
-                if (getPosicao(i, j) != outroTabuleiro.getPosicao(i, j)) return false;
+                if (getPosicao(i, j) != otherBoard.getPosicao(i, j)) return false;
             }
         }
         return true;
@@ -125,36 +125,36 @@ public class Tabuleiro implements Serializable {
      */
     @Override
     public boolean equals(Object objeto) {
-        if (!(objeto instanceof Tabuleiro)) return false;
-        Tabuleiro outroTabuleiro = (Tabuleiro)objeto;
-        if (dimensao != outroTabuleiro.dimensao) return false;
+        if (!(objeto instanceof Board)) return false;
+        Board otherBoard = (Board)objeto;
+        if (dimensao != otherBoard.dimensao) return false;
 
-        Tabuleiro rotacao1 = outroTabuleiro.rotacionarEmSentidoHorario();
-        Tabuleiro rotacao2 = rotacao1.rotacionarEmSentidoHorario();
-        Tabuleiro rotacao3 = rotacao2.rotacionarEmSentidoHorario();
+        Board rotacao1 = otherBoard.rotacionarEmSentidoHorario();
+        Board rotacao2 = rotacao1.rotacionarEmSentidoHorario();
+        Board rotacao3 = rotacao2.rotacionarEmSentidoHorario();
 
-        return this.identico(outroTabuleiro) || this.identico(rotacao1) || this.identico(rotacao2) || this.identico(rotacao3);
+        return this.identico(otherBoard) || this.identico(rotacao1) || this.identico(rotacao2) || this.identico(rotacao3);
     }
 
     /**
      * Retorna a jogada de diferença deste tabuleiro para o anterior. Se não for possível chegar no
      * estado do tabuleiro atual a partir do anterior, retorna nulo.
      */
-    public Move diferenca(Tabuleiro tabuleiroAnterior) {
-        int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
-        int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
-        int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
-        int numeroDePedrasBrancasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
+    public Move diferenca(Board previousBoard) {
+        int numeroDePedrasPretasAntes = previousBoard.numeroDePedrasDaCor(Board.PEDRA_PRETA);
+        int numeroDePedrasBrancasAntes = previousBoard.numeroDePedrasDaCor(Board.PEDRA_BRANCA);
+        int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Board.PEDRA_PRETA);
+        int numeroDePedrasBrancasDepois = numeroDePedrasDaCor(Board.PEDRA_BRANCA);
         int diferencaDePedrasPretas = numeroDePedrasPretasDepois - numeroDePedrasPretasAntes;
         int diferencaDePedrasBrancas = numeroDePedrasBrancasDepois - numeroDePedrasBrancasAntes;
         int corDaJogada;
 
-        if (diferencaDePedrasPretas == 1) corDaJogada = Tabuleiro.PEDRA_PRETA;
-        else if (diferencaDePedrasBrancas == 1) corDaJogada = Tabuleiro.PEDRA_BRANCA;
+        if (diferencaDePedrasPretas == 1) corDaJogada = Board.PEDRA_PRETA;
+        else if (diferencaDePedrasBrancas == 1) corDaJogada = Board.PEDRA_BRANCA;
         else return null;
-        Move movePlayed = jogadaDiferenteEntreTabuleiroAtualE(tabuleiroAnterior, corDaJogada);
+        Move movePlayed = jogadaDiferenteEntreTabuleiroAtualE(previousBoard, corDaJogada);
 
-        if (tabuleiroAnterior.gerarNovoTabuleiroComAJogada(movePlayed).identico(this)) {
+        if (previousBoard.gerarNovoTabuleiroComAJogada(movePlayed).identico(this)) {
             return movePlayed;
         }
         return null;
@@ -173,7 +173,7 @@ public class Tabuleiro implements Serializable {
     /**
      * Retorna a primeira pedra da cor especificada encontrada diferente entre os dois tabuleiros.
      */
-    private Move jogadaDiferenteEntreTabuleiroAtualE(Tabuleiro anterior, int cor) {
+    private Move jogadaDiferenteEntreTabuleiroAtualE(Board anterior, int cor) {
         for (int i = 0; i < anterior.getDimensao(); ++i) {
             for (int j = 0; j < anterior.getDimensao(); ++j) {
                 if (tabuleiro[i][j] == cor && anterior.getPosicao(i, j) != tabuleiro[i][j]) {
@@ -188,22 +188,22 @@ public class Tabuleiro implements Serializable {
      * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
      * válida, retorna o tabuleiro antigo.
      */
-	public Tabuleiro gerarNovoTabuleiroComAJogada(Move move) {
+	public Board gerarNovoTabuleiroComAJogada(Move move) {
         if (move == null || tabuleiro[move.linha][move.coluna] != VAZIO) return this;
 
-        Tabuleiro novoTabuleiro = new Tabuleiro(this);
+        Board newBoard = new Board(this);
 
         for (Group group : recuperaGruposAdjacentesA(move)) {
             if (group == null) continue;
-            if (group.ehCapturadoPela(move)) novoTabuleiro.remove(group);
+            if (group.ehCapturadoPela(move)) newBoard.remove(group);
         }
 
-        novoTabuleiro.tabuleiro[move.linha][move.coluna] = move.cor;
+        newBoard.tabuleiro[move.linha][move.coluna] = move.cor;
 
-        Group groupOfMove = novoTabuleiro.grupoEm(move.linha, move.coluna);
+        Group groupOfMove = newBoard.grupoEm(move.linha, move.coluna);
         if (groupOfMove.naoTemLiberdades()) return this;
 
-        return novoTabuleiro;
+        return newBoard;
 	}
 
     private Set<Group> recuperaGruposAdjacentesA(Move move) {
@@ -226,7 +226,7 @@ public class Tabuleiro implements Serializable {
      * grupo.
      */
     public Group grupoEm(int linha, int coluna) {
-        if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
+        if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Board.VAZIO) return null;
 
         boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
         for (int i = 0; i < dimensao; ++i) {
@@ -250,7 +250,7 @@ public class Tabuleiro implements Serializable {
 
         posicoesVisitadas[linha][coluna] = true;
 
-        if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
+        if (tabuleiro[linha][coluna] == Board.VAZIO) {
             group.adicionarLiberdade(new Position(linha, coluna));
         }
         else if (tabuleiro[linha][coluna] == group.getCor()) {

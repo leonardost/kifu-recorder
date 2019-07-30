@@ -22,7 +22,7 @@ public class Partida implements Serializable {
     private String komi;
     private int dimensaoDoTabuleiro;
     private List<Move> moves;
-    private List<Tabuleiro> tabuleiros;
+    private List<Board> boards;
 
     // Atributo para medir a precisão do sistema
     private int numeroDeVezesQueVoltou;
@@ -34,10 +34,10 @@ public class Partida implements Serializable {
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
         moves = new ArrayList<>();
-        tabuleiros = new ArrayList<>();
+        boards = new ArrayList<>();
 
-        Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
-        tabuleiros.add(tabuleiroVazio);
+        Board emptyBoard = new Board(dimensaoDoTabuleiro);
+        boards.add(emptyBoard);
         numeroDeVezesQueVoltou = 0;
         numeroDeVezesQueTeveQueAdicionarManualmente = 0;
     }
@@ -54,16 +54,16 @@ public class Partida implements Serializable {
         return jogadorDeBrancas;
     }
 
-    public boolean adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
-        Move movePlayed = tabuleiro.diferenca(ultimoTabuleiro());
+    public boolean adicionarJogadaSeForValida(Board board) {
+        Move movePlayed = board.diferenca(ultimoTabuleiro());
 
-        if (movePlayed == null || repeteEstadoAnterior(tabuleiro) || !proximaJogadaPodeSer(movePlayed.cor)) {
+        if (movePlayed == null || repeteEstadoAnterior(board) || !proximaJogadaPodeSer(movePlayed.cor)) {
             return false;
         }
 
-        tabuleiros.add(tabuleiro);
+        boards.add(board);
         moves.add(movePlayed);
-        Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + movePlayed.sgf() + ") à partida.");
+        Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + board + " (jogada " + movePlayed.sgf() + ") à partida.");
         return true;
     }
 
@@ -71,17 +71,17 @@ public class Partida implements Serializable {
      * Retorna verdadeiro se o tabuleiroNovo repete algum dos tabuleiros anteriores da partida
      * (regra do superko).
      */
-    private boolean repeteEstadoAnterior(Tabuleiro tabuleiroNovo) {
-        for (Tabuleiro tabuleiro : tabuleiros) {
-            if (tabuleiro.equals(tabuleiroNovo)) return true;
+    private boolean repeteEstadoAnterior(Board newBoard) {
+        for (Board board : boards) {
+            if (board.equals(newBoard)) return true;
         }
         return false;
     }
 
     public boolean proximaJogadaPodeSer(int cor) {
-        if (cor == Tabuleiro.PEDRA_PRETA)
+        if (cor == Board.PEDRA_PRETA)
             return ehPrimeiraJogada() || apenasPedrasPretasForamJogadas() || ultimaJogadaFoiBranca();
-        else if (cor == Tabuleiro.PEDRA_BRANCA)
+        else if (cor == Board.PEDRA_BRANCA)
             return ultimaJogadaFoiPreta();
         return false;
     }
@@ -95,17 +95,17 @@ public class Partida implements Serializable {
      */
     private boolean apenasPedrasPretasForamJogadas() {
         for (Move move : moves) {
-            if (move.cor == Tabuleiro.PEDRA_BRANCA) return false;
+            if (move.cor == Board.PEDRA_BRANCA) return false;
         }
         return true;
     }
 
     private boolean ultimaJogadaFoiBranca() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_BRANCA;
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.PEDRA_BRANCA;
     }
 
     private boolean ultimaJogadaFoiPreta() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_PRETA;
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.PEDRA_PRETA;
     }
 
     public Move ultimaJogada() {
@@ -113,8 +113,8 @@ public class Partida implements Serializable {
         return moves.get(moves.size() - 1);
     }
 
-    public Tabuleiro ultimoTabuleiro() {
-        return tabuleiros.get(tabuleiros.size() - 1);
+    public Board ultimoTabuleiro() {
+        return boards.get(boards.size() - 1);
     }
 
     /**
@@ -122,7 +122,7 @@ public class Partida implements Serializable {
      */
     public Move voltarUltimaJogada() {
         if (moves.isEmpty()) return null;
-        tabuleiros.remove(tabuleiros.size() - 1);
+        boards.remove(boards.size() - 1);
         Move lastMove = moves.remove(moves.size() - 1);
         numeroDeVezesQueVoltou++;
         return lastMove;
@@ -143,19 +143,19 @@ public class Partida implements Serializable {
     public void rotacionar(int direcao) {
         if (direcao != -1 && direcao != 1) return;
 
-        List<Tabuleiro> tabuleirosRotacionados = new ArrayList<>();
-        for (Tabuleiro tabuleiro : tabuleiros) {
-            tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
+        List<Board> tabuleirosRotacionados = new ArrayList<>();
+        for (Board board : boards) {
+            tabuleirosRotacionados.add(board.rotacionar(direcao));
         }
 
         List<Move> jogadasRotacionadas = new ArrayList<>();
         for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
-            Tabuleiro ultimo = tabuleirosRotacionados.get(i);
-            Tabuleiro penultimo = tabuleirosRotacionados.get(i - 1);
+            Board ultimo = tabuleirosRotacionados.get(i);
+            Board penultimo = tabuleirosRotacionados.get(i - 1);
             jogadasRotacionadas.add(ultimo.diferenca(penultimo));
         }
 
-        tabuleiros = tabuleirosRotacionados;
+        boards = tabuleirosRotacionados;
         moves = jogadasRotacionadas;
     }
 

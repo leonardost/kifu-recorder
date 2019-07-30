@@ -26,9 +26,9 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.StoneDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
@@ -56,7 +56,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     StoneDetector stoneDetector = new StoneDetector();
     CornerDetector[] cornerDetector;
     Partida partida;
-    Tabuleiro lastDetectedBoard;
+    Board lastDetectedBoard;
 
     int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
     long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
@@ -143,7 +143,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         stoneDetector.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
-        lastDetectedBoard = new Tabuleiro(dimensaoDoTabuleiro);
+        lastDetectedBoard = new Board(dimensaoDoTabuleiro);
         timeOfLastBoardDetection = SystemClock.elapsedRealtime();
         timeSinceLastBoardChange = 0;
         momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
@@ -329,10 +329,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         stoneDetector.setImagemDoTabuleiro(tabuleiroOrtogonal);
 
-        Tabuleiro tabuleiro = stoneDetector.detectar(
+        Board board = stoneDetector.detectar(
                 partida.ultimoTabuleiro(),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
-                partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
+                partida.proximaJogadaPodeSer(Board.PEDRA_PRETA),
+                partida.proximaJogadaPodeSer(Board.PEDRA_BRANCA)
         );
 
 //        snapshotAtual = stoneDetector.snapshot.toString();
@@ -340,10 +340,10 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (!paused) {
 
-            if (lastDetectedBoard.equals(tabuleiro)) {
+            if (lastDetectedBoard.equals(board)) {
                 timeSinceLastBoardChange += SystemClock.elapsedRealtime() - timeOfLastBoardDetection;
                 timeOfLastBoardDetection = SystemClock.elapsedRealtime();
-                if (timeSinceLastBoardChange > tempoLimite && partida.adicionarJogadaSeForValida(tabuleiro)) {
+                if (timeSinceLastBoardChange > tempoLimite && partida.adicionarJogadaSeForValida(board)) {
                     newMoveWasAdded();
                 }
             } else {
@@ -353,7 +353,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         }
 
-        lastDetectedBoard = tabuleiro;
+        lastDetectedBoard = board;
 
         Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
         logger.setCameraImageWithBoardContour(originalImage.clone());
@@ -365,7 +365,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 
         if (paused) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
-            Drawer.desenharTabuleiro(originalImage, tabuleiro, 0, 500, 400, null);
+            Drawer.desenharTabuleiro(originalImage, board, 0, 500, 400, null);
         }
         else {
             Drawer.desenharTabuleiro(originalImage, partida.ultimoTabuleiro(), 0, 500, 400, partida.ultimaJogada());
@@ -663,8 +663,8 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Move adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                    Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
-                    if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
+                    Board newBoard = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
+                    if (partida.adicionarJogadaSeForValida(newBoard)) {
                         newMoveWasAdded();
                         partida.adicionouJogadaManualmente();
                         logger.addToLog("Move " + adicionadaManualmente + " was manually added");
@@ -680,7 +680,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
 		textoJogada = textoJogada.trim();
 		if (textoJogada.length() != 3) return null;
 		textoJogada = textoJogada.toLowerCase();
-		int cor = textoJogada.charAt(0) == 'b' ? Tabuleiro.PEDRA_PRETA : Tabuleiro.PEDRA_BRANCA;
+		int cor = textoJogada.charAt(0) == 'b' ? Board.PEDRA_PRETA : Board.PEDRA_BRANCA;
 		int linha = textoJogada.charAt(1) - 'a';
 		int coluna = textoJogada.charAt(2) - 'a';
 		return new Move(linha, coluna, cor);

@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.StoneDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
@@ -115,15 +115,15 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 }
                 else {
                     for (int i = 0; i < line.length(); ++i) {
-                        int valor = Tabuleiro.VAZIO;
+                        int valor = Board.VAZIO;
                         if (line.charAt(i) == 'P') {
-                            valor = Tabuleiro.PEDRA_PRETA;
+                            valor = Board.PEDRA_PRETA;
                         }
                         else if (line.charAt(i) == 'B') {
-                            valor = Tabuleiro.PEDRA_BRANCA;
+                            valor = Board.PEDRA_BRANCA;
                         }
-                        if (valor != Tabuleiro.VAZIO) {
-                            casosDeTeste[currentTestCase - 1].getTabuleiro().colocarPedra(linhaAtual, i, valor);
+                        if (valor != Board.VAZIO) {
+                            casosDeTeste[currentTestCase - 1].getBoard().colocarPedra(linhaAtual, i, valor);
                         }
                     }
                     linhaAtual++;
@@ -137,7 +137,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
         for (int i = 0; i < casosDeTeste.length; ++i) {
             Log.i(TAG, "Tabuleiro correspondente à imagem " + (i + 1) + ": ");
             if (casosDeTeste[i] != null) {
-                Log.i(TAG, "" + casosDeTeste[i].getTabuleiro());
+                Log.i(TAG, "" + casosDeTeste[i].getBoard());
             }
         }
     }
@@ -266,17 +266,17 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
                 stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
-                Tabuleiro tabuleiro = stoneDetector.detectar();
-                if (tabuleiro != null && tabuleiro.equals(casosDeTeste[indiceImagem - 1].getTabuleiro())) {
-//                    Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+                Board board = stoneDetector.detectar();
+                if (board != null && board.equals(casosDeTeste[indiceImagem - 1].getBoard())) {
+//                    Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
                 }
                 else {
-//                    Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
+//                    Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " falhou:");
-                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + tabuleiro);
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + board);
                     Log.i(TAG, "não bateu com");
-                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + casosDeTeste[indiceImagem - 1].getTabuleiro());
+                    Log.i(TAG, "Caso de teste #" + indiceImagem + " " + casosDeTeste[indiceImagem - 1].getBoard());
                 }
             }
             rgba.release();
@@ -336,9 +336,9 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
         stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
         stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
-        Tabuleiro tabuleiro = stoneDetector.detectar();
-        if (tabuleiro != null) {
-            Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
+        Board board = stoneDetector.detectar();
+        if (board != null) {
+            Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400, null);
         }
 
         imagemProcessada = imagemFonte;
