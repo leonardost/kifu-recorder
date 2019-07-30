@@ -18,7 +18,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.InitialBoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.boardDetector.BoardDetector;
 
 public class DetectarTabuleiroActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
@@ -29,7 +29,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
     private int dimensaoDoTabuleiro;
     private Mat posicaoDoTabuleiroNaImagem = null;
     private MatOfPoint contornoDoTabuleiro;
-    DetectorDeTabuleiro detectorDeTabuleiro;
+    InitialBoardDetector initialBoardDetector;
     BoardDetector boardDetector;
 
     private String jogadorDePretas;
@@ -65,7 +65,7 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
         btnFixarTabuleiro.setOnClickListener(this);
         btnFixarTabuleiro.setEnabled(false);
 
-        detectorDeTabuleiro = new DetectorDeTabuleiro(true);
+        initialBoardDetector = new InitialBoardDetector(true);
         boardDetector = new BoardDetector();
 
         Intent i = getIntent();
@@ -109,13 +109,13 @@ public class DetectarTabuleiroActivity extends Activity implements CameraBridgeV
 
         Mat imagemFonte = inputFrame.rgba();
 
-        detectorDeTabuleiro.setImagem(imagemFonte.clone());
-        detectorDeTabuleiro.setImagemDePreview(imagemFonte);
-        if (detectorDeTabuleiro.processar()) {
+        initialBoardDetector.setImagem(imagemFonte.clone());
+        initialBoardDetector.setImagemDePreview(imagemFonte);
+        if (initialBoardDetector.processar()) {
             posicaoDoTabuleiroNaImagem =
-                    detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem();
+                    initialBoardDetector.getPosicaoDoTabuleiroNaImagem();
             contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
-            dimensaoDoTabuleiro = detectorDeTabuleiro.getDimensaoDoTabuleiro();
+            dimensaoDoTabuleiro = initialBoardDetector.getDimensaoDoTabuleiro();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

@@ -18,7 +18,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 /**
  * Detecta a posição de um tabuleiro em uma imagem e sua dimensão (9x9, 13x13 ou 19x19)
  */
-public class DetectorDeTabuleiro {
+public class InitialBoardDetector {
 
     // Imagem da câmera
     private Mat imagem;
@@ -30,7 +30,7 @@ public class DetectorDeTabuleiro {
     private Mat posicaoDoTabuleiroNaImagem;
     private boolean desenharPreview = false;
 
-    public DetectorDeTabuleiro(boolean desenharPreview) {
+    public InitialBoardDetector(boolean desenharPreview) {
         this.desenharPreview = desenharPreview;
     }
 

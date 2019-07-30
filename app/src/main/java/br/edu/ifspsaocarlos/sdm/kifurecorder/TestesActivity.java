@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.StoneDetector;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.InitialBoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
 
@@ -245,10 +245,10 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 Mat imagemOriginal = imagemFonte.clone();
 
                 // Detecção do tabuleiro
-                DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
-                detectorDeTabuleiro.setImagem(imagemFonte.clone());
-                detectorDeTabuleiro.setImagemDePreview(imagemFonte);
-                if (!detectorDeTabuleiro.processar()) {
+                InitialBoardDetector initialBoardDetector = new InitialBoardDetector(true);
+                initialBoardDetector.setImagem(imagemFonte.clone());
+                initialBoardDetector.setImagemDePreview(imagemFonte);
+                if (!initialBoardDetector.processar()) {
 //                    return imagemFonte;
                     continue;
                 }
@@ -257,13 +257,13 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 Mat imagemDoTabuleiroCorrigido =
                         ImageUtils.transformarOrtogonalmente(
                                 imagemOriginal,
-                                detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()
+                                initialBoardDetector.getPosicaoDoTabuleiroNaImagem()
                         );
                 imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
                 // Detecção das pedras
                 StoneDetector stoneDetector = new StoneDetector();
-                stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+                stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getDimensaoDoTabuleiro());
                 stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
                 Board board = stoneDetector.detectar();
@@ -294,10 +294,10 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
         Mat imagemOriginal = imagemFonte.clone();
 
         // Detecção do tabuleiro
-        DetectorDeTabuleiro detectorDeTabuleiro = new DetectorDeTabuleiro(true);
-        detectorDeTabuleiro.setImagem(imagemFonte.clone());
-        detectorDeTabuleiro.setImagemDePreview(imagemFonte);
-        if (!detectorDeTabuleiro.processar()) {
+        InitialBoardDetector initialBoardDetector = new InitialBoardDetector(true);
+        initialBoardDetector.setImagem(imagemFonte.clone());
+        initialBoardDetector.setImagemDePreview(imagemFonte);
+        if (!initialBoardDetector.processar()) {
             return imagemFonte;
         }
 
@@ -311,7 +311,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 ImageUtils.transformarOrtogonalmente(
                     imagemOriginal,
 //                    imagemOriginalPretoEBranco,
-                    detectorDeTabuleiro.getPosicaoDoTabuleiroNaImagem()
+                    initialBoardDetector.getPosicaoDoTabuleiroNaImagem()
                 );
 
         /*
@@ -333,7 +333,7 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
 
         // Detecção das pedras
         StoneDetector stoneDetector = new StoneDetector();
-        stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+        stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getDimensaoDoTabuleiro());
         stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
         Board board = stoneDetector.detectar();
