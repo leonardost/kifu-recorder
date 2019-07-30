@@ -38,8 +38,8 @@ public class Grupo {
         return liberdades.size() == 1;
     }
 
-    public boolean ehCapturadoPela(Jogada jogada) {
-        return jogada.cor != cor && estaEmAtari() && liberdades.contains(jogada.posicao());
+    public boolean ehCapturadoPela(Move move) {
+        return move.cor != cor && estaEmAtari() && liberdades.contains(move.posicao());
     }
 
     public boolean naoTemLiberdades() {

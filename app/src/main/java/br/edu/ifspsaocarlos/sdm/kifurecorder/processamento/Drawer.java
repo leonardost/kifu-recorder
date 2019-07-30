@@ -9,8 +9,8 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 
 /**
  * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
@@ -75,9 +75,9 @@ public class Drawer {
      * @param x
      * @param y
      * @param tamanhoImagem
-     * @param ultimaJogada
+     * @param lastMove
      */
-    public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem, Jogada ultimaJogada) {
+    public static void desenharTabuleiro(Mat imagem, Tabuleiro tabuleiro, int x, int y, int tamanhoImagem, Move lastMove) {
         Point p1 = new Point();
         Point p2 = new Point();
         double distanciaEntreLinhas = tamanhoImagem / (tabuleiro.getDimensao() + 1);
@@ -128,11 +128,11 @@ public class Drawer {
         }
 
         // Marca a última jogada feita
-        if (ultimaJogada != null) {
+        if (lastMove != null) {
             Point centro = new Point();
-            centro.x = x + distanciaEntreLinhas + ultimaJogada.coluna * distanciaEntreLinhas;
-            centro.y = y + distanciaEntreLinhas + ultimaJogada.linha * distanciaEntreLinhas;
-            Scalar corDaMarcacao = ultimaJogada.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
+            centro.x = x + distanciaEntreLinhas + lastMove.coluna * distanciaEntreLinhas;
+            centro.y = y + distanciaEntreLinhas + lastMove.linha * distanciaEntreLinhas;
+            Scalar corDaMarcacao = lastMove.cor == Tabuleiro.PEDRA_PRETA ? mWhite : mBlack;
             Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
             Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }

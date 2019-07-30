@@ -5,14 +5,14 @@ import java.io.Serializable;
 /**
  * Representa uma jogada feita em um jogo.
  */
-public class Jogada implements Serializable {
+public class Move implements Serializable {
 
     public boolean ehPasse;
     public int linha;
     public int coluna;
     public int cor;
 
-    public Jogada(int linha, int coluna, int cor) {
+    public Move(int linha, int coluna, int cor) {
         this.ehPasse = false;
         this.linha = linha;
         this.coluna = coluna;

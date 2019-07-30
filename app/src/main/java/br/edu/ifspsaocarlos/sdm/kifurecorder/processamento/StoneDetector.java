@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 
 /**
@@ -127,26 +127,26 @@ public class StoneDetector {
         // duas jogadas mais prováveis for muito pequena, desconsiderar ambas,
         // porque é um sinal que o detector está confuso
         
-        Jogada jogadaEscolhida = null;
+        Move chosenMove = null;
         double maiorConfianca = 0;
         for (MoveHypothesis hipotese : hipotesesDeJogadasEncontradas) {
             if (hipotese.confianca > maiorConfianca) {
                 maiorConfianca = hipotese.confianca;
-                jogadaEscolhida = new Jogada(hipotese.linha, hipotese.coluna, hipotese.cor);
+                chosenMove = new Move(hipotese.linha, hipotese.coluna, hipotese.cor);
             }
         }
 
-        if (jogadaEscolhida != null && (podeSerPedraPreta && jogadaEscolhida.cor == Tabuleiro.PEDRA_PRETA ||
-                podeSerPedraBranca && jogadaEscolhida.cor == Tabuleiro.PEDRA_BRANCA)) {
-            snapshot.append("Jogada escolhida = " + jogadaEscolhida + " com confiança " + maiorConfianca + "\n");
+        if (chosenMove != null && (podeSerPedraPreta && chosenMove.cor == Tabuleiro.PEDRA_PRETA ||
+                podeSerPedraBranca && chosenMove.cor == Tabuleiro.PEDRA_BRANCA)) {
+            snapshot.append("Jogada escolhida = " + chosenMove + " com confiança " + maiorConfianca + "\n");
         }
         else {
             snapshot.append("Nenhuma jogada detectada.\n");
-            jogadaEscolhida = null;
+            chosenMove = null;
         }
 
         Log.d(TestesActivity.TAG, "TEMPO (detectar()): " + (System.currentTimeMillis() - tempoEntrou));
-        return ultimoTabuleiro.gerarNovoTabuleiroComAJogada(jogadaEscolhida);
+        return ultimoTabuleiro.gerarNovoTabuleiroComAJogada(chosenMove);
     }
 
     private void encontrarCoresMedias(Tabuleiro ultimoTabuleiro, double[][] coresMedias, int[] contadores) {

@@ -26,7 +26,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 import org.opencv.imgproc.Imgproc;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Move;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
@@ -558,7 +558,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
                 .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Jogada removida = partida.voltarUltimaJogada();
+                        Move removida = partida.voltarUltimaJogada();
                         timeSinceLastBoardChange = 0;
                         timeOfLastBoardDetection = SystemClock.elapsedRealtime();
                         updateUndoButton();
@@ -662,7 +662,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Jogada adicionadaManualmente = processarJogadaManual(input.getText().toString());
+                    Move adicionadaManualmente = processarJogadaManual(input.getText().toString());
                     Tabuleiro novoTabuleiro = partida.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
                     if (partida.adicionarJogadaSeForValida(novoTabuleiro)) {
                         newMoveWasAdded();
@@ -676,14 +676,14 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
             .show();
     }
     
-    private Jogada processarJogadaManual(String textoJogada) {
+    private Move processarJogadaManual(String textoJogada) {
 		textoJogada = textoJogada.trim();
 		if (textoJogada.length() != 3) return null;
 		textoJogada = textoJogada.toLowerCase();
 		int cor = textoJogada.charAt(0) == 'b' ? Tabuleiro.PEDRA_PRETA : Tabuleiro.PEDRA_BRANCA;
 		int linha = textoJogada.charAt(1) - 'a';
 		int coluna = textoJogada.charAt(2) - 'a';
-		return new Jogada(linha, coluna, cor);
+		return new Move(linha, coluna, cor);
 	}
 
     private void newMoveWasAdded() {

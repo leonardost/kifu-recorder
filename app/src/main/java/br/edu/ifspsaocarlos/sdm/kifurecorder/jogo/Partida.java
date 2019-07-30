@@ -21,7 +21,7 @@ public class Partida implements Serializable {
     private String jogadorDeBrancas;
     private String komi;
     private int dimensaoDoTabuleiro;
-    private List<Jogada> jogadas;
+    private List<Move> moves;
     private List<Tabuleiro> tabuleiros;
 
     // Atributo para medir a precisão do sistema
@@ -33,7 +33,7 @@ public class Partida implements Serializable {
         this.jogadorDePretas = jogadorDePretas;
         this.jogadorDeBrancas = jogadorDeBrancas;
         this.komi = komi;
-        jogadas = new ArrayList<>();
+        moves = new ArrayList<>();
         tabuleiros = new ArrayList<>();
 
         Tabuleiro tabuleiroVazio = new Tabuleiro(dimensaoDoTabuleiro);
@@ -55,15 +55,15 @@ public class Partida implements Serializable {
     }
 
     public boolean adicionarJogadaSeForValida(Tabuleiro tabuleiro) {
-        Jogada jogadaFeita = tabuleiro.diferenca(ultimoTabuleiro());
+        Move movePlayed = tabuleiro.diferenca(ultimoTabuleiro());
 
-        if (jogadaFeita == null || repeteEstadoAnterior(tabuleiro) || !proximaJogadaPodeSer(jogadaFeita.cor)) {
+        if (movePlayed == null || repeteEstadoAnterior(tabuleiro) || !proximaJogadaPodeSer(movePlayed.cor)) {
             return false;
         }
 
         tabuleiros.add(tabuleiro);
-        jogadas.add(jogadaFeita);
-        Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + jogadaFeita.sgf() + ") à partida.");
+        moves.add(movePlayed);
+        Log.i(TestesActivity.TAG, "Adicionando tabuleiro " + tabuleiro + " (jogada " + movePlayed.sgf() + ") à partida.");
         return true;
     }
 
@@ -87,15 +87,15 @@ public class Partida implements Serializable {
     }
 
     private boolean ehPrimeiraJogada() {
-        return jogadas.isEmpty();
+        return moves.isEmpty();
     }
 
     /**
      * Este método é usado para verificar se as pedras de handicap estão sendo colocadas.
      */
     private boolean apenasPedrasPretasForamJogadas() {
-        for (Jogada jogada : jogadas) {
-            if (jogada.cor == Tabuleiro.PEDRA_BRANCA) return false;
+        for (Move move : moves) {
+            if (move.cor == Tabuleiro.PEDRA_BRANCA) return false;
         }
         return true;
     }
@@ -108,9 +108,9 @@ public class Partida implements Serializable {
         return !ehPrimeiraJogada() && ultimaJogada().cor == Tabuleiro.PEDRA_PRETA;
     }
 
-    public Jogada ultimaJogada() {
-        if (jogadas.isEmpty()) return null;
-        return jogadas.get(jogadas.size() - 1);
+    public Move ultimaJogada() {
+        if (moves.isEmpty()) return null;
+        return moves.get(moves.size() - 1);
     }
 
     public Tabuleiro ultimoTabuleiro() {
@@ -120,16 +120,16 @@ public class Partida implements Serializable {
     /**
      * Desconsidera a última jogada feita e a retorna
      */
-    public Jogada voltarUltimaJogada() {
-        if (jogadas.isEmpty()) return null;
+    public Move voltarUltimaJogada() {
+        if (moves.isEmpty()) return null;
         tabuleiros.remove(tabuleiros.size() - 1);
-        Jogada ultimaJogada = jogadas.remove(jogadas.size() - 1);
+        Move lastMove = moves.remove(moves.size() - 1);
         numeroDeVezesQueVoltou++;
-        return ultimaJogada;
+        return lastMove;
     }
 
     public int numeroDeJogadasFeitas() {
-        return jogadas.size();
+        return moves.size();
     }
 
     public void adicionouJogadaManualmente() {
@@ -148,7 +148,7 @@ public class Partida implements Serializable {
             tabuleirosRotacionados.add(tabuleiro.rotacionar(direcao));
         }
 
-        List<Jogada> jogadasRotacionadas = new ArrayList<>();
+        List<Move> jogadasRotacionadas = new ArrayList<>();
         for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
             Tabuleiro ultimo = tabuleirosRotacionados.get(i);
             Tabuleiro penultimo = tabuleirosRotacionados.get(i - 1);
@@ -156,7 +156,7 @@ public class Partida implements Serializable {
         }
 
         tabuleiros = tabuleirosRotacionados;
-        jogadas = jogadasRotacionadas;
+        moves = jogadasRotacionadas;
     }
 
     // SGF methods should be extracted to a SgfBuilder class that receives a Partida as parameter
@@ -168,9 +168,9 @@ public class Partida implements Serializable {
     public String sgf() {
         StringBuilder sgf = new StringBuilder();
         escreverCabecalho(sgf);
-        for (Jogada jogada : jogadas) {
-            Log.i(TestesActivity.TAG, "construindo SGF - jogada " + jogada.sgf());
-            sgf.append(jogada.sgf());
+        for (Move move : moves) {
+            Log.i(TestesActivity.TAG, "construindo SGF - jogada " + move.sgf());
+            sgf.append(move.sgf());
         }
         sgf.append(")");
         return sgf.toString();

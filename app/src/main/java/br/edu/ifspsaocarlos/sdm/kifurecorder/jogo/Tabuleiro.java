@@ -140,7 +140,7 @@ public class Tabuleiro implements Serializable {
      * Retorna a jogada de diferença deste tabuleiro para o anterior. Se não for possível chegar no
      * estado do tabuleiro atual a partir do anterior, retorna nulo.
      */
-    public Jogada diferenca(Tabuleiro tabuleiroAnterior) {
+    public Move diferenca(Tabuleiro tabuleiroAnterior) {
         int numeroDePedrasPretasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
         int numeroDePedrasBrancasAntes = tabuleiroAnterior.numeroDePedrasDaCor(Tabuleiro.PEDRA_BRANCA);
         int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Tabuleiro.PEDRA_PRETA);
@@ -152,10 +152,10 @@ public class Tabuleiro implements Serializable {
         if (diferencaDePedrasPretas == 1) corDaJogada = Tabuleiro.PEDRA_PRETA;
         else if (diferencaDePedrasBrancas == 1) corDaJogada = Tabuleiro.PEDRA_BRANCA;
         else return null;
-        Jogada jogadaFeita = jogadaDiferenteEntreTabuleiroAtualE(tabuleiroAnterior, corDaJogada);
+        Move movePlayed = jogadaDiferenteEntreTabuleiroAtualE(tabuleiroAnterior, corDaJogada);
 
-        if (tabuleiroAnterior.gerarNovoTabuleiroComAJogada(jogadaFeita).identico(this)) {
-            return jogadaFeita;
+        if (tabuleiroAnterior.gerarNovoTabuleiroComAJogada(movePlayed).identico(this)) {
+            return movePlayed;
         }
         return null;
     }
@@ -173,11 +173,11 @@ public class Tabuleiro implements Serializable {
     /**
      * Retorna a primeira pedra da cor especificada encontrada diferente entre os dois tabuleiros.
      */
-    private Jogada jogadaDiferenteEntreTabuleiroAtualE(Tabuleiro anterior, int cor) {
+    private Move jogadaDiferenteEntreTabuleiroAtualE(Tabuleiro anterior, int cor) {
         for (int i = 0; i < anterior.getDimensao(); ++i) {
             for (int j = 0; j < anterior.getDimensao(); ++j) {
                 if (tabuleiro[i][j] == cor && anterior.getPosicao(i, j) != tabuleiro[i][j]) {
-                    return new Jogada(i, j, cor);
+                    return new Move(i, j, cor);
                 }
             }
         }
@@ -188,30 +188,30 @@ public class Tabuleiro implements Serializable {
      * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
      * válida, retorna o tabuleiro antigo.
      */
-	public Tabuleiro gerarNovoTabuleiroComAJogada(Jogada jogada) {
-        if (jogada == null || tabuleiro[jogada.linha][jogada.coluna] != VAZIO) return this;
+	public Tabuleiro gerarNovoTabuleiroComAJogada(Move move) {
+        if (move == null || tabuleiro[move.linha][move.coluna] != VAZIO) return this;
 
         Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
-        for (Grupo grupo : recuperaGruposAdjacentesA(jogada)) {
+        for (Grupo grupo : recuperaGruposAdjacentesA(move)) {
             if (grupo == null) continue;
-            if (grupo.ehCapturadoPela(jogada)) novoTabuleiro.remove(grupo);
+            if (grupo.ehCapturadoPela(move)) novoTabuleiro.remove(grupo);
         }
 
-        novoTabuleiro.tabuleiro[jogada.linha][jogada.coluna] = jogada.cor;
+        novoTabuleiro.tabuleiro[move.linha][move.coluna] = move.cor;
 
-        Grupo grupoDaJogada = novoTabuleiro.grupoEm(jogada.linha, jogada.coluna);
+        Grupo grupoDaJogada = novoTabuleiro.grupoEm(move.linha, move.coluna);
         if (grupoDaJogada.naoTemLiberdades()) return this;
 
         return novoTabuleiro;
 	}
 
-    private Set<Grupo> recuperaGruposAdjacentesA(Jogada jogada) {
+    private Set<Grupo> recuperaGruposAdjacentesA(Move move) {
         Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha - 1, jogada.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha + 1, jogada.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna - 1));
-        gruposAdjacentesAJogada.add(grupoEm(jogada.linha, jogada.coluna + 1));
+        gruposAdjacentesAJogada.add(grupoEm(move.linha - 1, move.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(move.linha + 1, move.coluna));
+        gruposAdjacentesAJogada.add(grupoEm(move.linha, move.coluna - 1));
+        gruposAdjacentesAJogada.add(grupoEm(move.linha, move.coluna + 1));
         return gruposAdjacentesAJogada;
     }
 

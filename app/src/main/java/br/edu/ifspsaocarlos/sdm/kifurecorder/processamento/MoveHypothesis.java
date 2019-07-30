@@ -1,7 +1,5 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.processamento;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
-
 public class MoveHypothesis {
     public int linha;
     public int coluna;
