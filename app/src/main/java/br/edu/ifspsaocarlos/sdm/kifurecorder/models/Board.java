@@ -5,179 +5,179 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Representa um estado de tabuleiro
+ * Represents a board state
  */
 public class Board implements Serializable {
 
-    public final static int VAZIO = 0;
-    public final static int PEDRA_PRETA = 1;
-    public final static int PEDRA_BRANCA = 2;
+    public final static int EMPTY = 0;
+    public final static int BLACK_STONE = 1;
+    public final static int WHITE_STONE = 2;
 
-    private int dimensao;
-    private Integer[][] tabuleiro;
+    private int dimension;
+    private Integer[][] board;
 
-    public Board(int dimensao) {
-        this.dimensao = dimensao;
-        this.tabuleiro = new Integer[dimensao][dimensao];
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                tabuleiro[i][j] = VAZIO;
+    public Board(int dimension) {
+        this.dimension = dimension;
+        this.board = new Integer[dimension][dimension];
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                board[i][j] = EMPTY;
             }
         }
     }
 
     public Board(Board board) {
-        this.dimensao = board.dimensao;
-        this.tabuleiro = new Integer[dimensao][dimensao];
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                this.tabuleiro[i][j] = board.tabuleiro[i][j];
+        this.dimension = board.dimension;
+        this.board = new Integer[dimension][dimension];
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                this.board[i][j] = board.board[i][j];
             }
         }
     }
 
-    public int getDimensao() {
-        return dimensao;
+    public int getDimension() {
+        return dimension;
     }
 
-    public void colocarPedra(int linha, int coluna, int pedra) {
-        if (pedra != PEDRA_PRETA && pedra != PEDRA_BRANCA) {
-            throw new RuntimeException("Pedra inválida!");
+    public void putStone(int linha, int coluna, int pedra) {
+        if (pedra != BLACK_STONE && pedra != WHITE_STONE) {
+            throw new RuntimeException("Invalid stone!");
         }
-        if (ehPosicaoInvalida(linha, coluna)) {
-            throw new RuntimeException("Posição inválida!");
+        if (isAValidPosition(linha, coluna)) {
+            throw new RuntimeException("Invalid position!");
         }
-        if (tabuleiro[linha][coluna] != VAZIO) {
-			throw new RuntimeException("Já existe uma pedra nessa posição!");
+        if (board[linha][coluna] != EMPTY) {
+			throw new RuntimeException("There is already a stone in that position!");
 		}
-        tabuleiro[linha][coluna] = pedra;
+        board[linha][coluna] = pedra;
     }
 
-    private boolean ehPosicaoInvalida(int linha, int coluna) {
-        return linha < 0 || coluna < 0 || linha >= dimensao || coluna >= dimensao;
+    private boolean isAValidPosition(int row, int column) {
+        return row < 0 || column < 0 || row >= dimension || column >= dimension;
     }
 
-    public int getPosicao(int linha, int coluna) {
-        return tabuleiro[linha][coluna];
+    public int getPosition(int row, int column) {
+        return board[row][column];
     }
 
     public String toString() {
-        StringBuilder saida = new StringBuilder();
+        StringBuilder output = new StringBuilder();
 
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[i][j] == VAZIO) saida.append('.');
-                else if (tabuleiro[i][j] == PEDRA_PRETA) saida.append('P');
-                else if (tabuleiro[i][j] == PEDRA_BRANCA) saida.append('B');
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (board[i][j] == EMPTY) output.append('.');
+                else if (board[i][j] == BLACK_STONE) output.append('P');
+                else if (board[i][j] == WHITE_STONE) output.append('B');
             }
-            saida.append(System.getProperty("line.separator"));
+            output.append(System.getProperty("line.separator"));
         }
 
-        return saida.toString();
+        return output.toString();
     }
 
     /**
-     * Retorna um novo tabuleiro que correponde ao tabuleiro atual rotacionado em sentido horário
-     * (direcao = 1) ou anti-horário (direcao = -1).
+     * Returns a new board that corresponds to the current board rotated clockwise (direction = 1)
+     * or counter-clockwise (direction = -1)
      */
-    public Board rotacionar(int direcao) {
-        if (direcao == -1) return rotacionarEmSentidoAntihorario();
-        else if (direcao == 1) return rotacionarEmSentidoHorario();
-        throw new RuntimeException("Direção de rotação inválida!");
+    public Board rotate(int direction) {
+        if (direction == -1) return rotateCounterClockwise();
+        else if (direction == 1) return rotateClockwise();
+        throw new RuntimeException("Invalid rotation direction!");
     }
 
-    private Board rotacionarEmSentidoHorario() {
-        Board rotatedBoard = new Board(dimensao);
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[dimensao - 1 - j][i] != Board.VAZIO) {
-                    rotatedBoard.colocarPedra(i, j, tabuleiro[dimensao - 1 - j][i]);
+    private Board rotateClockwise() {
+        Board rotatedBoard = new Board(dimension);
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (board[dimension - 1 - j][i] != Board.EMPTY) {
+                    rotatedBoard.putStone(i, j, board[dimension - 1 - j][i]);
                 }
             }
         }
         return rotatedBoard;
     }
 
-    private Board rotacionarEmSentidoAntihorario() {
-        Board rotatedBoard = new Board(dimensao);
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[j][dimensao - 1 - i] != Board.VAZIO) {
-                    rotatedBoard.colocarPedra(i, j, tabuleiro[j][dimensao - 1 - i]);
+    private Board rotateCounterClockwise() {
+        Board rotatedBoard = new Board(dimension);
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (board[j][dimension - 1 - i] != Board.EMPTY) {
+                    rotatedBoard.putStone(i, j, board[j][dimension - 1 - i]);
                 }
             }
         }
         return rotatedBoard;
     }
 
-    public boolean identico(Board otherBoard) {
-        if (dimensao != otherBoard.dimensao) return false;
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (getPosicao(i, j) != otherBoard.getPosicao(i, j)) return false;
+    public boolean isIdenticalTo(Board otherBoard) {
+        if (dimension != otherBoard.dimension) return false;
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (getPosition(i, j) != otherBoard.getPosition(i, j)) return false;
             }
         }
         return true;
     }
 
     /**
-     * Verifica se dois tabuleiros são iguais, incluindo se um tabuleiro é uma rotação do outro.
+     * Checks if two board are equal, including if one is a rotation of the other.
      */
     @Override
-    public boolean equals(Object objeto) {
-        if (!(objeto instanceof Board)) return false;
-        Board otherBoard = (Board)objeto;
-        if (dimensao != otherBoard.dimensao) return false;
+    public boolean equals(Object object) {
+        if (!(object instanceof Board)) return false;
+        Board otherBoard = (Board)object;
+        if (dimension != otherBoard.dimension) return false;
 
-        Board rotacao1 = otherBoard.rotacionarEmSentidoHorario();
-        Board rotacao2 = rotacao1.rotacionarEmSentidoHorario();
-        Board rotacao3 = rotacao2.rotacionarEmSentidoHorario();
+        Board rotation1 = otherBoard.rotateClockwise();
+        Board rotation2 = rotation1.rotateClockwise();
+        Board rotation3 = rotation2.rotateClockwise();
 
-        return this.identico(otherBoard) || this.identico(rotacao1) || this.identico(rotacao2) || this.identico(rotacao3);
+        return this.isIdenticalTo(otherBoard) || this.isIdenticalTo(rotation1) || this.isIdenticalTo(rotation2) || this.isIdenticalTo(rotation3);
     }
 
     /**
-     * Retorna a jogada de diferença deste tabuleiro para o anterior. Se não for possível chegar no
-     * estado do tabuleiro atual a partir do anterior, retorna nulo.
+     * Returns the different move between this board and the previous one. If it's not possible to
+     * reach the current board from the previous one, returns null.
      */
-    public Move diferenca(Board previousBoard) {
-        int numeroDePedrasPretasAntes = previousBoard.numeroDePedrasDaCor(Board.PEDRA_PRETA);
-        int numeroDePedrasBrancasAntes = previousBoard.numeroDePedrasDaCor(Board.PEDRA_BRANCA);
-        int numeroDePedrasPretasDepois = numeroDePedrasDaCor(Board.PEDRA_PRETA);
-        int numeroDePedrasBrancasDepois = numeroDePedrasDaCor(Board.PEDRA_BRANCA);
-        int diferencaDePedrasPretas = numeroDePedrasPretasDepois - numeroDePedrasPretasAntes;
-        int diferencaDePedrasBrancas = numeroDePedrasBrancasDepois - numeroDePedrasBrancasAntes;
-        int corDaJogada;
+    public Move getDifferenceTo(Board previousBoard) {
+        int numberOfBlackStonesBefore = previousBoard.getNumberOfStonesOfColor(Board.BLACK_STONE);
+        int numberOfWhiteStonesBefore = previousBoard.getNumberOfStonesOfColor(Board.WHITE_STONE);
+        int numberOfBlackStonesAfter = getNumberOfStonesOfColor(Board.BLACK_STONE);
+        int numberOfWhiteStonesAfter = getNumberOfStonesOfColor(Board.WHITE_STONE);
+        int blackStonesDifference = numberOfBlackStonesAfter - numberOfBlackStonesBefore;
+        int whiteStonesDifference = numberOfWhiteStonesAfter - numberOfWhiteStonesBefore;
+        int moveColor;
 
-        if (diferencaDePedrasPretas == 1) corDaJogada = Board.PEDRA_PRETA;
-        else if (diferencaDePedrasBrancas == 1) corDaJogada = Board.PEDRA_BRANCA;
+        if (blackStonesDifference == 1) moveColor = Board.BLACK_STONE;
+        else if (whiteStonesDifference == 1) moveColor = Board.WHITE_STONE;
         else return null;
-        Move movePlayed = jogadaDiferenteEntreTabuleiroAtualE(previousBoard, corDaJogada);
+        Move movePlayed = getDifferentMoveBetweenCurrentBoardAnd(previousBoard, moveColor);
 
-        if (previousBoard.gerarNovoTabuleiroComAJogada(movePlayed).identico(this)) {
+        if (previousBoard.generateNewBoardWith(movePlayed).isIdenticalTo(this)) {
             return movePlayed;
         }
         return null;
     }
 
-    private int numeroDePedrasDaCor(int cor) {
-        int numeroDePedrasDessaCor = 0;
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                if (tabuleiro[i][j] == cor) ++numeroDePedrasDessaCor;
+    private int getNumberOfStonesOfColor(int cor) {
+        int numberOfStones = 0;
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                if (board[i][j] == cor) ++numberOfStones;
             }
         }
-        return numeroDePedrasDessaCor;
+        return numberOfStones;
     }
 
     /**
-     * Retorna a primeira pedra da cor especificada encontrada diferente entre os dois tabuleiros.
+     * Returns the first different stone found between the two boards of the specified color.
      */
-    private Move jogadaDiferenteEntreTabuleiroAtualE(Board anterior, int cor) {
-        for (int i = 0; i < anterior.getDimensao(); ++i) {
-            for (int j = 0; j < anterior.getDimensao(); ++j) {
-                if (tabuleiro[i][j] == cor && anterior.getPosicao(i, j) != tabuleiro[i][j]) {
-                    return new Move(i, j, cor);
+    private Move getDifferentMoveBetweenCurrentBoardAnd(Board previousBoard, int color) {
+        for (int i = 0; i < previousBoard.getDimension(); ++i) {
+            for (int j = 0; j < previousBoard.getDimension(); ++j) {
+                if (board[i][j] == color && previousBoard.getPosition(i, j) != board[i][j]) {
+                    return new Move(i, j, color);
                 }
             }
         }
@@ -185,81 +185,79 @@ public class Board implements Serializable {
     }
 
     /**
-     * Retorna um novo tabuleiro com a jogada passada como parâmetro feita. Se a jogada não for
-     * válida, retorna o tabuleiro antigo.
+     * Returns a new board that corresponds to the current board added with the move passed as
+     * parameter. If the move is not valid, returns the current board.
      */
-	public Board gerarNovoTabuleiroComAJogada(Move move) {
-        if (move == null || tabuleiro[move.linha][move.coluna] != VAZIO) return this;
+	public Board generateNewBoardWith(Move move) {
+        if (move == null || board[move.linha][move.coluna] != EMPTY) return this;
 
         Board newBoard = new Board(this);
 
-        for (Group group : recuperaGruposAdjacentesA(move)) {
+        for (Group group : getGroupsAdjacentTo(move)) {
             if (group == null) continue;
             if (group.ehCapturadoPela(move)) newBoard.remove(group);
         }
 
-        newBoard.tabuleiro[move.linha][move.coluna] = move.cor;
+        newBoard.board[move.linha][move.coluna] = move.cor;
 
-        Group groupOfMove = newBoard.grupoEm(move.linha, move.coluna);
+        Group groupOfMove = newBoard.getGroupAt(move.linha, move.coluna);
         if (groupOfMove.naoTemLiberdades()) return this;
 
         return newBoard;
 	}
 
-    private Set<Group> recuperaGruposAdjacentesA(Move move) {
-        Set<Group> gruposAdjacentesAJogada = new HashSet<>();
-        gruposAdjacentesAJogada.add(grupoEm(move.linha - 1, move.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(move.linha + 1, move.coluna));
-        gruposAdjacentesAJogada.add(grupoEm(move.linha, move.coluna - 1));
-        gruposAdjacentesAJogada.add(grupoEm(move.linha, move.coluna + 1));
-        return gruposAdjacentesAJogada;
+    private Set<Group> getGroupsAdjacentTo(Move move) {
+        Set<Group> groupsAdjacentToMove = new HashSet<>();
+        groupsAdjacentToMove.add(getGroupAt(move.linha - 1, move.coluna));
+        groupsAdjacentToMove.add(getGroupAt(move.linha + 1, move.coluna));
+        groupsAdjacentToMove.add(getGroupAt(move.linha, move.coluna - 1));
+        groupsAdjacentToMove.add(getGroupAt(move.linha, move.coluna + 1));
+        return groupsAdjacentToMove;
     }
 
     private void remove(Group group) {
         for (Position position : group.getPosicoes()) {
-            tabuleiro[position.linha][position.coluna] = VAZIO;
+            board[position.linha][position.coluna] = EMPTY;
         }
     }
 
     /**
-     * Retorna o grupo que está em determinada posição do tabuleiro ou nulo caso não haja nenhum
-     * grupo.
+     * Returns the group that is at a certain position on the board or null if there is no group.
      */
-    public Group grupoEm(int linha, int coluna) {
-        if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Board.VAZIO) return null;
+    public Group getGroupAt(int row, int column) {
+        if (isAValidPosition(row, column) || board[row][column] == Board.EMPTY) return null;
 
-        boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
-        for (int i = 0; i < dimensao; ++i) {
-            for (int j = 0; j < dimensao; ++j) {
-                posicoesVisitadas[i][j] = false;
+        boolean[][] visitedPositions = new boolean[dimension][dimension];
+        for (int i = 0; i < dimension; ++i) {
+            for (int j = 0; j < dimension; ++j) {
+                visitedPositions[i][j] = false;
             }
         }
 
-        int cor = tabuleiro[linha][coluna];
-        Group group = new Group(cor);
-        delimitarGrupo(linha, coluna, posicoesVisitadas, group);
+        int color = board[row][column];
+        Group group = new Group(color);
+        delimitGroup(row, column, visitedPositions, group);
         return group;
     }
 
     /**
-     * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo e
-     * suas liberdades.
+     * Does a depth-first search to find all stones that are part of this group and their liberties.
      */
-    private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Group group) {
-        if (ehPosicaoInvalida(linha, coluna) || posicoesVisitadas[linha][coluna]) return;
+    private void delimitGroup(int row, int column, boolean[][] visitedPositions, Group group) {
+        if (isAValidPosition(row, column) || visitedPositions[row][column]) return;
 
-        posicoesVisitadas[linha][coluna] = true;
+        visitedPositions[row][column] = true;
 
-        if (tabuleiro[linha][coluna] == Board.VAZIO) {
-            group.adicionarLiberdade(new Position(linha, coluna));
+        if (board[row][column] == Board.EMPTY) {
+            group.adicionarLiberdade(new Position(row, column));
         }
-        else if (tabuleiro[linha][coluna] == group.getCor()) {
-            group.adicionarPosicao(new Position(linha, coluna));
+        else if (board[row][column] == group.getCor()) {
+            group.adicionarPosicao(new Position(row, column));
 
-            delimitarGrupo(linha - 1, coluna, posicoesVisitadas, group);
-            delimitarGrupo(linha + 1, coluna, posicoesVisitadas, group);
-            delimitarGrupo(linha, coluna - 1, posicoesVisitadas, group);
-            delimitarGrupo(linha, coluna + 1, posicoesVisitadas, group);
+            delimitGroup(row - 1, column, visitedPositions, group);
+            delimitGroup(row + 1, column, visitedPositions, group);
+            delimitGroup(row, column - 1, visitedPositions, group);
+            delimitGroup(row, column + 1, visitedPositions, group);
         }
     }
 

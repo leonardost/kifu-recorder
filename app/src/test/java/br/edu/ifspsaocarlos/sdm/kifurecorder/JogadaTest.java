@@ -11,7 +11,7 @@ public class JogadaTest extends AndroidTestCase {
 
     @Test
     public void testSgf() {
-        Move move = new Move(0, 0, Board.PEDRA_PRETA);
+        Move move = new Move(0, 0, Board.BLACK_STONE);
         assertEquals("[aa]", move.sgf());
     }
 

@@ -55,7 +55,7 @@ public class Game implements Serializable {
     }
 
     public boolean adicionarJogadaSeForValida(Board board) {
-        Move movePlayed = board.diferenca(ultimoTabuleiro());
+        Move movePlayed = board.getDifferenceTo(ultimoTabuleiro());
 
         if (movePlayed == null || repeteEstadoAnterior(board) || !proximaJogadaPodeSer(movePlayed.cor)) {
             return false;
@@ -79,9 +79,9 @@ public class Game implements Serializable {
     }
 
     public boolean proximaJogadaPodeSer(int cor) {
-        if (cor == Board.PEDRA_PRETA)
+        if (cor == Board.BLACK_STONE)
             return ehPrimeiraJogada() || apenasPedrasPretasForamJogadas() || ultimaJogadaFoiBranca();
-        else if (cor == Board.PEDRA_BRANCA)
+        else if (cor == Board.WHITE_STONE)
             return ultimaJogadaFoiPreta();
         return false;
     }
@@ -95,17 +95,17 @@ public class Game implements Serializable {
      */
     private boolean apenasPedrasPretasForamJogadas() {
         for (Move move : moves) {
-            if (move.cor == Board.PEDRA_BRANCA) return false;
+            if (move.cor == Board.WHITE_STONE) return false;
         }
         return true;
     }
 
     private boolean ultimaJogadaFoiBranca() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.PEDRA_BRANCA;
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.WHITE_STONE;
     }
 
     private boolean ultimaJogadaFoiPreta() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.PEDRA_PRETA;
+        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.BLACK_STONE;
     }
 
     public Move ultimaJogada() {
@@ -145,14 +145,14 @@ public class Game implements Serializable {
 
         List<Board> tabuleirosRotacionados = new ArrayList<>();
         for (Board board : boards) {
-            tabuleirosRotacionados.add(board.rotacionar(direcao));
+            tabuleirosRotacionados.add(board.rotate(direcao));
         }
 
         List<Move> jogadasRotacionadas = new ArrayList<>();
         for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
             Board ultimo = tabuleirosRotacionados.get(i);
             Board penultimo = tabuleirosRotacionados.get(i - 1);
-            jogadasRotacionadas.add(ultimo.diferenca(penultimo));
+            jogadasRotacionadas.add(ultimo.getDifferenceTo(penultimo));
         }
 
         boards = tabuleirosRotacionados;
@@ -185,7 +185,7 @@ public class Game implements Serializable {
         escreverProperiedade(sgf, "FF", "4");     // Versão do SGF
         escreverProperiedade(sgf, "GM", "1");     // Tipo de jogo (1 = Go)
         escreverProperiedade(sgf, "CA", "UTF-8");
-        escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimensao());
+        escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimension());
         escreverProperiedade(sgf, "DT", data);
         escreverProperiedade(sgf, "AP", "Kifu Recorder v" + BuildConfig.VERSION_NAME);
         escreverProperiedade(sgf, "KM", komi);

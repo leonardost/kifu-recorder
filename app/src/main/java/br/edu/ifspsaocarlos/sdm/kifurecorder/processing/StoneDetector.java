@@ -48,8 +48,8 @@ public class StoneDetector {
                 double[] color = recuperarCorMediaNaPosicao(i, j);
 
                 int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
-                if (hipotese != Board.VAZIO) {
-                    board.colocarPedra(i, j, hipotese);
+                if (hipotese != Board.EMPTY) {
+                    board.putStone(i, j, hipotese);
                 }
             }
         }
@@ -81,15 +81,15 @@ public class StoneDetector {
                 snapshot.append(String.format("(%1$2d, %2$2d)", i, j) + "\n");
 
                 // Ignora as interseções das jogadas que já foram feitas
-                if (lastBoard.getPosicao(i, j) != Board.VAZIO) continue;
+                if (lastBoard.getPosition(i, j) != Board.EMPTY) continue;
 
                 double[] corAoRedorDaPosicao = recuperarCorMediaNaPosicao(i, j);
 
                 double[][] coresNasPosicoesLivresAdjacentes = new double[4][];
-                coresNasPosicoesLivresAdjacentes[0] = (i > 0) ? lastBoard.getPosicao(i - 1, j) == Board.VAZIO ? recuperarCorMediaNaPosicao(i - 1, j) : null : null;
-                coresNasPosicoesLivresAdjacentes[1] = (j < dimensaoDoTabuleiro - 1) ? lastBoard.getPosicao(i, j + 1) == Board.VAZIO ? recuperarCorMediaNaPosicao(i, j + 1) : null : null;
-                coresNasPosicoesLivresAdjacentes[2] = (i < dimensaoDoTabuleiro - 1) ? lastBoard.getPosicao(i + 1, j) == Board.VAZIO ? recuperarCorMediaNaPosicao(i + 1, j) : null : null;
-                coresNasPosicoesLivresAdjacentes[3] = (j > 0) ? lastBoard.getPosicao(i, j - 1) == Board.VAZIO ? recuperarCorMediaNaPosicao(i, j - 1) : null : null;
+                coresNasPosicoesLivresAdjacentes[0] = (i > 0) ? lastBoard.getPosition(i - 1, j) == Board.EMPTY ? recuperarCorMediaNaPosicao(i - 1, j) : null : null;
+                coresNasPosicoesLivresAdjacentes[1] = (j < dimensaoDoTabuleiro - 1) ? lastBoard.getPosition(i, j + 1) == Board.EMPTY ? recuperarCorMediaNaPosicao(i, j + 1) : null : null;
+                coresNasPosicoesLivresAdjacentes[2] = (i < dimensaoDoTabuleiro - 1) ? lastBoard.getPosition(i + 1, j) == Board.EMPTY ? recuperarCorMediaNaPosicao(i + 1, j) : null : null;
+                coresNasPosicoesLivresAdjacentes[3] = (j > 0) ? lastBoard.getPosition(i, j - 1) == Board.EMPTY ? recuperarCorMediaNaPosicao(i, j - 1) : null : null;
 
 /*                Log.d(TestsActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao));
                 Log.d(TestsActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao));
@@ -105,15 +105,15 @@ public class StoneDetector {
 
                 snapshot.append("    Hipótese = " + hipotese.cor + " (confiança: " + hipotese.confianca + ")\n");
 
-                if (hipotese.cor != Board.VAZIO) {
+                if (hipotese.cor != Board.EMPTY) {
                     hipotesesDeJogadasEncontradas.add(hipotese);
                 }
                 /*
                 Ao invés de filtrar as jogadas por cor antes, vamos filtrá-las depois, acho que faz mais
                 sentido. Pega-se a jogada mais provável e verifica-se se ela é possível.
-                if (hipotese.cor != Board.VAZIO) {
-                    if (podeSerPedraPreta && hipotese.cor == Board.PEDRA_PRETA ||
-                            podeSerPedraBranca && hipotese.cor == Board.PEDRA_BRANCA) {
+                if (hipotese.cor != Board.EMPTY) {
+                    if (podeSerPedraPreta && hipotese.cor == Board.BLACK_STONE ||
+                            podeSerPedraBranca && hipotese.cor == Board.WHITE_STONE) {
                         hipotesesDeJogadasEncontradas.add(hipotese);
                     }
                 }
@@ -136,8 +136,8 @@ public class StoneDetector {
             }
         }
 
-        if (chosenMove != null && (podeSerPedraPreta && chosenMove.cor == Board.PEDRA_PRETA ||
-                podeSerPedraBranca && chosenMove.cor == Board.PEDRA_BRANCA)) {
+        if (chosenMove != null && (podeSerPedraPreta && chosenMove.cor == Board.BLACK_STONE ||
+                podeSerPedraBranca && chosenMove.cor == Board.WHITE_STONE)) {
             snapshot.append("Jogada escolhida = " + chosenMove + " com confiança " + maiorConfianca + "\n");
         }
         else {
@@ -146,18 +146,18 @@ public class StoneDetector {
         }
 
         Log.d(TestsActivity.TAG, "TEMPO (detectar()): " + (System.currentTimeMillis() - tempoEntrou));
-        return lastBoard.gerarNovoTabuleiroComAJogada(chosenMove);
+        return lastBoard.generateNewBoardWith(chosenMove);
     }
 
     private void encontrarCoresMedias(Board lastBoard, double[][] coresMedias, int[] contadores) {
         long tempoEntrou = System.currentTimeMillis();
-        contadores[Board.VAZIO] = 0;
-        contadores[Board.PEDRA_PRETA] = 0;
-        contadores[Board.PEDRA_BRANCA] = 0;
+        contadores[Board.EMPTY] = 0;
+        contadores[Board.BLACK_STONE] = 0;
+        contadores[Board.WHITE_STONE] = 0;
 
         for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
             for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
-                int corNaPosicao = lastBoard.getPosicao(i, j);
+                int corNaPosicao = lastBoard.getPosition(i, j);
                 contadores[corNaPosicao]++;
                 double[] mediaDeCorNaPosicao = recuperarCorMediaNaPosicao(i, j);
 
@@ -176,13 +176,13 @@ public class StoneDetector {
 //                Log.d(TestsActivity.TAG, "Cor média[" + i + "] = " + printColor(coresMedias[i]));
 //                Log.d(TestsActivity.TAG, "Luminancia[" + i + "] = " + luminancia(coresMedias[i]));
                 snapshot.append("Cor média (");
-                if (i == Board.VAZIO) {
+                if (i == Board.EMPTY) {
                     snapshot.append("interseções livres");
                 }
-                else if (i == Board.PEDRA_PRETA) {
+                else if (i == Board.BLACK_STONE) {
                     snapshot.append("pedras pretas");
                 }
-                else if (i == Board.PEDRA_BRANCA) {
+                else if (i == Board.WHITE_STONE) {
                     snapshot.append("pedras brancas");
                 }
                 snapshot.append(") = " + printColor(coresMedias[i]) + "\n");
@@ -208,26 +208,26 @@ public class StoneDetector {
         double distanciaParaMediaIntersecoes = 999;
         double distanciaParaLuminanciaIntersecoes = 999;
         double distanciaParaVarianciaIntersecoes = 999;
-        if (contadores[Board.VAZIO] > 0) {
-            distanciaParaMediaIntersecoes = distanciaDeCor(cor, coresMedias[Board.VAZIO]);
-            distanciaParaLuminanciaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.VAZIO])) ;
-            distanciaParaVarianciaIntersecoes = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.VAZIO]));
+        if (contadores[Board.EMPTY] > 0) {
+            distanciaParaMediaIntersecoes = distanciaDeCor(cor, coresMedias[Board.EMPTY]);
+            distanciaParaLuminanciaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.EMPTY])) ;
+            distanciaParaVarianciaIntersecoes = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.EMPTY]));
         }
         double distanciaParaMediaPecasPretas = 999;
         double distanciaParaLuminanciaPecasPretas = 999;
         double distanciaParaVarianciaPecasPretas = 999;
-        if (contadores[Board.PEDRA_PRETA] > 0) {
-            distanciaParaMediaPecasPretas = distanciaDeCor(cor, coresMedias[Board.PEDRA_PRETA]);
-            distanciaParaLuminanciaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.PEDRA_PRETA]));
-            distanciaParaVarianciaPecasPretas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.PEDRA_PRETA]));
+        if (contadores[Board.BLACK_STONE] > 0) {
+            distanciaParaMediaPecasPretas = distanciaDeCor(cor, coresMedias[Board.BLACK_STONE]);
+            distanciaParaLuminanciaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.BLACK_STONE]));
+            distanciaParaVarianciaPecasPretas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.BLACK_STONE]));
         }
         double distanciaParaMediaPecasBrancas = 999;
         double distanciaParaLuminanciaPecasBrancas = 999;
         double distanciaParaVarianciaPecasBrancas = 999;
-        if (contadores[Board.PEDRA_BRANCA] > 0) {
-            distanciaParaMediaPecasBrancas = distanciaDeCor(cor, coresMedias[Board.PEDRA_BRANCA]);
-            distanciaParaLuminanciaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.PEDRA_BRANCA]));
-            distanciaParaVarianciaPecasBrancas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.PEDRA_BRANCA]));
+        if (contadores[Board.WHITE_STONE] > 0) {
+            distanciaParaMediaPecasBrancas = distanciaDeCor(cor, coresMedias[Board.WHITE_STONE]);
+            distanciaParaLuminanciaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.WHITE_STONE]));
+            distanciaParaVarianciaPecasBrancas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.WHITE_STONE]));
         }
 
         double distanciaParaIntersecoes = distanciaParaMediaIntersecoes + distanciaParaLuminanciaIntersecoes + distanciaParaVarianciaIntersecoes;
@@ -247,40 +247,40 @@ public class StoneDetector {
         snapshot.append("    Distancia para variancia das interseçoes  = " + distanciaParaVarianciaIntersecoes + "\n");
         snapshot.append("    Distância para interseções                = " + distanciaParaIntersecoes + "\n");
 
-        if (contadores[Board.PEDRA_PRETA] == 0 && contadores[Board.PEDRA_BRANCA] == 0) {
+        if (contadores[Board.BLACK_STONE] == 0 && contadores[Board.WHITE_STONE] == 0) {
             if (diferencaDeLuminanciaParaOsVizinhos < -30) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
             if (distanciaParaPreto < 50) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 0.9);
+                return new MoveHypothesis(Board.BLACK_STONE, 0.9);
             }
             if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 0.7);
+                return new MoveHypothesis(Board.BLACK_STONE, 0.7);
             }
-            return new MoveHypothesis(Board.VAZIO, 1);
+            return new MoveHypothesis(Board.EMPTY, 1);
         }
 
-        if (contadores[Board.PEDRA_BRANCA] == 0) {
+        if (contadores[Board.WHITE_STONE] == 0) {
             if (diferencaDeLuminanciaParaOsVizinhos < -30) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
             if (distanciaParaPreto < 50) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 0.9);
+                return new MoveHypothesis(Board.BLACK_STONE, 0.9);
             }
             if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 0.7);
+                return new MoveHypothesis(Board.BLACK_STONE, 0.7);
             }
             if (diferencaDeLuminanciaParaOsVizinhos > 30) {
-                return new MoveHypothesis(Board.PEDRA_BRANCA, 1);
+                return new MoveHypothesis(Board.WHITE_STONE, 1);
             }
             if (diferencaDeLuminanciaParaOsVizinhos > 15) {
-                return new MoveHypothesis(Board.PEDRA_BRANCA, 0.9);
+                return new MoveHypothesis(Board.WHITE_STONE, 0.9);
             }
             // Estes valores para pedras brancas precisariam ser revistos
             /*else if (cor[2] >= 150) {
-                return new MoveHypothesis(Board.PEDRA_BRANCA, 0.7);
+                return new MoveHypothesis(Board.WHITE_STONE, 0.7);
             }*/
-            return new MoveHypothesis(Board.VAZIO, 1);
+            return new MoveHypothesis(Board.EMPTY, 1);
         }
 
         // Esta condição foi adicionada porque quando uma pedra preta era jogada de forma inválida
@@ -289,64 +289,64 @@ public class StoneDetector {
         // contraste. Verificar se as interseções se parecem com interseções vazias antes de
         // verificar se se parecem com pedras brancas resolve esse problema.
         if (distanciaParaMediaIntersecoes < 20) {
-            return new MoveHypothesis(Board.VAZIO, 1);
+            return new MoveHypothesis(Board.EMPTY, 1);
         }
         if (distanciaParaPreto < 30 || diferencaDeLuminanciaParaOsVizinhos < -30) {
             if (distanciaParaPretas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaPretas > 100) {
-                return new MoveHypothesis(Board.PEDRA_PRETA, 1);
+                return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
         }
 /*        if (diferencaDeLuminanciaParaOsVizinhos > 30) {
             // O 0.99 é só para os casos em que uma pedra preta é colocada mas uma pedra branca é detectada
             // erroneamente. Com esta confiança em 0.99, a pedra preta tem prioridade.
-            return new MoveHypothesis(Board.PEDRA_BRANCA, 0.99);
+            return new MoveHypothesis(Board.WHITE_STONE, 0.99);
         }*/
         if (diferencaDeLuminanciaParaOsVizinhos > 15) {
             // Esta verificação é importante, por isso resolvi deixar apenas esta condição de > 15 e tirar a de cima
             if (distanciaParaBrancas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaBrancas > 100) {
-                return new MoveHypothesis(Board.PEDRA_BRANCA, 0.99);
+                return new MoveHypothesis(Board.WHITE_STONE, 0.99);
             }
         }
 
         double[] probabilidadeDeSer = new double[3];
 
-        probabilidadeDeSer[Board.PEDRA_PRETA] = 1 - (distanciaParaPretas);
-        probabilidadeDeSer[Board.PEDRA_BRANCA] = 1 - (distanciaParaBrancas);
-        probabilidadeDeSer[Board.VAZIO] = 1 - (distanciaParaIntersecoes);
+        probabilidadeDeSer[Board.BLACK_STONE] = 1 - (distanciaParaPretas);
+        probabilidadeDeSer[Board.WHITE_STONE] = 1 - (distanciaParaBrancas);
+        probabilidadeDeSer[Board.EMPTY] = 1 - (distanciaParaIntersecoes);
 
-        snapshot.append("    Probabilidade de ser pedra preta  = " + probabilidadeDeSer[Board.PEDRA_PRETA] + "\n");
-        snapshot.append("    Probabilidade de ser pedra branca = " + probabilidadeDeSer[Board.PEDRA_BRANCA] + "\n");
-        snapshot.append("    Probabilidade de ser vazio        = " + probabilidadeDeSer[Board.VAZIO] + "\n");
+        snapshot.append("    Probabilidade de ser pedra preta  = " + probabilidadeDeSer[Board.BLACK_STONE] + "\n");
+        snapshot.append("    Probabilidade de ser pedra branca = " + probabilidadeDeSer[Board.WHITE_STONE] + "\n");
+        snapshot.append("    Probabilidade de ser vazio        = " + probabilidadeDeSer[Board.EMPTY] + "\n");
 
-        if (probabilidadeDeSer[Board.PEDRA_PRETA] > probabilidadeDeSer[Board.PEDRA_BRANCA] &&
-                probabilidadeDeSer[Board.PEDRA_PRETA] > probabilidadeDeSer[Board.VAZIO]) {
+        if (probabilidadeDeSer[Board.BLACK_STONE] > probabilidadeDeSer[Board.WHITE_STONE] &&
+                probabilidadeDeSer[Board.BLACK_STONE] > probabilidadeDeSer[Board.EMPTY]) {
 
-            if (Math.abs(probabilidadeDeSer[Board.PEDRA_PRETA] - probabilidadeDeSer[Board.VAZIO]) < 100) {
-                return new MoveHypothesis(Board.VAZIO, 0.5);
+            if (Math.abs(probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.EMPTY]) < 100) {
+                return new MoveHypothesis(Board.EMPTY, 0.5);
             }
 
-            double diferencas = probabilidadeDeSer[Board.PEDRA_PRETA] - probabilidadeDeSer[Board.PEDRA_BRANCA];
-            diferencas += probabilidadeDeSer[Board.PEDRA_PRETA] - probabilidadeDeSer[Board.VAZIO];
+            double diferencas = probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.WHITE_STONE];
+            diferencas += probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.EMPTY];
             snapshot.append("    Hipótese de ser pedra preta com diferenças de " + (diferencas / 2) + "\n");
-            return new MoveHypothesis(Board.PEDRA_PRETA, diferencas / 2);
+            return new MoveHypothesis(Board.BLACK_STONE, diferencas / 2);
         }
 
-        if (probabilidadeDeSer[Board.PEDRA_BRANCA] > probabilidadeDeSer[Board.PEDRA_PRETA] &&
-                probabilidadeDeSer[Board.PEDRA_BRANCA] > probabilidadeDeSer[Board.VAZIO]) {
+        if (probabilidadeDeSer[Board.WHITE_STONE] > probabilidadeDeSer[Board.BLACK_STONE] &&
+                probabilidadeDeSer[Board.WHITE_STONE] > probabilidadeDeSer[Board.EMPTY]) {
 
             // Esta possível pedra branca está quase indistinguível de uma interseção vazia.
             // Para diminuir os falsos positivos, consideramos que é uma interseção bazia.
-            if (Math.abs(probabilidadeDeSer[Board.PEDRA_BRANCA] - probabilidadeDeSer[Board.VAZIO]) < 100) {
-                return new MoveHypothesis(Board.VAZIO, 0.5);
+            if (Math.abs(probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.EMPTY]) < 100) {
+                return new MoveHypothesis(Board.EMPTY, 0.5);
             }
 
-            double diferencas = probabilidadeDeSer[Board.PEDRA_BRANCA] - probabilidadeDeSer[Board.PEDRA_PRETA];
-            diferencas += probabilidadeDeSer[Board.PEDRA_BRANCA] - probabilidadeDeSer[Board.VAZIO];
+            double diferencas = probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.BLACK_STONE];
+            diferencas += probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.EMPTY];
             snapshot.append("    Hipótese de ser pedra branca com diferenças de " + (diferencas / 2) + "\n");
-            return new MoveHypothesis(Board.PEDRA_BRANCA, diferencas / 2);
+            return new MoveHypothesis(Board.WHITE_STONE, diferencas / 2);
         }
 
-        return new MoveHypothesis(Board.VAZIO, 1);
+        return new MoveHypothesis(Board.EMPTY, 1);
     }
 
     private double diferencaDeLuminancia(double cor[], double corNasPosicoesAdjacentes[][]) {
@@ -503,27 +503,27 @@ public class StoneDetector {
 
         // Testando outras hipóteses
         if (distanciaParaPreto < 80 || distanciaParaPreto < distanciaParaCorMedia) {
-            return Board.PEDRA_PRETA;
+            return Board.BLACK_STONE;
         }
 //        else if (cor[2] >= 150) {
         else if (cor[2] >= corMediaDoTabuleiro[2] * 1.35) {
-            return Board.PEDRA_BRANCA;
+            return Board.WHITE_STONE;
         }
         else if (true) {
-            return Board.VAZIO;
+            return Board.EMPTY;
         }
 
         // Se a distância para a média for menor que um certo threshold, muito provavelmente é uma
         // intersecção vazia
         if (distanciaParaCorMedia < 120) {
-            return Board.VAZIO;
+            return Board.EMPTY;
         }
 
         if (distanciaParaPreto < distanciaParaBranco) {
-            return Board.PEDRA_PRETA;
+            return Board.BLACK_STONE;
         }
         else {
-            return Board.PEDRA_BRANCA;
+            return Board.WHITE_STONE;
         }
     }
 

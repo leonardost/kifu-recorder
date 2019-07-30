@@ -115,15 +115,15 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
                 }
                 else {
                     for (int i = 0; i < line.length(); ++i) {
-                        int valor = Board.VAZIO;
+                        int valor = Board.EMPTY;
                         if (line.charAt(i) == 'P') {
-                            valor = Board.PEDRA_PRETA;
+                            valor = Board.BLACK_STONE;
                         }
                         else if (line.charAt(i) == 'B') {
-                            valor = Board.PEDRA_BRANCA;
+                            valor = Board.WHITE_STONE;
                         }
-                        if (valor != Board.VAZIO) {
-                            casosDeTeste[currentTestCase - 1].getBoard().colocarPedra(linhaAtual, i, valor);
+                        if (valor != Board.EMPTY) {
+                            casosDeTeste[currentTestCase - 1].getBoard().putStone(linhaAtual, i, valor);
                         }
                     }
                     linhaAtual++;

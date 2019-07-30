@@ -80,9 +80,9 @@ public class Drawer {
     public static void desenharTabuleiro(Mat imagem, Board board, int x, int y, int tamanhoImagem, Move lastMove) {
         Point p1 = new Point();
         Point p2 = new Point();
-        double distanciaEntreLinhas = tamanhoImagem / (board.getDimensao() + 1);
+        double distanciaEntreLinhas = tamanhoImagem / (board.getDimension() + 1);
         double fimDasLinhas = tamanhoImagem - distanciaEntreLinhas;
-        int raioDaPedra = 29 - board.getDimensao(); // estava usando tamanhoImagem / 20 para o 9x9
+        int raioDaPedra = 29 - board.getDimension(); // estava usando tamanhoImagem / 20 para o 9x9
         p1.x = x;
         p1.y = y;
         p2.x = x + tamanhoImagem;
@@ -91,7 +91,7 @@ public class Drawer {
         Imgproc.rectangle(imagem, p1, p2, mBoardBrown, -1);
 
         // Desenha linhas horizontais
-        for (int i = 0; i < board.getDimensao(); ++i) {
+        for (int i = 0; i < board.getDimension(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
             inicio.x = x + distanciaEntreLinhas;
@@ -102,7 +102,7 @@ public class Drawer {
         }
 
         // Desenha linhas verticais
-        for (int i = 0; i < board.getDimensao(); ++i) {
+        for (int i = 0; i < board.getDimension(); ++i) {
             Point inicio = new Point();
             Point fim = new Point();
             inicio.x = x + distanciaEntreLinhas + distanciaEntreLinhas * i;
@@ -113,14 +113,14 @@ public class Drawer {
         }
 
         // Desenha pedras
-        for (int i = 0; i < board.getDimensao(); ++i) {
-            for (int j = 0; j < board.getDimensao(); ++j) {
+        for (int i = 0; i < board.getDimension(); ++i) {
+            for (int j = 0; j < board.getDimension(); ++j) {
                 Point centro = new Point();
                 centro.x = x + distanciaEntreLinhas + j * distanciaEntreLinhas;
                 centro.y = y + distanciaEntreLinhas + i * distanciaEntreLinhas;
-                if (board.getPosicao(i, j) == Board.PEDRA_PRETA) {
+                if (board.getPosition(i, j) == Board.BLACK_STONE) {
                     Imgproc.circle(imagem, centro, raioDaPedra, mBlack, -1);
-                } else if (board.getPosicao(i, j) == Board.PEDRA_BRANCA) {
+                } else if (board.getPosition(i, j) == Board.WHITE_STONE) {
                     Imgproc.circle(imagem, centro, raioDaPedra, mWhite, -1);
                     Imgproc.circle(imagem, centro, raioDaPedra, mBlack);
                 }
@@ -132,7 +132,7 @@ public class Drawer {
             Point centro = new Point();
             centro.x = x + distanciaEntreLinhas + lastMove.coluna * distanciaEntreLinhas;
             centro.y = y + distanciaEntreLinhas + lastMove.linha * distanciaEntreLinhas;
-            Scalar corDaMarcacao = lastMove.cor == Board.PEDRA_PRETA ? mWhite : mBlack;
+            Scalar corDaMarcacao = lastMove.cor == Board.BLACK_STONE ? mWhite : mBlack;
             Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
             Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }

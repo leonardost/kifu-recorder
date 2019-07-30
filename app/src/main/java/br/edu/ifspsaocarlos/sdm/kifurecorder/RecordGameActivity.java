@@ -331,8 +331,8 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         Board board = stoneDetector.detectar(
                 game.ultimoTabuleiro(),
-                game.proximaJogadaPodeSer(Board.PEDRA_PRETA),
-                game.proximaJogadaPodeSer(Board.PEDRA_BRANCA)
+                game.proximaJogadaPodeSer(Board.BLACK_STONE),
+                game.proximaJogadaPodeSer(Board.WHITE_STONE)
         );
 
 //        snapshotAtual = stoneDetector.snapshot.toString();
@@ -663,7 +663,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Move adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                    Board newBoard = game.ultimoTabuleiro().gerarNovoTabuleiroComAJogada(adicionadaManualmente);
+                    Board newBoard = game.ultimoTabuleiro().generateNewBoardWith(adicionadaManualmente);
                     if (game.adicionarJogadaSeForValida(newBoard)) {
                         newMoveWasAdded();
                         game.adicionouJogadaManualmente();
@@ -680,7 +680,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 		textoJogada = textoJogada.trim();
 		if (textoJogada.length() != 3) return null;
 		textoJogada = textoJogada.toLowerCase();
-		int cor = textoJogada.charAt(0) == 'b' ? Board.PEDRA_PRETA : Board.PEDRA_BRANCA;
+		int cor = textoJogada.charAt(0) == 'b' ? Board.BLACK_STONE : Board.WHITE_STONE;
 		int linha = textoJogada.charAt(1) - 'a';
 		int coluna = textoJogada.charAt(2) - 'a';
 		return new Move(linha, coluna, cor);
