@@ -30,7 +30,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Jogada;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.StoneDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Logger;
@@ -53,7 +53,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
     FileHelper fileHelper;
 
     BoardDetector boardDetector = new BoardDetector();
-    DetectorDePedras detectorDePedras = new DetectorDePedras();
+    StoneDetector stoneDetector = new StoneDetector();
     CornerDetector[] cornerDetector;
     Partida partida;
     Tabuleiro lastDetectedBoard;
@@ -140,7 +140,7 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         String komi             = i.getStringExtra("komi");
         dimensaoDoTabuleiro     = i.getIntExtra("dimensaoDoTabuleiro", -1);
         int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
-        detectorDePedras.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
+        stoneDetector.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
 
         partida = new Partida(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         lastDetectedBoard = new Tabuleiro(dimensaoDoTabuleiro);
@@ -327,15 +327,15 @@ public class RegistrarPartidaActivity extends Activity implements CameraBridgeVi
         // int larguraImagem = (int)tabuleiroOrtogonal.size().width;
         // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        detectorDePedras.setImagemDoTabuleiro(tabuleiroOrtogonal);
+        stoneDetector.setImagemDoTabuleiro(tabuleiroOrtogonal);
 
-        Tabuleiro tabuleiro = detectorDePedras.detectar(
+        Tabuleiro tabuleiro = stoneDetector.detectar(
                 partida.ultimoTabuleiro(),
                 partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_PRETA),
                 partida.proximaJogadaPodeSer(Tabuleiro.PEDRA_BRANCA)
         );
 
-//        snapshotAtual = detectorDePedras.snapshot.toString();
+//        snapshotAtual = stoneDetector.snapshot.toString();
         logger.logCurrentBoardState();
 
         if (!paused) {

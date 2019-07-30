@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Tabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.Drawer;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDePedras;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.StoneDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.DetectorDeTabuleiro;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.testes.CasoDeTeste;
@@ -262,11 +262,11 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
                 imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
                 // Detecção das pedras
-                DetectorDePedras detectorDePedras = new DetectorDePedras();
-                detectorDePedras.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
-                detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+                StoneDetector stoneDetector = new StoneDetector();
+                stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+                stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
-                Tabuleiro tabuleiro = detectorDePedras.detectar();
+                Tabuleiro tabuleiro = stoneDetector.detectar();
                 if (tabuleiro != null && tabuleiro.equals(casosDeTeste[indiceImagem - 1].getTabuleiro())) {
 //                    Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
@@ -332,11 +332,11 @@ public class TestesActivity extends Activity implements CameraBridgeViewBase.CvC
         imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
         // Detecção das pedras
-        DetectorDePedras detectorDePedras = new DetectorDePedras();
-        detectorDePedras.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
-        detectorDePedras.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+        StoneDetector stoneDetector = new StoneDetector();
+        stoneDetector.setDimensaoDoTabuleiro(detectorDeTabuleiro.getDimensaoDoTabuleiro());
+        stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
-        Tabuleiro tabuleiro = detectorDePedras.detectar();
+        Tabuleiro tabuleiro = stoneDetector.detectar();
         if (tabuleiro != null) {
             Drawer.desenharTabuleiro(imagemFonte, tabuleiro, 0, 500, 400, null);
         }
