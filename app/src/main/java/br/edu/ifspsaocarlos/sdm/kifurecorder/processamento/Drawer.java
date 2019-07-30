@@ -28,15 +28,15 @@ public class Drawer {
         mRed, mGreen, mBlue, mWhite
     };
 
-    public static void desenharContornosRelevantes(Mat imagem, HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros, MatOfPoint contornoMaisProximoDoTabuleiro) {
+    public static void desenharContornosRelevantes(Mat imagem, QuadrilateralHierarchy quadrilateralHierarchy, MatOfPoint contornoMaisProximoDoTabuleiro) {
         // Desenha os quadriláteros folha em verde
-        if (hierarquiaDeQuadrilateros.folhas.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.folhas, -1, mGreen, 2);
+        if (quadrilateralHierarchy.folhas.size() > 0) {
+            Imgproc.drawContours(imagem, quadrilateralHierarchy.folhas, -1, mGreen, 2);
         }
 
         // Desenha os quadriláteros externos em azul
-        if (hierarquiaDeQuadrilateros.externos.size() > 0) {
-            Imgproc.drawContours(imagem, hierarquiaDeQuadrilateros.externos, -1, mBlue, 2);
+        if (quadrilateralHierarchy.externos.size() > 0) {
+            Imgproc.drawContours(imagem, quadrilateralHierarchy.externos, -1, mBlue, 2);
         }
 
         // Desenha o contorno do tabuleiro em vermelho

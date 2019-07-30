@@ -88,12 +88,12 @@ public class DetectorDeTabuleiro {
             return false;
         }
 
-        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
+        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilateros);
         double areaMedia = 0;
-        for (MatOfPoint quadrilatero : hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro)) {
+        for (MatOfPoint quadrilatero : quadrilateralHierarchy.hierarquia.get(quadrilateroDoTabuleiro)) {
             areaMedia += Imgproc.contourArea(quadrilatero);
         }
-        areaMedia /= hierarquiaDeQuadrilateros.hierarquia.get(quadrilateroDoTabuleiro).size();
+        areaMedia /= quadrilateralHierarchy.hierarquia.get(quadrilateroDoTabuleiro).size();
         double areaDoTabuleiro = Imgproc.contourArea(quadrilateroDoTabuleiro);
         double razao = areaMedia / areaDoTabuleiro;
 //        Log.d(TestesActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
@@ -220,23 +220,23 @@ public class DetectorDeTabuleiro {
     }
 
     private MatOfPoint detectarTabuleiro(List<MatOfPoint> quadrilateros) {
-        HierarquiaDeQuadrilateros hierarquiaDeQuadrilateros = new HierarquiaDeQuadrilateros(quadrilateros);
+        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilateros);
 
         MatOfPoint contornoMaisProximoDoTabuleiro = null;
         int numeroDeFilhos = 9999;
         // Tem que ter pelo menos esse número de quadriláteros folha dentro
         int threshold = 10;
 
-        for (MatOfPoint contorno : hierarquiaDeQuadrilateros.externos) {
-            if (hierarquiaDeQuadrilateros.hierarquia.get(contorno).size() < numeroDeFilhos &&
-                    hierarquiaDeQuadrilateros.hierarquia.get(contorno).size() > threshold) {
+        for (MatOfPoint contorno : quadrilateralHierarchy.externos) {
+            if (quadrilateralHierarchy.hierarquia.get(contorno).size() < numeroDeFilhos &&
+                    quadrilateralHierarchy.hierarquia.get(contorno).size() > threshold) {
                 contornoMaisProximoDoTabuleiro = contorno;
-                numeroDeFilhos = hierarquiaDeQuadrilateros.hierarquia.get(contorno).size();
+                numeroDeFilhos = quadrilateralHierarchy.hierarquia.get(contorno).size();
             }
         }
 
 //        if (desenharPreview) {
-//            Drawer.desenharContornosRelevantes(imagemDePreview, hierarquiaDeQuadrilateros, contornoMaisProximoDoTabuleiro);
+//            Drawer.desenharContornosRelevantes(imagemDePreview, quadrilateralHierarchy, contornoMaisProximoDoTabuleiro);
 //        }
 
         return contornoMaisProximoDoTabuleiro;

@@ -15,7 +15,7 @@ import java.util.Map;
 /**
  * Define uma hierarquia de quadriláteros, indicando quais estão dentro de quais.
  */
-public class HierarquiaDeQuadrilateros {
+public class QuadrilateralHierarchy {
 
     public Map<MatOfPoint, List<MatOfPoint>> hierarquia = new HashMap<>();
     // quadriláteros que não têm filhos
@@ -27,7 +27,7 @@ public class HierarquiaDeQuadrilateros {
      * Constrói a hierarquia dos quadrados passados como parâmetro.
      * @param quadrados
      */
-    public HierarquiaDeQuadrilateros(List<MatOfPoint> quadrados) {
+    public QuadrilateralHierarchy(List<MatOfPoint> quadrados) {
 
         for (MatOfPoint quadrado : quadrados) {
             hierarquia.put(quadrado, new ArrayList<MatOfPoint>());
