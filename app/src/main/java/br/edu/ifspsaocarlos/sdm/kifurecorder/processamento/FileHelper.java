@@ -18,7 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Game;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 
 public class FileHelper {
@@ -28,20 +28,20 @@ public class FileHelper {
     private File gameRecordLogFolder;
     private File gameFile;
 
-    public FileHelper(Partida partida) {
-        gameName = generateGameName(partida);
+    public FileHelper(Game game) {
+        gameName = generateGameName(game);
         gameRecordFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder");
         gameRecordLogFolder = new File(Environment.getExternalStorageDirectory() + "/kifu_recorder/" + gameName);
         gameFile = getGameFile();
         createGameRecordFolder();
     }
 
-    private String generateGameName(Partida partida) {
+    private String generateGameName(Game game) {
         // http://stackoverflow.com/questions/10203924/displaying-date-in-a-double-digit-format
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String timestamp = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
 
-        return timestamp + "_" + partida.getJogadorDeBrancas() + "-" + partida.getJogadorDePretas();
+        return timestamp + "_" + game.getJogadorDeBrancas() + "-" + game.getJogadorDePretas();
     }
 
     public void createGameRecordFolder() {
@@ -95,8 +95,8 @@ public class FileHelper {
         return new File(gameRecordFolder, "temp_file");
     }
 
-    public boolean saveGameFile(Partida partida) {
-        String conteudoDaPartida = partida.sgf();
+    public boolean saveGameFile(Game game) {
+        String conteudoDaPartida = game.sgf();
 
         if (isExternalStorageWritable()) {
             try {
@@ -127,13 +127,13 @@ public class FileHelper {
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    public void storeGameTemporarily(Partida partida, Corner[] cantosDoTabuleiro) {
+    public void storeGameTemporarily(Game game, Corner[] cantosDoTabuleiro) {
         File arquivo = getTempFile();
         if (isExternalStorageWritable()) {
             try {
                 FileOutputStream fos = new FileOutputStream(arquivo, false);
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
-                oos.writeObject(partida);
+                oos.writeObject(game);
                 oos.writeObject(cantosDoTabuleiro);
                 oos.close();
                 fos.close();
@@ -148,14 +148,14 @@ public class FileHelper {
         }
     }
 
-    public void restoreGameStoredTemporarily(Partida partida, Corner[] cantosDoTabuleiro) {
+    public void restoreGameStoredTemporarily(Game game, Corner[] cantosDoTabuleiro) {
         File arquivo = getTempFile();
         // TODO: Precisa fazer esta checagem aqui? Porque aqui só é feita a leitura de arquivos
         if (isExternalStorageWritable()) {
             try {
                 FileInputStream fis = new FileInputStream(arquivo);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                partida = (Partida) ois.readObject();
+                game = (Game) ois.readObject();
                 cantosDoTabuleiro = (Corner[]) ois.readObject();
                 ois.close();
                 fis.close();

@@ -15,7 +15,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.TestesActivity;
 /**
  * Representa uma partida completa, com a sequência de tabuleiros e jogadas que foram feitos.
  */
-public class Partida implements Serializable {
+public class Game implements Serializable {
 
     private String jogadorDePretas;
     private String jogadorDeBrancas;
@@ -28,7 +28,7 @@ public class Partida implements Serializable {
     private int numeroDeVezesQueVoltou;
     private int numeroDeVezesQueTeveQueAdicionarManualmente;
 
-    public Partida(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
+    public Game(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
         this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
         this.jogadorDePretas = jogadorDePretas;
         this.jogadorDeBrancas = jogadorDeBrancas;
@@ -159,7 +159,7 @@ public class Partida implements Serializable {
         moves = jogadasRotacionadas;
     }
 
-    // SGF methods should be extracted to a SgfBuilder class that receives a Partida as parameter
+    // SGF methods should be extracted to a SgfBuilder class that receives a Game as parameter
 
     /**
      * Exporta a partida em formato SGF.

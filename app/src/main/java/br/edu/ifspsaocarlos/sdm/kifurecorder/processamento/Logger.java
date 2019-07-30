@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Partida;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.jogo.Game;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processamento.cornerDetector.Corner;
 
 /**
@@ -46,12 +46,12 @@ public class Logger {
     private Mat ortogonalBoardImage;
     private Mat ortogonalBoardImage2;
     private Mat lastValidOrtogonalBoardImage;
-    private Partida partida;
+    private Game game;
 
     private File logFile;
 
-    public Logger(Partida partida, FileHelper fileHelper) {
-        this.partida = partida;
+    public Logger(Game game, FileHelper fileHelper) {
+        this.game = game;
         this.fileHelper = fileHelper;
 
         logFile = fileHelper.getFile("", "log");
@@ -118,7 +118,7 @@ public class Logger {
     public void logCurrentBoardState() {
         if (shouldLog(LoggingConfiguration.CURRENT_BOARD_STATE)) {
             addToLog("Current board state");
-            addToLog(partida.ultimoTabuleiro().toString());
+            addToLog(game.ultimoTabuleiro().toString());
             addToLog();
         }
     }
@@ -126,7 +126,7 @@ public class Logger {
     public void log() {
         if (!isActive) return;
 
-        addToLog("Number of plays: " + partida.numeroDeJogadasFeitas());
+        addToLog("Number of plays: " + game.numeroDeJogadasFeitas());
         addToLog();
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
         writeToLogFile();
@@ -159,7 +159,7 @@ public class Logger {
     }
 
     private String generateImageFilename(String filename) {
-        return "frame_" + frameNumber + "_" + "jogada_" + partida.numeroDeJogadasFeitas() + "_" + filename;
+        return "frame_" + frameNumber + "_" + "jogada_" + game.numeroDeJogadasFeitas() + "_" + filename;
     }
 
     private void writeToLogFile() {
