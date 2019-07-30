@@ -6,13 +6,13 @@ import java.util.Set;
 /**
  * Representa um grupo em um tabuleiro.
  */
-public class Grupo {
+public class Group {
 
     private int cor;
     private Set<Position> posicoes;
     private Set<Position> liberdades;
 
-    public Grupo(int cor) {
+    public Group(int cor) {
         this.cor = cor;
         posicoes = new HashSet<>();
         liberdades = new HashSet<>();
@@ -48,12 +48,12 @@ public class Grupo {
 
     @Override
     public boolean equals(Object outro) {
-        if (!(outro instanceof Grupo)) return false;
+        if (!(outro instanceof Group)) return false;
 
-        Grupo outroGrupo = (Grupo)outro;
-        return cor == outroGrupo.cor
-            && posicoes.equals(outroGrupo.posicoes)
-            && liberdades.equals(outroGrupo.liberdades);
+        Group otherGroup = (Group)outro;
+        return cor == otherGroup.cor
+            && posicoes.equals(otherGroup.posicoes)
+            && liberdades.equals(otherGroup.liberdades);
     }
 
     @Override

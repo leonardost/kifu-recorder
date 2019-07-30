@@ -193,21 +193,21 @@ public class Tabuleiro implements Serializable {
 
         Tabuleiro novoTabuleiro = new Tabuleiro(this);
 
-        for (Grupo grupo : recuperaGruposAdjacentesA(move)) {
-            if (grupo == null) continue;
-            if (grupo.ehCapturadoPela(move)) novoTabuleiro.remove(grupo);
+        for (Group group : recuperaGruposAdjacentesA(move)) {
+            if (group == null) continue;
+            if (group.ehCapturadoPela(move)) novoTabuleiro.remove(group);
         }
 
         novoTabuleiro.tabuleiro[move.linha][move.coluna] = move.cor;
 
-        Grupo grupoDaJogada = novoTabuleiro.grupoEm(move.linha, move.coluna);
-        if (grupoDaJogada.naoTemLiberdades()) return this;
+        Group groupOfMove = novoTabuleiro.grupoEm(move.linha, move.coluna);
+        if (groupOfMove.naoTemLiberdades()) return this;
 
         return novoTabuleiro;
 	}
 
-    private Set<Grupo> recuperaGruposAdjacentesA(Move move) {
-        Set<Grupo> gruposAdjacentesAJogada = new HashSet<>();
+    private Set<Group> recuperaGruposAdjacentesA(Move move) {
+        Set<Group> gruposAdjacentesAJogada = new HashSet<>();
         gruposAdjacentesAJogada.add(grupoEm(move.linha - 1, move.coluna));
         gruposAdjacentesAJogada.add(grupoEm(move.linha + 1, move.coluna));
         gruposAdjacentesAJogada.add(grupoEm(move.linha, move.coluna - 1));
@@ -215,8 +215,8 @@ public class Tabuleiro implements Serializable {
         return gruposAdjacentesAJogada;
     }
 
-    private void remove(Grupo grupo) {
-        for (Position position : grupo.getPosicoes()) {
+    private void remove(Group group) {
+        for (Position position : group.getPosicoes()) {
             tabuleiro[position.linha][position.coluna] = VAZIO;
         }
     }
@@ -225,7 +225,7 @@ public class Tabuleiro implements Serializable {
      * Retorna o grupo que está em determinada posição do tabuleiro ou nulo caso não haja nenhum
      * grupo.
      */
-    public Grupo grupoEm(int linha, int coluna) {
+    public Group grupoEm(int linha, int coluna) {
         if (ehPosicaoInvalida(linha, coluna) || tabuleiro[linha][coluna] == Tabuleiro.VAZIO) return null;
 
         boolean[][] posicoesVisitadas = new boolean[dimensao][dimensao];
@@ -236,30 +236,30 @@ public class Tabuleiro implements Serializable {
         }
 
         int cor = tabuleiro[linha][coluna];
-        Grupo grupo = new Grupo(cor);
-        delimitarGrupo(linha, coluna, posicoesVisitadas, grupo);
-        return grupo;
+        Group group = new Group(cor);
+        delimitarGrupo(linha, coluna, posicoesVisitadas, group);
+        return group;
     }
 
     /**
      * Faz busca em profundidade para encontrar todas as pedras que fazem parte deste grupo e
      * suas liberdades.
      */
-    private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Grupo grupo) {
+    private void delimitarGrupo(int linha, int coluna, boolean[][] posicoesVisitadas, Group group) {
         if (ehPosicaoInvalida(linha, coluna) || posicoesVisitadas[linha][coluna]) return;
 
         posicoesVisitadas[linha][coluna] = true;
 
         if (tabuleiro[linha][coluna] == Tabuleiro.VAZIO) {
-            grupo.adicionarLiberdade(new Position(linha, coluna));
+            group.adicionarLiberdade(new Position(linha, coluna));
         }
-        else if (tabuleiro[linha][coluna] == grupo.getCor()) {
-            grupo.adicionarPosicao(new Position(linha, coluna));
+        else if (tabuleiro[linha][coluna] == group.getCor()) {
+            group.adicionarPosicao(new Position(linha, coluna));
 
-            delimitarGrupo(linha - 1, coluna, posicoesVisitadas, grupo);
-            delimitarGrupo(linha + 1, coluna, posicoesVisitadas, grupo);
-            delimitarGrupo(linha, coluna - 1, posicoesVisitadas, grupo);
-            delimitarGrupo(linha, coluna + 1, posicoesVisitadas, grupo);
+            delimitarGrupo(linha - 1, coluna, posicoesVisitadas, group);
+            delimitarGrupo(linha + 1, coluna, posicoesVisitadas, group);
+            delimitarGrupo(linha, coluna - 1, posicoesVisitadas, group);
+            delimitarGrupo(linha, coluna + 1, posicoesVisitadas, group);
         }
     }
 
