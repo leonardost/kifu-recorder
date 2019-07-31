@@ -109,13 +109,13 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
 
         Mat imagemFonte = inputFrame.rgba();
 
-        initialBoardDetector.setImagem(imagemFonte.clone());
-        initialBoardDetector.setImagemDePreview(imagemFonte);
-        if (initialBoardDetector.processar()) {
+        initialBoardDetector.setImage(imagemFonte.clone());
+        initialBoardDetector.setPreviewImage(imagemFonte);
+        if (initialBoardDetector.process()) {
             posicaoDoTabuleiroNaImagem =
-                    initialBoardDetector.getPosicaoDoTabuleiroNaImagem();
+                    initialBoardDetector.getPositionOfBoardInImage();
             contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
-            dimensaoDoTabuleiro = initialBoardDetector.getDimensaoDoTabuleiro();
+            dimensaoDoTabuleiro = initialBoardDetector.getBoardDimension();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

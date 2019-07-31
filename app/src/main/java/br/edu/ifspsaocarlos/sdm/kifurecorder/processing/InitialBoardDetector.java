@@ -16,186 +16,185 @@ import java.util.List;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
 
 /**
- * Detecta a posição de um tabuleiro em uma imagem e sua dimensão (9x9, 13x13 ou 19x19)
+ * Detects the position of a Go board in an image and its dimension (9x9, 13x13 or 19x19).
  */
 public class InitialBoardDetector {
 
-    // Imagem da câmera
-    private Mat imagem;
-    private Mat imagemDePreview;
+    // Camera image
+    private Mat image;
+    private Mat previewImage;
 
-    // Atributos calculados pela classe
-    private boolean processadoComSucesso = false;
-    private int dimensaoDoTabuleiro;
-    private Mat posicaoDoTabuleiroNaImagem;
-    private boolean desenharPreview = false;
+    // Attributes calculated by the class
+    private boolean processedWithSuccess = false;
+    private int boardDimension;
+    private Mat positionOfBoardInImage;
+    private boolean shouldDrawPreview = false;
 
-    public InitialBoardDetector(boolean desenharPreview) {
-        this.desenharPreview = desenharPreview;
+    public InitialBoardDetector(boolean shouldDrawPreview) {
+        this.shouldDrawPreview = shouldDrawPreview;
     }
 
-    public void setImagem(Mat imagem) {
-        this.imagem = imagem;
+    public void setImage(Mat image) {
+        this.image = image;
     }
 
-    public void setImagemDePreview(Mat imagemDePreview) {
-        this.imagemDePreview = imagemDePreview;
+    public void setPreviewImage(Mat previewImage) {
+        this.previewImage = previewImage;
     }
 
     /**
-     * Processa a imagem fornecida. Retorna verdadeiro se o processamento completo ocorreu com
-     * sucesso, ou seja, se um tabuleiro de Go foi detectado na imagem. Retorna falso, caso
-     * contrário.
+     * Processes the provided image. Returns true if the complete processing ran with success, i.e.,
+     * if a Go board was detected in the image. Returns false otherwise.
      *
      * @return boolean
      */
-    public boolean processar() {
-        if (imagem == null) {
-            // lançar erro
+    public boolean process() {
+        if (image == null) {
+            // throw error
             return false;
         }
 
-        Mat imagemComBordasEmEvidencia = detectarBordas();
+        Mat imageWithBordersInEvidence = detectBorders();
 
         // Se quiser ver a saída do detector de bordas Cammy
-        //Imgproc.cvtColor(imagemComBordasEmEvidencia, imagemDePreview, Imgproc.COLOR_GRAY2BGR, 4); if (true) return false;
-//        imagemDePreview = imagemComBordasEmEvidencia; if (true) return false;
+        //Imgproc.cvtColor(imageWithBordersInEvidence, previewImage, Imgproc.COLOR_GRAY2BGR, 4); if (true) return false;
+//        previewImage = imageWithBordersInEvidence; if (true) return false;
 
-        List<MatOfPoint> contornos = detectarContornos(imagemComBordasEmEvidencia);
+        List<MatOfPoint> contours = detectContours(imageWithBordersInEvidence);
 
-        if (contornos.isEmpty()) {
-            Log.i(TestsActivity.TAG, "> Processamento de imagem: contornos não foram encontrados.");
+        if (contours.isEmpty()) {
+            Log.i(TestsActivity.TAG, "> Image processing: contours were not found.");
             return false;
         }
 
-        // Se quiser ver a saída do detector de contornos
-        //Imgproc.drawContours(imagemDePreview, contornos, -1, new Scalar(0, 0, 255), 2); if (true) return false;
+        // Se quiser ver a saída do detector de contours
+        //Imgproc.drawContours(previewImage, contours, -1, new Scalar(0, 0, 255), 2); if (true) return false;
 
-        List<MatOfPoint> quadrilateros = detectarQuadrilateros(contornos);
+        List<MatOfPoint> quadrilaterals = detectQuadrilaterals(contours);
 
-        if (quadrilateros.isEmpty()) {
-            Log.i(TestsActivity.TAG, "> Processamento de imagem: quadriláteros não foram encontrados.");
+        if (quadrilaterals.isEmpty()) {
+            Log.i(TestsActivity.TAG, "> Image processing: quadrilaterals were not found.");
             return false;
         }
 
         //Se quiser ver a saída do detector de quadriláteros
-        //for (MatOfPoint quadrilatero : quadrilateros) { List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>(); listaContorno.add(quadrilatero); Imgproc.drawContours(imagemDePreview, listaContorno, -1, new Scalar(255, 0, 0), 3); } if (true) return false;
+        //for (MatOfPoint quadrilatero : quadrilaterals) { List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>(); listaContorno.add(quadrilatero); Imgproc.drawContours(previewImage, listaContorno, -1, new Scalar(255, 0, 0), 3); } if (true) return false;
 
-        MatOfPoint quadrilateroDoTabuleiro = detectarTabuleiro(quadrilateros);
+        MatOfPoint boardQuadrilateral = detectBoard(quadrilaterals);
 
-        if (quadrilateroDoTabuleiro == null) {
-            Log.i(TestsActivity.TAG, "> Processamento de imagem: quadrilátero do tabuleiro não foi encontrado.");
+        if (boardQuadrilateral == null) {
+            Log.i(TestsActivity.TAG, "> Image processing: board quadrilateral was not found.");
             return false;
         }
 
-        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilateros);
-        double areaMedia = 0;
-        for (MatOfPoint quadrilatero : quadrilateralHierarchy.hierarquia.get(quadrilateroDoTabuleiro)) {
-            areaMedia += Imgproc.contourArea(quadrilatero);
+        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilaterals);
+        double averageArea = 0;
+        for (MatOfPoint quadrilateral : quadrilateralHierarchy.hierarquia.get(boardQuadrilateral)) {
+            averageArea += Imgproc.contourArea(quadrilateral);
         }
-        areaMedia /= quadrilateralHierarchy.hierarquia.get(quadrilateroDoTabuleiro).size();
-        double areaDoTabuleiro = Imgproc.contourArea(quadrilateroDoTabuleiro);
-        double razao = areaMedia / areaDoTabuleiro;
-//        Log.d(TestsActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + razao);
+        averageArea /= quadrilateralHierarchy.hierarquia.get(boardQuadrilateral).size();
+        double boardArea = Imgproc.contourArea(boardQuadrilateral);
+        double ratio = averageArea / boardArea;
+//        Log.d(TestsActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + ratio);
 
-        // Determina a dimensão do tabuleiro de acordo com a razão da área dos quadrados internos
-        // com a área do quadrado do tabuleiro
-        if (razao <= 1.0 / 324.0) {     // 18 quadrados por 18
-            dimensaoDoTabuleiro = 19;
+        // Determines the dimension of the board according to the ratio between the area of the
+        // internal quadrilaterals and the area of the board quadrilateral
+        if (ratio <= 1.0 / 324.0) {     // 18 quadrados por 18
+            boardDimension = 19;
         }
-        else if (razao <= 1.0 / 144.0) {
-            dimensaoDoTabuleiro = 13;   // 12 quadrados por 12
+        else if (ratio <= 1.0 / 144.0) {
+            boardDimension = 13;   // 12 quadrados por 12
         }
         else {
-            dimensaoDoTabuleiro = 9;
+            boardDimension = 9;
         }
 
-        List<Point> cantosDoTabuleiro = ordenarCantos(quadrilateroDoTabuleiro);
+        List<Point> boardCorners = orderCorners(boardQuadrilateral);
 
-        if (desenharPreview) {
-//            Drawer.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
-            Drawer.drawBoardContour(imagemDePreview, quadrilateroDoTabuleiro);
+        if (shouldDrawPreview) {
+//            Drawer.desenhaInterseccoesECantosDoTabuleiro(previewImage, intersecoes, boardCorners);
+            Drawer.drawBoardContour(previewImage, boardQuadrilateral);
         }
 
-        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
-        posicaoDoTabuleiroNaImagem.put(0, 0,
-                (int) cantosDoTabuleiro.get(0).x, (int) cantosDoTabuleiro.get(0).y,
-                (int) cantosDoTabuleiro.get(1).x, (int) cantosDoTabuleiro.get(1).y,
-                (int) cantosDoTabuleiro.get(2).x, (int) cantosDoTabuleiro.get(2).y,
-                (int) cantosDoTabuleiro.get(3).x, (int) cantosDoTabuleiro.get(3).y);
+        positionOfBoardInImage = new Mat(4, 1, CvType.CV_32FC2);
+        positionOfBoardInImage.put(0, 0,
+                (int) boardCorners.get(0).x, (int) boardCorners.get(0).y,
+                (int) boardCorners.get(1).x, (int) boardCorners.get(1).y,
+                (int) boardCorners.get(2).x, (int) boardCorners.get(2).y,
+                (int) boardCorners.get(3).x, (int) boardCorners.get(3).y);
 
         /*
-        for (int i = 0; i < posicaoDoTabuleiroNaImagem.rows(); ++i) {
-            for (int j = 0; j < posicaoDoTabuleiroNaImagem.cols(); ++j) {
-                double[] valor = posicaoDoTabuleiroNaImagem.get(i, j);
+        for (int i = 0; i < positionOfBoardInImage.rows(); ++i) {
+            for (int j = 0; j < positionOfBoardInImage.cols(); ++j) {
+                double[] valor = positionOfBoardInImage.get(i, j);
                 Log.d(TestsActivity.TAG, "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
             }
         }
         */
 
-        processadoComSucesso = true;
+        processedWithSuccess = true;
 
         return true;
     }
 
-    private Mat detectarBordas() {
-        Mat imagemIntermediaria = new Mat();
-        //Imgproc.Canny(imagem, mIntermediateMat, 80, 90);
-        //Imgproc.Canny(imagem, mIntermediateMat, 35, 70);
-        //Imgproc.Canny(imagem, mIntermediateMat, 30, 90);
+    private Mat detectBorders() {
+        Mat intermediaryImage = new Mat();
+        //Imgproc.Canny(image, mIntermediateMat, 80, 90);
+        //Imgproc.Canny(image, mIntermediateMat, 35, 70);
+        //Imgproc.Canny(image, mIntermediateMat, 30, 90);
 
-        // Não parece que o filtro gaussiano ajudou muito a diminuir os ruídos das imagens
+        // It doesn't seem the gaussian filter helped much to lessen the image noises
 //        Size size = new Size(5, 5);
-//        Imgproc.GaussianBlur(imagem, mIntermediateMat, size, 2);
+//        Imgproc.GaussianBlur(image, mIntermediateMat, size, 2);
 
-        Imgproc.Canny(imagem, imagemIntermediaria, 30, 100);
-//        Imgproc.Canny(imagem, mIntermediateMat, 30, 100);
-        //Imgproc.Canny(imagem, mIntermediateMat, 45, 100);
-        //Imgproc.Canny(imagem, mIntermediateMat, 50, 100);   // Melhores resultados até agora
-        //Imgproc.Canny(imagem, mIntermediateMat, 100, 200);    // Fica bem limpo, mas perde alguns contornos válidos
-        //Imgproc.Canny(imagem, mIntermediateMat, 75, 150); // Ainda perde alguns contornos
-        //Imgproc.Canny(imagem, mIntermediateMat, 65, 130);
+        Imgproc.Canny(image, intermediaryImage, 30, 100);
+//        Imgproc.Canny(image, mIntermediateMat, 30, 100);
+        //Imgproc.Canny(image, mIntermediateMat, 45, 100);
+        //Imgproc.Canny(image, mIntermediateMat, 50, 100);   // Melhores resultados até agora
+        //Imgproc.Canny(image, mIntermediateMat, 100, 200);    // Fica bem limpo, mas perde alguns contornos válidos
+        //Imgproc.Canny(image, mIntermediateMat, 75, 150); // Ainda perde alguns contornos
+        //Imgproc.Canny(image, mIntermediateMat, 65, 130);
 
-//        Imgproc.Canny(imagem, imagemIntermediaria, 40, 110);
+//        Imgproc.Canny(image, intermediaryImage, 40, 110);
 
-        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, Mat.ones(3, 3, CvType.CV_32F));
-//        Imgproc.dilate(imagemIntermediaria, imagemIntermediaria, new Mat());
-        return imagemIntermediaria;
+        Imgproc.dilate(intermediaryImage, intermediaryImage, Mat.ones(3, 3, CvType.CV_32F));
+//        Imgproc.dilate(intermediaryImage, intermediaryImage, new Mat());
+        return intermediaryImage;
     }
 
-    private List<MatOfPoint> detectarContornos(Mat imagemComBordasEmEvidencia) {
-        // Os contornos delimitados pelas linhas são encontrados
-        List<MatOfPoint> contornos = new ArrayList<>();
-        Mat hierarquia = new Mat();
-        Imgproc.findContours(imagemComBordasEmEvidencia, contornos, hierarquia, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
-        Log.d("kifu-recorder", "Número de contornos encontrados: " + contornos.size());
+    private List<MatOfPoint> detectContours(Mat imageWithBordersInEvidence) {
+        // The contours delimited by lines are found
+        List<MatOfPoint> contours = new ArrayList<>();
+        Mat hierarchy = new Mat();
+        Imgproc.findContours(imageWithBordersInEvidence, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE, new Point(0, 0));
+        Log.d("kifu-recorder", "Number of contours found: " + contours.size());
 
-        // Remove os contornos muito pequenos, que provavelmente são ruído
-        for (Iterator<MatOfPoint> it = contornos.iterator(); it.hasNext();) {
-            MatOfPoint contorno = it.next();
-            // Com 1000 já perde os quadrados menores no tabuleiro 19x19
-            // O ideal seria fazer isto aqui como uma razão sobre a área da imagem
-            if (Imgproc.contourArea(contorno) < 700) {
+        // Remove very small contours which are probably noise
+        for (Iterator<MatOfPoint> it = contours.iterator(); it.hasNext();) {
+            MatOfPoint contour = it.next();
+            // With 1000 already loses the smaller quadrilaterals in a 19x19 board
+            // The ideal would be to do this as a ratio on the area of the image
+            if (Imgproc.contourArea(contour) < 700) {
                 it.remove();
             }
         }
 
-        // A imagem é convertida para um formato colorido novamente
-        Imgproc.cvtColor(imagemComBordasEmEvidencia, imagem, Imgproc.COLOR_GRAY2BGR, 4);
-        imagemComBordasEmEvidencia.release();
-        return contornos;
+        // Image is converted to a color format again
+        Imgproc.cvtColor(imageWithBordersInEvidence, image, Imgproc.COLOR_GRAY2BGR, 4);
+        imageWithBordersInEvidence.release();
+        return contours;
     }
 
-    private List<MatOfPoint> detectarQuadrilateros(List<MatOfPoint> contornos) {
-        List<MatOfPoint> quadrilateros = new ArrayList<>();
+    private List<MatOfPoint> detectQuadrilaterals(List<MatOfPoint> contours) {
+        List<MatOfPoint> quadrilaterals = new ArrayList<>();
 
-        for (MatOfPoint contorno : contornos) {
+        for (MatOfPoint contour : contours) {
             MatOfPoint2f contour2f = new MatOfPoint2f();
             MatOfPoint2f approx2f = new MatOfPoint2f();
-            contorno.convertTo(contour2f, CvType.CV_32FC2);
-            // * 0.02 e * 0.03 também têm resultados interessantes
-            // Aparentemente, quanto maior o epsilon, mais curvas que não se encaixam perfeitamente nos contornos
-            // são consideradas. Contudo, esse parâmetro parece ser bastante sensível.
+            contour.convertTo(contour2f, CvType.CV_32FC2);
+            // * 0.02 and * 0.03 also show interesting results
+            // Apparently, the bigger epsilon is, the more curves that don't fit perfectly on contours
+            // are considered. However, this parameter seems very sensitive.
             //Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.04, true);
 //            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.008, true);  // perde muitos quadrados
 //            Imgproc.approxPolyDP(contour2f, approx2f, Imgproc.arcLength(contour2f, true) * 0.01, true);  // borda do tabuleiro encontrada bem, mas quadrados internos sofrem. Talvez seja melhor usar este por detectar melhor o quadrado externo
@@ -207,62 +206,62 @@ public class InitialBoardDetector {
             approx2f.convertTo(approx, CvType.CV_32S);
             double contourArea = Math.abs(Imgproc.contourArea(approx2f));
 
-            // Se tem 4 lados, é convexo e não é muito pequeno, é um quadrado válido
+            // If it has 4 sides, it's convex and not too small, it's a valid quadrilateral
             if (approx2f.toList().size() == 4 &&
                     contourArea > 400 &&
                     Imgproc.isContourConvex(approx)) {
-                quadrilateros.add(approx);
+                quadrilaterals.add(approx);
             }
         }
 
-        Log.d("kifu-recorder", "Número de quadriláteros encontrados: " + quadrilateros.size());
-        return quadrilateros;
+        Log.d("kifu-recorder", "Number of quadrilaterals found: " + quadrilaterals.size());
+        return quadrilaterals;
     }
 
-    private MatOfPoint detectarTabuleiro(List<MatOfPoint> quadrilateros) {
-        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilateros);
+    private MatOfPoint detectBoard(List<MatOfPoint> quadrilaterals) {
+        QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilaterals);
 
-        MatOfPoint contornoMaisProximoDoTabuleiro = null;
-        int numeroDeFilhos = 9999;
-        // Tem que ter pelo menos esse número de quadriláteros folha dentro
+        MatOfPoint contourClosestToTheBoard = null;
+        int numberOfChildren = 9999;
+        // Must have at least this number of leaf quadrilaterals inside
         int threshold = 10;
 
-        for (MatOfPoint contorno : quadrilateralHierarchy.externos) {
-            if (quadrilateralHierarchy.hierarquia.get(contorno).size() < numeroDeFilhos &&
-                    quadrilateralHierarchy.hierarquia.get(contorno).size() > threshold) {
-                contornoMaisProximoDoTabuleiro = contorno;
-                numeroDeFilhos = quadrilateralHierarchy.hierarquia.get(contorno).size();
+        for (MatOfPoint contour : quadrilateralHierarchy.externos) {
+            if (quadrilateralHierarchy.hierarquia.get(contour).size() < numberOfChildren &&
+                    quadrilateralHierarchy.hierarquia.get(contour).size() > threshold) {
+                contourClosestToTheBoard = contour;
+                numberOfChildren = quadrilateralHierarchy.hierarquia.get(contour).size();
             }
         }
 
-//        if (desenharPreview) {
-//            Drawer.drawRelevantContours(imagemDePreview, quadrilateralHierarchy, contornoMaisProximoDoTabuleiro);
+//        if (shouldDrawPreview) {
+//            Drawer.drawRelevantContours(previewImage, quadrilateralHierarchy, contourClosestToTheBoard);
 //        }
 
-        return contornoMaisProximoDoTabuleiro;
+        return contourClosestToTheBoard;
     }
 
-    private List<Point> ordenarCantos(MatOfPoint quadrilateroDoTabuleiro) {
-        List<Point> cantos = new ArrayList<>();
-        cantos.add(quadrilateroDoTabuleiro.toArray()[0]);
-        cantos.add(quadrilateroDoTabuleiro.toArray()[3]);
-        cantos.add(quadrilateroDoTabuleiro.toArray()[2]);
-        cantos.add(quadrilateroDoTabuleiro.toArray()[1]);
-        return cantos;
+    private List<Point> orderCorners(MatOfPoint boardQuadrilateral) {
+        List<Point> corners = new ArrayList<>();
+        corners.add(boardQuadrilateral.toArray()[0]);
+        corners.add(boardQuadrilateral.toArray()[3]);
+        corners.add(boardQuadrilateral.toArray()[2]);
+        corners.add(boardQuadrilateral.toArray()[1]);
+        return corners;
     }
 
-    public int getDimensaoDoTabuleiro() {
-        if (!processadoComSucesso) {
-            // lançar erro
+    public int getBoardDimension() {
+        if (!processedWithSuccess) {
+            // throw error
         }
-        return dimensaoDoTabuleiro;
+        return boardDimension;
     }
 
-    public Mat getPosicaoDoTabuleiroNaImagem() {
-        if (!processadoComSucesso) {
-            // lançar erro
+    public Mat getPositionOfBoardInImage() {
+        if (!processedWithSuccess) {
+            // throw error
         }
-        return posicaoDoTabuleiroNaImagem;
+        return positionOfBoardInImage;
     }
 
 }

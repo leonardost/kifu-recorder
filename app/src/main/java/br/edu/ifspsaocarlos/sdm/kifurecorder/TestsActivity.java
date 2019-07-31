@@ -246,9 +246,9 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
                 // Detecção do tabuleiro
                 InitialBoardDetector initialBoardDetector = new InitialBoardDetector(true);
-                initialBoardDetector.setImagem(imagemFonte.clone());
-                initialBoardDetector.setImagemDePreview(imagemFonte);
-                if (!initialBoardDetector.processar()) {
+                initialBoardDetector.setImage(imagemFonte.clone());
+                initialBoardDetector.setPreviewImage(imagemFonte);
+                if (!initialBoardDetector.process()) {
 //                    return imagemFonte;
                     continue;
                 }
@@ -257,13 +257,13 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
                 Mat imagemDoTabuleiroCorrigido =
                         ImageUtils.transformOrthogonally(
                                 imagemOriginal,
-                                initialBoardDetector.getPosicaoDoTabuleiroNaImagem()
+                                initialBoardDetector.getPositionOfBoardInImage()
                         );
                 imagemDoTabuleiroCorrigido.copyTo(imagemFonte.rowRange(0, 500).colRange(0, 500));
 
                 // Detecção das pedras
                 StoneDetector stoneDetector = new StoneDetector();
-                stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getDimensaoDoTabuleiro());
+                stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getBoardDimension());
                 stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
                 Board board = stoneDetector.detectar();
@@ -295,9 +295,9 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
         // Detecção do tabuleiro
         InitialBoardDetector initialBoardDetector = new InitialBoardDetector(true);
-        initialBoardDetector.setImagem(imagemFonte.clone());
-        initialBoardDetector.setImagemDePreview(imagemFonte);
-        if (!initialBoardDetector.processar()) {
+        initialBoardDetector.setImage(imagemFonte.clone());
+        initialBoardDetector.setPreviewImage(imagemFonte);
+        if (!initialBoardDetector.process()) {
             return imagemFonte;
         }
 
@@ -311,7 +311,7 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
                 ImageUtils.transformOrthogonally(
                     imagemOriginal,
 //                    imagemOriginalPretoEBranco,
-                    initialBoardDetector.getPosicaoDoTabuleiroNaImagem()
+                    initialBoardDetector.getPositionOfBoardInImage()
                 );
 
         /*
@@ -333,7 +333,7 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
         // Detecção das pedras
         StoneDetector stoneDetector = new StoneDetector();
-        stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getDimensaoDoTabuleiro());
+        stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getBoardDimension());
         stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
 
         Board board = stoneDetector.detectar();
