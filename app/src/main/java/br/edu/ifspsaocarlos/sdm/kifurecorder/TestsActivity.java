@@ -255,7 +255,7 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
                 // Transformação da imagem do tabuleiro para a posição ortogonal
                 Mat imagemDoTabuleiroCorrigido =
-                        ImageUtils.transformarOrtogonalmente(
+                        ImageUtils.transformOrthogonally(
                                 imagemOriginal,
                                 initialBoardDetector.getPosicaoDoTabuleiroNaImagem()
                         );
@@ -308,7 +308,7 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
         // Transformação da imagem do tabuleiro para a posição ortogonal
         Mat imagemDoTabuleiroCorrigido =
-                ImageUtils.transformarOrtogonalmente(
+                ImageUtils.transformOrthogonally(
                     imagemOriginal,
 //                    imagemOriginalPretoEBranco,
                     initialBoardDetector.getPosicaoDoTabuleiroNaImagem()

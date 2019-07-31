@@ -10,17 +10,17 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Corner;
 
 public class ImageUtils {
 
-    public static final int ORTOGONAL_BOARD_IMAGE_SIZE = 500;
+    public static final int ORTHOGONAL_BOARD_IMAGE_SIZE = 500;
 
-    public static Mat generateOrtogonalBoardImage(Mat image, Corner[] corners) {
-        Mat ortogonalBoardImage = new Mat(ORTOGONAL_BOARD_IMAGE_SIZE, ORTOGONAL_BOARD_IMAGE_SIZE, image.type());
+    public static Mat generateOrthogonalBoardImage(Mat image, Corner[] corners) {
+        Mat orthogonalBoardImage = new Mat(ORTHOGONAL_BOARD_IMAGE_SIZE, ORTHOGONAL_BOARD_IMAGE_SIZE, image.type());
 
-        Mat ortogonalImageCorners = new Mat(4, 1, CvType.CV_32FC2);
-        ortogonalImageCorners.put(0, 0,
+        Mat orthogonalImageCorners = new Mat(4, 1, CvType.CV_32FC2);
+        orthogonalImageCorners.put(0, 0,
                 0, 0,
-                ORTOGONAL_BOARD_IMAGE_SIZE, 0,
-                ORTOGONAL_BOARD_IMAGE_SIZE, ORTOGONAL_BOARD_IMAGE_SIZE,
-                0, ORTOGONAL_BOARD_IMAGE_SIZE);
+                ORTHOGONAL_BOARD_IMAGE_SIZE, 0,
+                ORTHOGONAL_BOARD_IMAGE_SIZE, ORTHOGONAL_BOARD_IMAGE_SIZE,
+                0, ORTHOGONAL_BOARD_IMAGE_SIZE);
 
         Point[] realCornerPositions = new Point[4];
         for (int i = 0; i < 4; i++) {
@@ -35,25 +35,25 @@ public class ImageUtils {
                 realCornerPositions[2].x, realCornerPositions[2].y,
                 realCornerPositions[3].x, realCornerPositions[3].y);
 
-        Mat transformationMatrix = Imgproc.getPerspectiveTransform(boardPositionInImage, ortogonalImageCorners);
-        Imgproc.warpPerspective(image, ortogonalBoardImage, transformationMatrix, ortogonalBoardImage.size());
-        return ortogonalBoardImage;
+        Mat transformationMatrix = Imgproc.getPerspectiveTransform(boardPositionInImage, orthogonalImageCorners);
+        Imgproc.warpPerspective(image, orthogonalBoardImage, transformationMatrix, orthogonalBoardImage.size());
+        return orthogonalBoardImage;
     }
 
-    public static Mat transformarOrtogonalmente(Mat originalImage, Mat boardPositionInImage) {
-        Mat ortogonalBoard = new Mat(ORTOGONAL_BOARD_IMAGE_SIZE, ORTOGONAL_BOARD_IMAGE_SIZE, originalImage.type());
+    public static Mat transformOrthogonally(Mat originalImage, Mat boardPositionInImage) {
+        Mat orthogonalBoard = new Mat(ORTHOGONAL_BOARD_IMAGE_SIZE, ORTHOGONAL_BOARD_IMAGE_SIZE, originalImage.type());
 
-        Mat ortogonalBoardCorners = new Mat(4, 1, CvType.CV_32FC2);
-        ortogonalBoardCorners.put(0, 0,
+        Mat orthogonalBoardCorners = new Mat(4, 1, CvType.CV_32FC2);
+        orthogonalBoardCorners.put(0, 0,
                 0, 0,
-                ORTOGONAL_BOARD_IMAGE_SIZE, 0,
-                ORTOGONAL_BOARD_IMAGE_SIZE, ORTOGONAL_BOARD_IMAGE_SIZE,
-                0, ORTOGONAL_BOARD_IMAGE_SIZE);
+                ORTHOGONAL_BOARD_IMAGE_SIZE, 0,
+                ORTHOGONAL_BOARD_IMAGE_SIZE, ORTHOGONAL_BOARD_IMAGE_SIZE,
+                0, ORTHOGONAL_BOARD_IMAGE_SIZE);
 
-        Mat transformationMatrix = Imgproc.getPerspectiveTransform(boardPositionInImage, ortogonalBoardCorners);
-        Imgproc.warpPerspective(originalImage, ortogonalBoard, transformationMatrix, ortogonalBoard.size());
+        Mat transformationMatrix = Imgproc.getPerspectiveTransform(boardPositionInImage, orthogonalBoardCorners);
+        Imgproc.warpPerspective(originalImage, orthogonalBoard, transformationMatrix, orthogonalBoard.size());
 
-        return ortogonalBoard;
+        return orthogonalBoard;
     }
 
     // direction = -1 counter-clockwise, 1 clockwise

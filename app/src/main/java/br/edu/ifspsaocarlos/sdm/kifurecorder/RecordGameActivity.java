@@ -318,7 +318,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         }
         else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
 
-        tabuleiroOrtogonal = ImageUtils.transformarOrtogonalmente(originalImage, posicaoDoTabuleiroNaImagem);
+        tabuleiroOrtogonal = ImageUtils.transformOrthogonally(originalImage, posicaoDoTabuleiroNaImagem);
         logger.setOrtogonalBoardImage(tabuleiroOrtogonal.clone());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -397,7 +397,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         }
 
         Mat ortogonalBoardImage = wereAllCornersFound
-            ? ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners)
+            ? ImageUtils.generateOrthogonalBoardImage(image, possibleNewCorners)
             : null;
 
         if (wereAllCornersFound && boardDetector.isBoardContainedIn(ortogonalBoardImage)) {
@@ -430,7 +430,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 }
             }
 
-            Mat ortogonalBoardImage2 = ImageUtils.generateOrtogonalBoardImage(image, possibleNewCorners);
+            Mat ortogonalBoardImage2 = ImageUtils.generateOrthogonalBoardImage(image, possibleNewCorners);
             double similarity = lastValidOrtogonalBoardImage != null ? fingerprintMatching.calculateSimilatiryBetween(lastValidOrtogonalBoardImage, ortogonalBoardImage2) : -1;
             logger.addToLog("Similarity between new ortogonal board image to last valid one = " + similarity);
             logger.setOrtogonalBoardImage2(ortogonalBoardImage2);
