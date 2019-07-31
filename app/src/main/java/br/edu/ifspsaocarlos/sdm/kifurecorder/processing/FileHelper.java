@@ -41,7 +41,7 @@ public class FileHelper {
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd_HHmm");
         String timestamp = sdf.format(new Date(Calendar.getInstance().getTimeInMillis()));
 
-        return timestamp + "_" + game.getJogadorDeBrancas() + "-" + game.getJogadorDePretas();
+        return timestamp + "_" + game.getWhitePlayer() + "-" + game.getBlackPlayer();
     }
 
     public void createGameRecordFolder() {

@@ -301,7 +301,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
             Drawer.drawLostBoardContour(originalImage, contornoDoTabuleiro);
-            Drawer.desenharTabuleiro(originalImage, game.ultimoTabuleiro(), 0, 500, 400, game.ultimaJogada());
+            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
@@ -312,7 +312,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
             Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
-            Drawer.desenharTabuleiro(originalImage, game.ultimoTabuleiro(), 0, 500, 400, game.ultimaJogada());
+            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
@@ -330,9 +330,9 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         stoneDetector.setImagemDoTabuleiro(tabuleiroOrtogonal);
 
         Board board = stoneDetector.detectar(
-                game.ultimoTabuleiro(),
-                game.proximaJogadaPodeSer(Board.BLACK_STONE),
-                game.proximaJogadaPodeSer(Board.WHITE_STONE)
+                game.getLastBoard(),
+                game.canNextMoveBe(Board.BLACK_STONE),
+                game.canNextMoveBe(Board.WHITE_STONE)
         );
 
 //        snapshotAtual = stoneDetector.snapshot.toString();
@@ -343,7 +343,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             if (lastDetectedBoard.equals(board)) {
                 timeSinceLastBoardChange += SystemClock.elapsedRealtime() - timeOfLastBoardDetection;
                 timeOfLastBoardDetection = SystemClock.elapsedRealtime();
-                if (timeSinceLastBoardChange > tempoLimite && game.adicionarJogadaSeForValida(board)) {
+                if (timeSinceLastBoardChange > tempoLimite && game.addMoveIfItIsValid(board)) {
                     newMoveWasAdded();
                 }
             } else {
@@ -368,7 +368,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             Drawer.desenharTabuleiro(originalImage, board, 0, 500, 400, null);
         }
         else {
-            Drawer.desenharTabuleiro(originalImage, game.ultimoTabuleiro(), 0, 500, 400, game.ultimaJogada());
+            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
         }
 
         logger.log();
@@ -558,7 +558,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Move removida = game.voltarUltimaJogada();
+                        Move removida = game.undoLastMove();
                         timeSinceLastBoardChange = 0;
                         timeOfLastBoardDetection = SystemClock.elapsedRealtime();
                         updateUndoButton();
@@ -605,7 +605,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         lastValidOrtogonalBoardImage = ImageUtils.rotateImage(lastValidOrtogonalBoardImage, direction);
         logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
-        game.rotacionar(direction);
+        game.rotate(direction);
     }
 
     private void areYouSureYouWantToFinishRecording() {
@@ -663,10 +663,10 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Move adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                    Board newBoard = game.ultimoTabuleiro().generateNewBoardWith(adicionadaManualmente);
-                    if (game.adicionarJogadaSeForValida(newBoard)) {
+                    Board newBoard = game.getLastBoard().generateNewBoardWith(adicionadaManualmente);
+                    if (game.addMoveIfItIsValid(newBoard)) {
                         newMoveWasAdded();
-                        game.adicionouJogadaManualmente();
+                        game.updateNumberOfManualAdditions();
                         logger.addToLog("Move " + adicionadaManualmente + " was manually added");
                     }
                 }
@@ -697,7 +697,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnVoltarUltimaJogada.setEnabled(game.numeroDeJogadasFeitas() > 0);
+                btnVoltarUltimaJogada.setEnabled(game.getNumberOfMoves() > 0);
             }
         });
 	}

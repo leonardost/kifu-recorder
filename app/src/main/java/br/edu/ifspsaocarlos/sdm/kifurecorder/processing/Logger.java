@@ -118,7 +118,7 @@ public class Logger {
     public void logCurrentBoardState() {
         if (shouldLog(LoggingConfiguration.CURRENT_BOARD_STATE)) {
             addToLog("Current board state");
-            addToLog(game.ultimoTabuleiro().toString());
+            addToLog(game.getLastBoard().toString());
             addToLog();
         }
     }
@@ -126,7 +126,7 @@ public class Logger {
     public void log() {
         if (!isActive) return;
 
-        addToLog("Number of plays: " + game.numeroDeJogadasFeitas());
+        addToLog("Number of plays: " + game.getNumberOfMoves());
         addToLog();
         addToLog("Frame processing time: " + (System.currentTimeMillis() - startProcessingTime) + "ms");
         writeToLogFile();
@@ -159,7 +159,7 @@ public class Logger {
     }
 
     private String generateImageFilename(String filename) {
-        return "frame_" + frameNumber + "_" + "jogada_" + game.numeroDeJogadasFeitas() + "_" + filename;
+        return "frame_" + frameNumber + "_" + "jogada_" + game.getNumberOfMoves() + "_" + filename;
     }
 
     private void writeToLogFile() {

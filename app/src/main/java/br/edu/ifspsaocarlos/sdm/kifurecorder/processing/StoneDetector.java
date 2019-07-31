@@ -416,7 +416,7 @@ public class StoneDetector {
          * pixels, um raio de 8 pixels, em uma interseção que tem o ponto do hoshi, o detector quase
          * achava que havia uma pedra preta ali.
          */ 
-        //int radius = 500 / (partida.getDimensaoDoTabuleiro() - 1) * 0.33;
+        //int radius = 500 / (partida.getBoardDimension() - 1) * 0.33;
         int radius = 0;
         if (dimensaoDoTabuleiro == 9) {
             radius = 21;

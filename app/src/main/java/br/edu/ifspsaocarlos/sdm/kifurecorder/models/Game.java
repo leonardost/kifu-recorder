@@ -13,193 +13,191 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.BuildConfig;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
 
 /**
- * Representa uma partida completa, com a sequência de tabuleiros e jogadas que foram feitos.
+ * Represents a complete game, with the sequence of boards and moves that were made.
  */
 public class Game implements Serializable {
 
-    private String jogadorDePretas;
-    private String jogadorDeBrancas;
+    private String blackPlayer;
+    private String whitePlayer;
     private String komi;
-    private int dimensaoDoTabuleiro;
+    private int boardDimension;
     private List<Move> moves;
     private List<Board> boards;
 
-    // Atributo para medir a precisão do sistema
-    private int numeroDeVezesQueVoltou;
-    private int numeroDeVezesQueTeveQueAdicionarManualmente;
+    // Attribute to measure the system's precision
+    private int numberOfUndoes;
+    private int numberOfManualAdditions;
 
-    public Game(int dimensaoDoTabuleiro, String jogadorDePretas, String jogadorDeBrancas, String komi) {
-        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
-        this.jogadorDePretas = jogadorDePretas;
-        this.jogadorDeBrancas = jogadorDeBrancas;
+    public Game(int boardDimension, String blackPlayer, String whitePlayer, String komi) {
+        this.boardDimension = boardDimension;
+        this.blackPlayer = blackPlayer;
+        this.whitePlayer = whitePlayer;
         this.komi = komi;
         moves = new ArrayList<>();
         boards = new ArrayList<>();
 
-        Board emptyBoard = new Board(dimensaoDoTabuleiro);
+        Board emptyBoard = new Board(boardDimension);
         boards.add(emptyBoard);
-        numeroDeVezesQueVoltou = 0;
-        numeroDeVezesQueTeveQueAdicionarManualmente = 0;
+        numberOfUndoes = 0;
+        numberOfManualAdditions = 0;
     }
 
-    public int getDimensaoDoTabuleiro() {
-        return dimensaoDoTabuleiro;
+    public int getBoardDimension() {
+        return boardDimension;
     }
 
-    public String getJogadorDePretas() {
-        return jogadorDePretas;
+    public String getBlackPlayer() {
+        return blackPlayer;
     }
 
-    public String getJogadorDeBrancas() {
-        return jogadorDeBrancas;
+    public String getWhitePlayer() {
+        return whitePlayer;
     }
 
-    public boolean adicionarJogadaSeForValida(Board board) {
-        Move movePlayed = board.getDifferenceTo(ultimoTabuleiro());
+    public boolean addMoveIfItIsValid(Board board) {
+        Move playedMove = board.getDifferenceTo(getLastBoard());
 
-        if (movePlayed == null || repeteEstadoAnterior(board) || !proximaJogadaPodeSer(movePlayed.cor)) {
+        if (playedMove == null || repeatsPreviousState(board) || !canNextMoveBe(playedMove.cor)) {
             return false;
         }
 
         boards.add(board);
-        moves.add(movePlayed);
-        Log.i(TestsActivity.TAG, "Adicionando tabuleiro " + board + " (jogada " + movePlayed.sgf() + ") à partida.");
+        moves.add(playedMove);
+        Log.i(TestsActivity.TAG, "Adding board " + board + " (move " + playedMove.sgf() + ") to the game.");
         return true;
     }
 
     /**
-     * Retorna verdadeiro se o tabuleiroNovo repete algum dos tabuleiros anteriores da partida
-     * (regra do superko).
+     * Returns true if newBoard repeats any previous boards of the game (superko rule).
      */
-    private boolean repeteEstadoAnterior(Board newBoard) {
+    private boolean repeatsPreviousState(Board newBoard) {
         for (Board board : boards) {
             if (board.equals(newBoard)) return true;
         }
         return false;
     }
 
-    public boolean proximaJogadaPodeSer(int cor) {
-        if (cor == Board.BLACK_STONE)
-            return ehPrimeiraJogada() || apenasPedrasPretasForamJogadas() || ultimaJogadaFoiBranca();
-        else if (cor == Board.WHITE_STONE)
-            return ultimaJogadaFoiPreta();
+    public boolean canNextMoveBe(int color) {
+        if (color == Board.BLACK_STONE)
+            return isFirstMove() || wereOnlyBlackStonesPlayed() || wasLastMoveWhite();
+        else if (color == Board.WHITE_STONE)
+            return wasLastMoveBlack();
         return false;
     }
 
-    private boolean ehPrimeiraJogada() {
+    private boolean isFirstMove() {
         return moves.isEmpty();
     }
 
     /**
-     * Este método é usado para verificar se as pedras de handicap estão sendo colocadas.
+     * This method is used to check if handicap stones are being placed.
      */
-    private boolean apenasPedrasPretasForamJogadas() {
+    private boolean wereOnlyBlackStonesPlayed() {
         for (Move move : moves) {
             if (move.cor == Board.WHITE_STONE) return false;
         }
         return true;
     }
 
-    private boolean ultimaJogadaFoiBranca() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.WHITE_STONE;
+    private boolean wasLastMoveWhite() {
+        return !isFirstMove() && getLastMove().cor == Board.WHITE_STONE;
     }
 
-    private boolean ultimaJogadaFoiPreta() {
-        return !ehPrimeiraJogada() && ultimaJogada().cor == Board.BLACK_STONE;
+    private boolean wasLastMoveBlack() {
+        return !isFirstMove() && getLastMove().cor == Board.BLACK_STONE;
     }
 
-    public Move ultimaJogada() {
+    public Move getLastMove() {
         if (moves.isEmpty()) return null;
         return moves.get(moves.size() - 1);
     }
 
-    public Board ultimoTabuleiro() {
+    public Board getLastBoard() {
         return boards.get(boards.size() - 1);
     }
 
     /**
-     * Desconsidera a última jogada feita e a retorna
+     * Disconsider the last move and return it.
      */
-    public Move voltarUltimaJogada() {
+    public Move undoLastMove() {
         if (moves.isEmpty()) return null;
         boards.remove(boards.size() - 1);
         Move lastMove = moves.remove(moves.size() - 1);
-        numeroDeVezesQueVoltou++;
+        numberOfUndoes++;
         return lastMove;
     }
 
-    public int numeroDeJogadasFeitas() {
+    public int getNumberOfMoves() {
         return moves.size();
     }
 
-    public void adicionouJogadaManualmente() {
-        numeroDeVezesQueTeveQueAdicionarManualmente++;
+    public void updateNumberOfManualAdditions() {
+        numberOfManualAdditions++;
     }
 
     /**
-     * Rotaciona todos os tabuleiros desta partida em sentido horário (direcao = 1) ou em sentido
-     * anti-horário (direcao = -1).
+     * Rotates all boards of this game clockwise (direction = 1) or counter-clockwise
+     * (direction = -1).
      */
-    public void rotacionar(int direcao) {
-        if (direcao != -1 && direcao != 1) return;
+    public void rotate(int direction) {
+        if (direction != -1 && direction != 1) return;
 
-        List<Board> tabuleirosRotacionados = new ArrayList<>();
+        List<Board> rotatedBoards = new ArrayList<>();
         for (Board board : boards) {
-            tabuleirosRotacionados.add(board.rotate(direcao));
+            rotatedBoards.add(board.rotate(direction));
         }
 
-        List<Move> jogadasRotacionadas = new ArrayList<>();
-        for (int i = 1; i < tabuleirosRotacionados.size(); ++i) {
-            Board ultimo = tabuleirosRotacionados.get(i);
-            Board penultimo = tabuleirosRotacionados.get(i - 1);
-            jogadasRotacionadas.add(ultimo.getDifferenceTo(penultimo));
+        List<Move> rotatedMoves = new ArrayList<>();
+        for (int i = 1; i < rotatedBoards.size(); ++i) {
+            Board last = rotatedBoards.get(i);
+            Board secondToLast = rotatedBoards.get(i - 1);
+            rotatedMoves.add(last.getDifferenceTo(secondToLast));
         }
 
-        boards = tabuleirosRotacionados;
-        moves = jogadasRotacionadas;
+        boards = rotatedBoards;
+        moves = rotatedMoves;
     }
 
     // SGF methods should be extracted to a SgfBuilder class that receives a Game as parameter
-
     /**
-     * Exporta a partida em formato SGF.
-     * Referência: http://www.red-bean.com/sgf/
+     * Exports the game in SGF format.
+     * Reference: http://www.red-bean.com/sgf/
      */
     public String sgf() {
         StringBuilder sgf = new StringBuilder();
-        escreverCabecalho(sgf);
+        writeHeader(sgf);
         for (Move move : moves) {
-            Log.i(TestsActivity.TAG, "construindo SGF - jogada " + move.sgf());
+            Log.i(TestsActivity.TAG, "Building SGF - move " + move.sgf());
             sgf.append(move.sgf());
         }
         sgf.append(")");
         return sgf.toString();
     }
 
-    private void escreverCabecalho(StringBuilder sgf) {
+    private void writeHeader(StringBuilder sgf) {
         SimpleDateFormat sdf =  new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
-        String data = sdf.format(new Date(c.getTimeInMillis()));
+        String date = sdf.format(new Date(c.getTimeInMillis()));
 
         sgf.append("(;");
-        escreverProperiedade(sgf, "FF", "4");     // Versão do SGF
-        escreverProperiedade(sgf, "GM", "1");     // Tipo de jogo (1 = Go)
-        escreverProperiedade(sgf, "CA", "UTF-8");
-        escreverProperiedade(sgf, "SZ", "" + ultimoTabuleiro().getDimension());
-        escreverProperiedade(sgf, "DT", data);
-        escreverProperiedade(sgf, "AP", "Kifu Recorder v" + BuildConfig.VERSION_NAME);
-        escreverProperiedade(sgf, "KM", komi);
-        escreverProperiedade(sgf, "PW", jogadorDeBrancas);
-        escreverProperiedade(sgf, "PB", jogadorDePretas);
-        escreverProperiedade(sgf, "Z1", "" + numeroDeJogadasFeitas());
-        escreverProperiedade(sgf, "Z2", "" + numeroDeVezesQueVoltou);
-        escreverProperiedade(sgf, "Z3", "" + numeroDeVezesQueTeveQueAdicionarManualmente);
+        writeProperty(sgf, "FF", "4");     // SGF version
+        writeProperty(sgf, "GM", "1");     // Type of game (1 = Go)
+        writeProperty(sgf, "CA", "UTF-8");
+        writeProperty(sgf, "SZ", "" + getLastBoard().getDimension());
+        writeProperty(sgf, "DT", date);
+        writeProperty(sgf, "AP", "Kifu Recorder v" + BuildConfig.VERSION_NAME);
+        writeProperty(sgf, "KM", komi);
+        writeProperty(sgf, "PW", whitePlayer);
+        writeProperty(sgf, "PB", blackPlayer);
+        writeProperty(sgf, "Z1", "" + getNumberOfMoves());
+        writeProperty(sgf, "Z2", "" + numberOfUndoes);
+        writeProperty(sgf, "Z3", "" + numberOfManualAdditions);
     }
 
-    private void escreverProperiedade(StringBuilder sgf, String propriedade, String valor) {
-        sgf.append(propriedade);
+    private void writeProperty(StringBuilder sgf, String property, String value) {
+        sgf.append(property);
         sgf.append("[");
-        sgf.append(valor);
+        sgf.append(value);
         sgf.append("]");
     }
 
