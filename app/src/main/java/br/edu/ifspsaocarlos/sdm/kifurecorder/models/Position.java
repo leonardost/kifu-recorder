@@ -1,35 +1,35 @@
 package br.edu.ifspsaocarlos.sdm.kifurecorder.models;
 
 public class Position {
-    public int linha;
-    public int coluna;
+    public int row;
+    public int column;
 
-    public Position(int linha, int coluna) {
-        this.linha = linha;
-        this.coluna = coluna;
+    public Position(int row, int column) {
+        this.row = row;
+        this.column = column;
     }
 
     @Override
     public String toString() {
-        int l = 'a' + adicionarUmParaPularLetraI(linha);
-        int c = 'a' + adicionarUmParaPularLetraI(coluna);
+        int l = 'a' + add1ToJumpLetterI(row);
+        int c = 'a' + add1ToJumpLetterI(column);
         return "[" + (char)l + (char)c + "]";
     }
 
-    private char adicionarUmParaPularLetraI(int indice) {
-        final int INDICE_LETRA_I = 8;
-        return (char)(indice + (indice >= INDICE_LETRA_I ? 1 : 0));
+    private char add1ToJumpLetterI(int index) {
+        final int I_INDEX = 8;
+        return (char)(index + (index >= I_INDEX ? 1 : 0));
     }
 
     @Override
-    public boolean equals(Object posicao) {
-        if (!(posicao instanceof Position)) return false;
-        return linha == ((Position)posicao).linha
-            && coluna == ((Position)posicao).coluna;
+    public boolean equals(Object position) {
+        if (!(position instanceof Position)) return false;
+        return row == ((Position)position).row
+            && column == ((Position)position).column;
     }
 
     @Override
     public int hashCode() {
-        return linha * 39 + coluna;
+        return row * 39 + column;
     }
 }

@@ -217,7 +217,7 @@ public class Board implements Serializable {
 
     private void remove(Group group) {
         for (Position position : group.getPositions()) {
-            board[position.linha][position.coluna] = EMPTY;
+            board[position.row][position.column] = EMPTY;
         }
     }
 
