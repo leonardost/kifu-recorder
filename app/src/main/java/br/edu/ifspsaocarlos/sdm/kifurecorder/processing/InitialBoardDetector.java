@@ -114,7 +114,7 @@ public class InitialBoardDetector {
 
         if (desenharPreview) {
 //            Drawer.desenhaInterseccoesECantosDoTabuleiro(imagemDePreview, intersecoes, cantosDoTabuleiro);
-            Drawer.desenharContornoDoTabuleiro(imagemDePreview, quadrilateroDoTabuleiro);
+            Drawer.drawBoardContour(imagemDePreview, quadrilateroDoTabuleiro);
         }
 
         posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
@@ -236,7 +236,7 @@ public class InitialBoardDetector {
         }
 
 //        if (desenharPreview) {
-//            Drawer.desenharContornosRelevantes(imagemDePreview, quadrilateralHierarchy, contornoMaisProximoDoTabuleiro);
+//            Drawer.drawRelevantContours(imagemDePreview, quadrilateralHierarchy, contornoMaisProximoDoTabuleiro);
 //        }
 
         return contornoMaisProximoDoTabuleiro;

@@ -124,7 +124,7 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
             });
         }
         else if (contornoDoTabuleiro != null) {
-            Drawer.desenharContornoDoTabuleiro(imagemFonte, contornoDoTabuleiro);
+            Drawer.drawBoardContour(imagemFonte, contornoDoTabuleiro);
         }
 
         return imagemFonte;

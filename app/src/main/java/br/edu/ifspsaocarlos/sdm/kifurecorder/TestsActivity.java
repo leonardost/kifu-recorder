@@ -268,11 +268,11 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
                 Board board = stoneDetector.detectar();
                 if (board != null && board.equals(casosDeTeste[indiceImagem - 1].getBoard())) {
-//                    Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400);
+//                    Drawer.drawBoard(imagemFonte, board, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
                 }
                 else {
-//                    Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400);
+//                    Drawer.drawBoard(imagemFonte, board, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " falhou:");
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " " + board);
                     Log.i(TAG, "não bateu com");
@@ -338,7 +338,7 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
         Board board = stoneDetector.detectar();
         if (board != null) {
-            Drawer.desenharTabuleiro(imagemFonte, board, 0, 500, 400, null);
+            Drawer.drawBoard(imagemFonte, board, 0, 500, 400, null);
         }
 
         imagemProcessada = imagemFonte;

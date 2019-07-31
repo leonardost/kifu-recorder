@@ -301,7 +301,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
             Drawer.drawLostBoardContour(originalImage, contornoDoTabuleiro);
-            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
+            Drawer.drawBoard(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
@@ -311,8 +311,8 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             if (tabuleiroOrtogonal != null) {
                 tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
-            Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
-            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
+            Drawer.drawBoardContour(originalImage, contornoDoTabuleiro);
+            Drawer.drawBoard(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
@@ -355,7 +355,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         lastDetectedBoard = board;
 
-        Drawer.desenharContornoDoTabuleiro(originalImage, contornoDoTabuleiro);
+        Drawer.drawBoardContour(originalImage, contornoDoTabuleiro);
         logger.setCameraImageWithBoardContour(originalImage.clone());
 
         // Desenha o tabuleiro ortogonal na tela
@@ -365,10 +365,10 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         if (paused) {
             // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
-            Drawer.desenharTabuleiro(originalImage, board, 0, 500, 400, null);
+            Drawer.drawBoard(originalImage, board, 0, 500, 400, null);
         }
         else {
-            Drawer.desenharTabuleiro(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
+            Drawer.drawBoard(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
         }
 
         logger.log();

@@ -13,7 +13,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
 
 /**
- * Classe responsável por colocar a imagem de saída nas matrizes de imagem.
+ * Responsible for drawing images.
  */
 public class Drawer {
 
@@ -28,113 +28,112 @@ public class Drawer {
         mRed, mGreen, mBlue, mWhite
     };
 
-    public static void desenharContornosRelevantes(Mat imagem, QuadrilateralHierarchy quadrilateralHierarchy, MatOfPoint contornoMaisProximoDoTabuleiro) {
-        // Desenha os quadriláteros folha em verde
+    public static void drawRelevantContours(Mat image, QuadrilateralHierarchy quadrilateralHierarchy, MatOfPoint contourClosestToTheBoard) {
+        // Draw the leaf quadrilaterals in green
         if (quadrilateralHierarchy.folhas.size() > 0) {
-            Imgproc.drawContours(imagem, quadrilateralHierarchy.folhas, -1, mGreen, 2);
+            Imgproc.drawContours(image, quadrilateralHierarchy.folhas, -1, mGreen, 2);
         }
 
-        // Desenha os quadriláteros externos em azul
+        // Draw the external quadrilaterals in blue
         if (quadrilateralHierarchy.externos.size() > 0) {
-            Imgproc.drawContours(imagem, quadrilateralHierarchy.externos, -1, mBlue, 2);
+            Imgproc.drawContours(image, quadrilateralHierarchy.externos, -1, mBlue, 2);
         }
 
-        // Desenha o contorno do tabuleiro em vermelho
-        if (contornoMaisProximoDoTabuleiro != null) {
-            desenharContorno(imagem, contornoMaisProximoDoTabuleiro, mRed);
+        // Draw the board contour in red
+        if (contourClosestToTheBoard != null) {
+            drawContour(image, contourClosestToTheBoard, mRed);
         }
     }
 
-    private static void desenharContorno(Mat imagem, MatOfPoint contorno, Scalar cor) {
-        List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
-        listaContorno.add(contorno);
-        Imgproc.drawContours(imagem, listaContorno, -1, cor, 2);
+    private static void drawContour(Mat image, MatOfPoint contour, Scalar color) {
+        List<MatOfPoint> contourList = new ArrayList<MatOfPoint>();
+        contourList.add(contour);
+        Imgproc.drawContours(image, contourList, -1, color, 2);
     }
 
-    public static void desenharContornoDoTabuleiro(Mat imagem, MatOfPoint contornoDoTabuleiro) {
-        List<MatOfPoint> listaContorno = new ArrayList<MatOfPoint>();
-        listaContorno.add(contornoDoTabuleiro);
-        Imgproc.drawContours(imagem, listaContorno, -1, mRed, 6);
+    public static void drawBoardContour(Mat image, MatOfPoint boardContour) {
+        List<MatOfPoint> contourList = new ArrayList<MatOfPoint>();
+        contourList.add(boardContour);
+        Imgproc.drawContours(image, contourList, -1, mRed, 6);
     }
 
-    public static void drawLostBoardContour(Mat imagem, MatOfPoint boardContour) {
+    public static void drawLostBoardContour(Mat image, MatOfPoint boardContour) {
         List<MatOfPoint> contour = new ArrayList<MatOfPoint>();
         contour.add(boardContour);
-        Imgproc.drawContours(imagem, contour, -1, mBlue, 6);
+        Imgproc.drawContours(image, contour, -1, mBlue, 6);
     }
 
     /**
-     * Desenha o tabuleiro sobre a matriz 'imagem' com a origem nas coordenadas 'x' e 'y' passadas
-     * como parâmetro e com tamanho 'tamanhoImagem'. O desenho é feito respeitando a dimensão do
-     * tabuleiro, ou seja, se o tabuleiro tem dimensão maior, o preview fica menor. A última jogada
-     * é marcada com um círculo sobre a última pedra que foi colocada. Se o parâmetro ultimaJogada
-     * for nulo, não marca a última jogada.
+     * Draws the board over matrix 'image' with origin on coordinates 'x' and 'y' passed as
+     * parameters and with size 'imageSize'. The drawing is done respecting the dimension of the
+     * board, that is, if the board has a smaller dimension, the preview is smaller. The last move
+     * is marked in blue. If the 'lastMove' parameter is null, the last move is not marked.
      *
-     * @param imagem
+     * @param image
      * @param board
      * @param x
      * @param y
-     * @param tamanhoImagem
+     * @param imageSize
      * @param lastMove
      */
-    public static void desenharTabuleiro(Mat imagem, Board board, int x, int y, int tamanhoImagem, Move lastMove) {
+    public static void drawBoard(Mat image, Board board, int x, int y, int imageSize, Move lastMove) {
         Point p1 = new Point();
         Point p2 = new Point();
-        double distanciaEntreLinhas = tamanhoImagem / (board.getDimension() + 1);
-        double fimDasLinhas = tamanhoImagem - distanciaEntreLinhas;
-        int raioDaPedra = 29 - board.getDimension(); // estava usando tamanhoImagem / 20 para o 9x9
+        double distanceBetweenLines = imageSize / (board.getDimension() + 1);
+        double endOfLines = imageSize - distanceBetweenLines;
+        int stoneRadius = 29 - board.getDimension(); // was using imageSize / 20 for 9x9 board
         p1.x = x;
         p1.y = y;
-        p2.x = x + tamanhoImagem;
-        p2.y = y + tamanhoImagem;
+        p2.x = x + imageSize;
+        p2.y = y + imageSize;
 
-        Imgproc.rectangle(imagem, p1, p2, mBoardBrown, -1);
+        Imgproc.rectangle(image, p1, p2, mBoardBrown, -1);
 
-        // Desenha linhas horizontais
+        // Draw horizontal lines
         for (int i = 0; i < board.getDimension(); ++i) {
-            Point inicio = new Point();
-            Point fim = new Point();
-            inicio.x = x + distanciaEntreLinhas;
-            inicio.y = y + distanciaEntreLinhas + distanciaEntreLinhas * i;
-            fim.x = x + fimDasLinhas;
-            fim.y = inicio.y;
-            Imgproc.line(imagem, inicio, fim, mBlack);
+            Point start = new Point();
+            Point end = new Point();
+            start.x = x + distanceBetweenLines;
+            start.y = y + distanceBetweenLines + distanceBetweenLines * i;
+            end.x = x + endOfLines;
+            end.y = start.y;
+            Imgproc.line(image, start, end, mBlack);
         }
 
-        // Desenha linhas verticais
+        // Draw vertical lines
         for (int i = 0; i < board.getDimension(); ++i) {
-            Point inicio = new Point();
-            Point fim = new Point();
-            inicio.x = x + distanciaEntreLinhas + distanciaEntreLinhas * i;
-            inicio.y = y + distanciaEntreLinhas;
-            fim.x = inicio.x;
-            fim.y = y + fimDasLinhas;
-            Imgproc.line(imagem, inicio, fim, mBlack);
+            Point start = new Point();
+            Point end = new Point();
+            start.x = x + distanceBetweenLines + distanceBetweenLines * i;
+            start.y = y + distanceBetweenLines;
+            end.x = start.x;
+            end.y = y + endOfLines;
+            Imgproc.line(image, start, end, mBlack);
         }
 
-        // Desenha pedras
+        // Draw stones
         for (int i = 0; i < board.getDimension(); ++i) {
             for (int j = 0; j < board.getDimension(); ++j) {
-                Point centro = new Point();
-                centro.x = x + distanciaEntreLinhas + j * distanciaEntreLinhas;
-                centro.y = y + distanciaEntreLinhas + i * distanciaEntreLinhas;
+                Point center = new Point();
+                center.x = x + distanceBetweenLines + j * distanceBetweenLines;
+                center.y = y + distanceBetweenLines + i * distanceBetweenLines;
                 if (board.getPosition(i, j) == Board.BLACK_STONE) {
-                    Imgproc.circle(imagem, centro, raioDaPedra, mBlack, -1);
+                    Imgproc.circle(image, center, stoneRadius, mBlack, -1);
                 } else if (board.getPosition(i, j) == Board.WHITE_STONE) {
-                    Imgproc.circle(imagem, centro, raioDaPedra, mWhite, -1);
-                    Imgproc.circle(imagem, centro, raioDaPedra, mBlack);
+                    Imgproc.circle(image, center, stoneRadius, mWhite, -1);
+                    Imgproc.circle(image, center, stoneRadius, mBlack);
                 }
             }
         }
 
-        // Marca a última jogada feita
+        // Mark the last move
         if (lastMove != null) {
-            Point centro = new Point();
-            centro.x = x + distanciaEntreLinhas + lastMove.column * distanciaEntreLinhas;
-            centro.y = y + distanciaEntreLinhas + lastMove.row * distanciaEntreLinhas;
-            Scalar corDaMarcacao = lastMove.color == Board.BLACK_STONE ? mWhite : mBlack;
-            Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
-            Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
+            Point center = new Point();
+            center.x = x + distanceBetweenLines + lastMove.column * distanceBetweenLines;
+            center.y = y + distanceBetweenLines + lastMove.row * distanceBetweenLines;
+            Scalar markColor = lastMove.color == Board.BLACK_STONE ? mWhite : mBlack;
+            Imgproc.circle(image, center, (int)(stoneRadius * 0.6), markColor, 1);
+            Imgproc.circle(image, center, stoneRadius, mBlue, -1);
         }
     }
 
