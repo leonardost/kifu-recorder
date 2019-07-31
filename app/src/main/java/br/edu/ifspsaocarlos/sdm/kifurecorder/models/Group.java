@@ -4,68 +4,68 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Representa um grupo em um tabuleiro.
+ * Represents a group of stones on the board.
  */
 public class Group {
 
-    private int cor;
-    private Set<Position> posicoes;
-    private Set<Position> liberdades;
+    private int color;
+    private Set<Position> positions;
+    private Set<Position> liberties;
 
-    public Group(int cor) {
-        this.cor = cor;
-        posicoes = new HashSet<>();
-        liberdades = new HashSet<>();
+    public Group(int color) {
+        this.color = color;
+        positions = new HashSet<>();
+        liberties = new HashSet<>();
     }
 
-    public int getCor() {
-        return cor;
+    public int getColor() {
+        return color;
     }
 
-    public Set<Position> getPosicoes() {
-        return posicoes;
+    public Set<Position> getPositions() {
+        return positions;
     }
 
-    public void adicionarPosicao(Position position) {
-        posicoes.add(position);
+    public void addPosition(Position position) {
+        positions.add(position);
     }
 
-    public void adicionarLiberdade(Position liberdade) {
-        liberdades.add(liberdade);
+    public void addLiberty(Position liberdade) {
+        liberties.add(liberdade);
     }
 
-    public boolean estaEmAtari() {
-        return liberdades.size() == 1;
+    public boolean isInAtari() {
+        return liberties.size() == 1;
     }
 
-    public boolean ehCapturadoPela(Move move) {
-        return move.cor != cor && estaEmAtari() && liberdades.contains(move.posicao());
+    public boolean isCapturedBy(Move move) {
+        return move.cor != color && isInAtari() && liberties.contains(move.posicao());
     }
 
-    public boolean naoTemLiberdades() {
-        return liberdades.size() == 0;
+    public boolean hasNoLiberties() {
+        return liberties.size() == 0;
     }
 
     @Override
-    public boolean equals(Object outro) {
-        if (!(outro instanceof Group)) return false;
+    public boolean equals(Object other) {
+        if (!(other instanceof Group)) return false;
 
-        Group otherGroup = (Group)outro;
-        return cor == otherGroup.cor
-            && posicoes.equals(otherGroup.posicoes)
-            && liberdades.equals(otherGroup.liberdades);
+        Group otherGroup = (Group)other;
+        return color == otherGroup.color
+            && positions.equals(otherGroup.positions)
+            && liberties.equals(otherGroup.liberties);
     }
 
     @Override
     public int hashCode() {
-        return cor + posicoes.hashCode() + liberdades.hashCode();
+        return color + positions.hashCode() + liberties.hashCode();
     }
 
     @Override
     public String toString() {
         StringBuilder string = new StringBuilder();
-        string.append("Grupo de cor " + cor + ": ");
-        for (Position position : posicoes) {
+        string.append("Group of color " + color + ": ");
+        for (Position position : positions) {
             string.append(position);
         }
         return string.toString();

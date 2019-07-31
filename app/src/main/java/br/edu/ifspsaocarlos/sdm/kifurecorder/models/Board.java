@@ -195,13 +195,13 @@ public class Board implements Serializable {
 
         for (Group group : getGroupsAdjacentTo(move)) {
             if (group == null) continue;
-            if (group.ehCapturadoPela(move)) newBoard.remove(group);
+            if (group.isCapturedBy(move)) newBoard.remove(group);
         }
 
         newBoard.board[move.linha][move.coluna] = move.cor;
 
         Group groupOfMove = newBoard.getGroupAt(move.linha, move.coluna);
-        if (groupOfMove.naoTemLiberdades()) return this;
+        if (groupOfMove.hasNoLiberties()) return this;
 
         return newBoard;
 	}
@@ -216,7 +216,7 @@ public class Board implements Serializable {
     }
 
     private void remove(Group group) {
-        for (Position position : group.getPosicoes()) {
+        for (Position position : group.getPositions()) {
             board[position.linha][position.coluna] = EMPTY;
         }
     }
@@ -249,10 +249,10 @@ public class Board implements Serializable {
         visitedPositions[row][column] = true;
 
         if (board[row][column] == Board.EMPTY) {
-            group.adicionarLiberdade(new Position(row, column));
+            group.addLiberty(new Position(row, column));
         }
-        else if (board[row][column] == group.getCor()) {
-            group.adicionarPosicao(new Position(row, column));
+        else if (board[row][column] == group.getColor()) {
+            group.addPosition(new Position(row, column));
 
             delimitGroup(row - 1, column, visitedPositions, group);
             delimitGroup(row + 1, column, visitedPositions, group);
