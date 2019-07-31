@@ -39,7 +39,7 @@ public class Group {
     }
 
     public boolean isCapturedBy(Move move) {
-        return move.cor != color && isInAtari() && liberties.contains(move.posicao());
+        return move.color != color && isInAtari() && liberties.contains(move.posicao());
     }
 
     public boolean hasNoLiberties() {

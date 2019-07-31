@@ -130,9 +130,9 @@ public class Drawer {
         // Marca a última jogada feita
         if (lastMove != null) {
             Point centro = new Point();
-            centro.x = x + distanciaEntreLinhas + lastMove.coluna * distanciaEntreLinhas;
-            centro.y = y + distanciaEntreLinhas + lastMove.linha * distanciaEntreLinhas;
-            Scalar corDaMarcacao = lastMove.cor == Board.BLACK_STONE ? mWhite : mBlack;
+            centro.x = x + distanciaEntreLinhas + lastMove.column * distanciaEntreLinhas;
+            centro.y = y + distanciaEntreLinhas + lastMove.row * distanciaEntreLinhas;
+            Scalar corDaMarcacao = lastMove.color == Board.BLACK_STONE ? mWhite : mBlack;
             Imgproc.circle(imagem, centro, (int)(raioDaPedra * 0.6), corDaMarcacao, 1);
             Imgproc.circle(imagem, centro, raioDaPedra, mBlue, -1);
         }

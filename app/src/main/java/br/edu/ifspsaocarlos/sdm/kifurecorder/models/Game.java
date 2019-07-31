@@ -57,7 +57,7 @@ public class Game implements Serializable {
     public boolean addMoveIfItIsValid(Board board) {
         Move playedMove = board.getDifferenceTo(getLastBoard());
 
-        if (playedMove == null || repeatsPreviousState(board) || !canNextMoveBe(playedMove.cor)) {
+        if (playedMove == null || repeatsPreviousState(board) || !canNextMoveBe(playedMove.color)) {
             return false;
         }
 
@@ -94,17 +94,17 @@ public class Game implements Serializable {
      */
     private boolean wereOnlyBlackStonesPlayed() {
         for (Move move : moves) {
-            if (move.cor == Board.WHITE_STONE) return false;
+            if (move.color == Board.WHITE_STONE) return false;
         }
         return true;
     }
 
     private boolean wasLastMoveWhite() {
-        return !isFirstMove() && getLastMove().cor == Board.WHITE_STONE;
+        return !isFirstMove() && getLastMove().color == Board.WHITE_STONE;
     }
 
     private boolean wasLastMoveBlack() {
-        return !isFirstMove() && getLastMove().cor == Board.BLACK_STONE;
+        return !isFirstMove() && getLastMove().color == Board.BLACK_STONE;
     }
 
     public Move getLastMove() {

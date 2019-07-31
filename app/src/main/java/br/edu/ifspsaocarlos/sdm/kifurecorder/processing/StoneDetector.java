@@ -136,8 +136,8 @@ public class StoneDetector {
             }
         }
 
-        if (chosenMove != null && (podeSerPedraPreta && chosenMove.cor == Board.BLACK_STONE ||
-                podeSerPedraBranca && chosenMove.cor == Board.WHITE_STONE)) {
+        if (chosenMove != null && (podeSerPedraPreta && chosenMove.color == Board.BLACK_STONE ||
+                podeSerPedraBranca && chosenMove.color == Board.WHITE_STONE)) {
             snapshot.append("Jogada escolhida = " + chosenMove + " com confiança " + maiorConfianca + "\n");
         }
         else {

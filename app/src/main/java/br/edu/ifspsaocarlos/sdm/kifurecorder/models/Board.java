@@ -189,7 +189,7 @@ public class Board implements Serializable {
      * parameter. If the move is not valid, returns the current board.
      */
 	public Board generateNewBoardWith(Move move) {
-        if (move == null || board[move.linha][move.coluna] != EMPTY) return this;
+        if (move == null || board[move.row][move.column] != EMPTY) return this;
 
         Board newBoard = new Board(this);
 
@@ -198,9 +198,9 @@ public class Board implements Serializable {
             if (group.isCapturedBy(move)) newBoard.remove(group);
         }
 
-        newBoard.board[move.linha][move.coluna] = move.cor;
+        newBoard.board[move.row][move.column] = move.color;
 
-        Group groupOfMove = newBoard.getGroupAt(move.linha, move.coluna);
+        Group groupOfMove = newBoard.getGroupAt(move.row, move.column);
         if (groupOfMove.hasNoLiberties()) return this;
 
         return newBoard;
@@ -208,10 +208,10 @@ public class Board implements Serializable {
 
     private Set<Group> getGroupsAdjacentTo(Move move) {
         Set<Group> groupsAdjacentToMove = new HashSet<>();
-        groupsAdjacentToMove.add(getGroupAt(move.linha - 1, move.coluna));
-        groupsAdjacentToMove.add(getGroupAt(move.linha + 1, move.coluna));
-        groupsAdjacentToMove.add(getGroupAt(move.linha, move.coluna - 1));
-        groupsAdjacentToMove.add(getGroupAt(move.linha, move.coluna + 1));
+        groupsAdjacentToMove.add(getGroupAt(move.row - 1, move.column));
+        groupsAdjacentToMove.add(getGroupAt(move.row + 1, move.column));
+        groupsAdjacentToMove.add(getGroupAt(move.row, move.column - 1));
+        groupsAdjacentToMove.add(getGroupAt(move.row, move.column + 1));
         return groupsAdjacentToMove;
     }
 

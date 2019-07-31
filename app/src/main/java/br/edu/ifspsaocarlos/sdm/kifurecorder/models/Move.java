@@ -3,38 +3,38 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.models;
 import java.io.Serializable;
 
 /**
- * Representa uma jogada feita em um jogo.
+ * Represents a move made in a game.
  */
 public class Move implements Serializable {
 
-    public boolean ehPasse;
-    public int linha;
-    public int coluna;
-    public int cor;
+    public boolean isPass;
+    public int row;
+    public int column;
+    public int color;
 
-    public Move(int linha, int coluna, int cor) {
-        this.ehPasse = false;
-        this.linha = linha;
-        this.coluna = coluna;
-        this.cor = cor;
+    public Move(int row, int column, int color) {
+        this.isPass = false;
+        this.row = row;
+        this.column = column;
+        this.color = color;
     }
 
     public Position posicao() {
-        return new Position(linha, coluna);
+        return new Position(row, column);
     }
 
     public String sgf() {
-        int l = 'a' + linha;
-        int c = 'a' + coluna;
+        int l = 'a' + row;
+        int c = 'a' + column;
         String coordenada = "" + (char)c + (char)l;
-        if (ehPasse) coordenada = "";
-        char cor = this.cor == Board.BLACK_STONE ? 'B' : 'W';
+        if (isPass) coordenada = "";
+        char cor = this.color == Board.BLACK_STONE ? 'B' : 'W';
         return ";" + cor + "[" + coordenada + "]";
     }
 
     public String toString() {
-        String nomeCor = cor == Board.EMPTY ? "Vazio" : cor == Board.BLACK_STONE ? "Preto" : "Branco";
-        return "(" + linha + ", " + coluna + ", " + nomeCor + ")";
+        String nomeCor = color == Board.EMPTY ? "Vazio" : color == Board.BLACK_STONE ? "Preto" : "Branco";
+        return "(" + row + ", " + column + ", " + nomeCor + ")";
     }
 
 }
