@@ -65,17 +65,17 @@ public class FileHelper {
         return file;
     }
 
-    public File getFile(String nome, String extensao) {
-        File arquivo = new File(gameRecordLogFolder, generateFilename(0, nome, extensao));
-        int contador = 1;
+    public File getFile(String name, String extension) {
+        File file = new File(gameRecordLogFolder, generateFilename(0, name, extension));
+        int counter = 1;
 
-        while (arquivo.exists()) {
-            String newFilename = generateFilename(contador, nome, extensao);
-            arquivo = new File(gameRecordLogFolder, newFilename);
-            contador++;
+        while (file.exists()) {
+            String newFilename = generateFilename(counter, name, extension);
+            file = new File(gameRecordLogFolder, newFilename);
+            counter++;
         }
 
-        return arquivo;
+        return file;
     }
 
     private String generateFilename(int repeatedNameCounter, String filename, String extension) {
@@ -96,16 +96,16 @@ public class FileHelper {
     }
 
     public boolean saveGameFile(Game game) {
-        String conteudoDaPartida = game.sgf();
+        String gameContent = game.sgf();
 
         if (isExternalStorageWritable()) {
             try {
                 FileOutputStream fos = new FileOutputStream(gameFile, false);
-                fos.write(conteudoDaPartida.getBytes());
+                fos.write(gameContent.getBytes());
                 fos.flush();
                 fos.close();
 
-                Log.i(TestsActivity.TAG, "Partida salva: " + gameFile.getName());
+                Log.i(TestsActivity.TAG, "Game saved: " + gameFile.getName());
                 return true;
             }
             catch (IOException e) {
@@ -128,27 +128,27 @@ public class FileHelper {
     }
 
     public void storeGameTemporarily(Game game, Corner[] cantosDoTabuleiro) {
-        File arquivo = getTempFile();
+        File file = getTempFile();
         if (isExternalStorageWritable()) {
             try {
-                FileOutputStream fos = new FileOutputStream(arquivo, false);
+                FileOutputStream fos = new FileOutputStream(file, false);
                 ObjectOutputStream oos = new ObjectOutputStream(fos);
                 oos.writeObject(game);
                 oos.writeObject(cantosDoTabuleiro);
                 oos.close();
                 fos.close();
-                Log.i(TestsActivity.TAG, "Partida salva temporariamente no arquivo " + arquivo.getName());
+                Log.i(TestsActivity.TAG, "Game temporarily saved in " + file.getName());
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         }
         else {
-            Log.e(TestsActivity.TAG, "Armazenamento externo não disponível para guardar registro temporário da partida.");
+            Log.e(TestsActivity.TAG, "External storage not available to store temporary game state.");
         }
     }
 
-    public void restoreGameStoredTemporarily(Game game, Corner[] cantosDoTabuleiro) {
+    public void restoreGameStoredTemporarily(Game game, Corner[] boardCorners) {
         File arquivo = getTempFile();
         // TODO: Precisa fazer esta checagem aqui? Porque aqui só é feita a leitura de arquivos
         if (isExternalStorageWritable()) {
@@ -156,7 +156,7 @@ public class FileHelper {
                 FileInputStream fis = new FileInputStream(arquivo);
                 ObjectInputStream ois = new ObjectInputStream(fis);
                 game = (Game) ois.readObject();
-                cantosDoTabuleiro = (Corner[]) ois.readObject();
+                boardCorners = (Corner[]) ois.readObject();
                 ois.close();
                 fis.close();
                 Log.i(TestsActivity.TAG, "Partida recuperada.");
@@ -169,7 +169,7 @@ public class FileHelper {
             }
         }
         else {
-            Log.e(TestsActivity.TAG, "Armazenamento externo não disponível para restaurar registro temporário da partida.");
+            Log.e(TestsActivity.TAG, "External storage not available to restore temporary game state.");
         }
     }
 
