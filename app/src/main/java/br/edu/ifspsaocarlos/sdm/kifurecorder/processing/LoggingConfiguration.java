@@ -10,7 +10,7 @@ public class LoggingConfiguration {
     // Images
     public static int RAW_CAMERA_IMAGE = 2;
     public static int CAMERA_IMAGE_WITH_BOARD_CONTOUR = 3;
-    public static int ORTOGONAL_BOARD_IMAGE = 4;
+    public static int ORTHOGONAL_BOARD_IMAGE = 4;
     public static int CORNER_REGIONS_IMAGES = 5;
 
     // Processing objects

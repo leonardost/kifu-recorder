@@ -141,7 +141,7 @@ public class Logger {
             fileHelper.writePngImage(cameraImageWithBoardContour, Imgproc.COLOR_RGBA2BGR, generateImageFilename("camera_com_contorno"));
         }
 
-        if (shouldLog(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE) && ortogonalBoardImage != null) {
+        if (shouldLog(LoggingConfiguration.ORTHOGONAL_BOARD_IMAGE) && ortogonalBoardImage != null) {
             fileHelper.writePngImage(ortogonalBoardImage, Imgproc.COLOR_RGBA2BGR, generateImageFilename("tabuleiro_ortogonal"));
         }
 

@@ -197,7 +197,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         LoggingConfiguration.activateLogging();
         LoggingConfiguration.activateLogging(LoggingConfiguration.RAW_CAMERA_IMAGE);
         LoggingConfiguration.activateLogging(LoggingConfiguration.CAMERA_IMAGE_WITH_BOARD_CONTOUR);
-        LoggingConfiguration.activateLogging(LoggingConfiguration.ORTOGONAL_BOARD_IMAGE);
+        LoggingConfiguration.activateLogging(LoggingConfiguration.ORTHOGONAL_BOARD_IMAGE);
         LoggingConfiguration.activateLogging(LoggingConfiguration.CORNER_POSITIONS);
         LoggingConfiguration.activateLogging(LoggingConfiguration.NUMBER_OF_QUADRILATERALS_FOUND_BY_BOARD_DETECTOR);
 
