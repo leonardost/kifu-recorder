@@ -89,10 +89,10 @@ public class InitialBoardDetector {
 
         QuadrilateralHierarchy quadrilateralHierarchy = new QuadrilateralHierarchy(quadrilaterals);
         double averageArea = 0;
-        for (MatOfPoint quadrilateral : quadrilateralHierarchy.hierarquia.get(boardQuadrilateral)) {
+        for (MatOfPoint quadrilateral : quadrilateralHierarchy.hierarchy.get(boardQuadrilateral)) {
             averageArea += Imgproc.contourArea(quadrilateral);
         }
-        averageArea /= quadrilateralHierarchy.hierarquia.get(boardQuadrilateral).size();
+        averageArea /= quadrilateralHierarchy.hierarchy.get(boardQuadrilateral).size();
         double boardArea = Imgproc.contourArea(boardQuadrilateral);
         double ratio = averageArea / boardArea;
 //        Log.d(TestsActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + ratio);
@@ -226,11 +226,11 @@ public class InitialBoardDetector {
         // Must have at least this number of leaf quadrilaterals inside
         int threshold = 10;
 
-        for (MatOfPoint contour : quadrilateralHierarchy.externos) {
-            if (quadrilateralHierarchy.hierarquia.get(contour).size() < numberOfChildren &&
-                    quadrilateralHierarchy.hierarquia.get(contour).size() > threshold) {
+        for (MatOfPoint contour : quadrilateralHierarchy.externals) {
+            if (quadrilateralHierarchy.hierarchy.get(contour).size() < numberOfChildren &&
+                    quadrilateralHierarchy.hierarchy.get(contour).size() > threshold) {
                 contourClosestToTheBoard = contour;
-                numberOfChildren = quadrilateralHierarchy.hierarquia.get(contour).size();
+                numberOfChildren = quadrilateralHierarchy.hierarchy.get(contour).size();
             }
         }
 

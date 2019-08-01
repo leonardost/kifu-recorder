@@ -30,13 +30,13 @@ public class Drawer {
 
     public static void drawRelevantContours(Mat image, QuadrilateralHierarchy quadrilateralHierarchy, MatOfPoint contourClosestToTheBoard) {
         // Draw the leaf quadrilaterals in green
-        if (quadrilateralHierarchy.folhas.size() > 0) {
-            Imgproc.drawContours(image, quadrilateralHierarchy.folhas, -1, mGreen, 2);
+        if (quadrilateralHierarchy.leaves.size() > 0) {
+            Imgproc.drawContours(image, quadrilateralHierarchy.leaves, -1, mGreen, 2);
         }
 
         // Draw the external quadrilaterals in blue
-        if (quadrilateralHierarchy.externos.size() > 0) {
-            Imgproc.drawContours(image, quadrilateralHierarchy.externos, -1, mBlue, 2);
+        if (quadrilateralHierarchy.externals.size() > 0) {
+            Imgproc.drawContours(image, quadrilateralHierarchy.externals, -1, mBlue, 2);
         }
 
         // Draw the board contour in red
