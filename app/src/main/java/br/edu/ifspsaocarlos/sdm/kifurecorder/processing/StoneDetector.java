@@ -100,20 +100,20 @@ public class StoneDetector {
                 snapshot.append("    ---\n");
 
                 MoveHypothesis hipotese = hipoteseDeCor5(corAoRedorDaPosicao, coresMedias, contadores, coresNasPosicoesLivresAdjacentes);
-                hipotese.linha = i;
-                hipotese.coluna = j;
+                hipotese.row = i;
+                hipotese.column = j;
 
-                snapshot.append("    Hipótese = " + hipotese.cor + " (confiança: " + hipotese.confianca + ")\n");
+                snapshot.append("    Hipótese = " + hipotese.color + " (confiança: " + hipotese.confidence + ")\n");
 
-                if (hipotese.cor != Board.EMPTY) {
+                if (hipotese.color != Board.EMPTY) {
                     hipotesesDeJogadasEncontradas.add(hipotese);
                 }
                 /*
                 Ao invés de filtrar as jogadas por cor antes, vamos filtrá-las depois, acho que faz mais
                 sentido. Pega-se a jogada mais provável e verifica-se se ela é possível.
-                if (hipotese.cor != Board.EMPTY) {
-                    if (podeSerPedraPreta && hipotese.cor == Board.BLACK_STONE ||
-                            podeSerPedraBranca && hipotese.cor == Board.WHITE_STONE) {
+                if (hipotese.color != Board.EMPTY) {
+                    if (podeSerPedraPreta && hipotese.color == Board.BLACK_STONE ||
+                            podeSerPedraBranca && hipotese.color == Board.WHITE_STONE) {
                         hipotesesDeJogadasEncontradas.add(hipotese);
                     }
                 }
@@ -130,9 +130,9 @@ public class StoneDetector {
         Move chosenMove = null;
         double maiorConfianca = 0;
         for (MoveHypothesis hipotese : hipotesesDeJogadasEncontradas) {
-            if (hipotese.confianca > maiorConfianca) {
-                maiorConfianca = hipotese.confianca;
-                chosenMove = new Move(hipotese.linha, hipotese.coluna, hipotese.cor);
+            if (hipotese.confidence > maiorConfianca) {
+                maiorConfianca = hipotese.confidence;
+                chosenMove = new Move(hipotese.row, hipotese.column, hipotese.color);
             }
         }
 
