@@ -14,42 +14,42 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
 
 /**
- * Detecta as pedras do tabuleiro que está na imagem, retornando um objeto
- * Tabuleiro correspondente ao estado atual do jogo.
+ * Detects the stones on the board that's in the image and returns a Board
+ * object corresponding to the current game state.
  */
 public class StoneDetector {
 
-    // Imagem ortogonal e quadrada do tabuleiro
-    private Mat imagemDoTabuleiro = null;
-    // Dimensões do tabuleiro (9x9, 13x13 ou 19x19)
-    private int dimensaoDoTabuleiro = 0;
-    // Informações de debug do estado atual sendo visto pelo detector
+    // Orthogonal square image of the board
+    private Mat boardImage = null;
+    // Dimensions of the board (9x9, 13x13 or 19x19)
+    private int boardDimension = 0;
+    // Debug information of the current state seen by the detector
     public StringBuilder snapshot;
 
-    public void setDimensaoDoTabuleiro(int dimensaoDoTabuleiro) {
-        this.dimensaoDoTabuleiro = dimensaoDoTabuleiro;
+    public void setBoardDimension(int boardDimension) {
+        this.boardDimension = boardDimension;
     }
 
-    public void setImagemDoTabuleiro(Mat imagemDoTabuleiro) {
-        this.imagemDoTabuleiro = imagemDoTabuleiro;
+    public void setBoardImage(Mat boardImage) {
+        this.boardImage = boardImage;
     }
 
     /**
-     * Detecção de pedras que não utiliza o estado anterior da partida.
+     * Stone detection that does not use the previous state of the game.
      */
-    public Board detectar() {
+    public Board detect() {
 
-        Board board = new Board(dimensaoDoTabuleiro);
+        Board board = new Board(boardDimension);
 
-        double[] corMediaDoTabuleiro = corMediaDoTabuleiro(imagemDoTabuleiro);
+        double[] averageColorOfBoard = calculateAverageColorOfBoard(boardImage);
 
-        for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
-            for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
-                double[] color = recuperarCorMediaNaPosicao(i, j);
+        for (int i = 0; i < boardDimension; ++i) {
+            for (int j = 0; j < boardDimension; ++j) {
+                double[] color = calculateAverageColorOnPosition(i, j);
 
-                int hipotese = hipoteseDeCor(color, corMediaDoTabuleiro);
-                if (hipotese != Board.EMPTY) {
-                    board.putStone(i, j, hipotese);
+                int hypothesis = calculateColorHypothesis(color, averageColorOfBoard);
+                if (hypothesis != Board.EMPTY) {
+                    board.putStone(i, j, hypothesis);
                 }
             }
         }
@@ -58,63 +58,63 @@ public class StoneDetector {
     }
 
     /**
-     * Utiliza a informação do último estado do jogo para melhorar a detecção da
-     * última jogada feita. Os parâmetros informam se o detector deve procurar
-     * uma pedra preta, branca, ou ambas, de acordo com o estado atual da
-     * partida.
+     * Uses the information of the last game state to improve the detection
+     * precision of the last move made. The parameters inform if the detector
+     * should look for a black stone, a white stone or both, according to the
+     * current game state.
      */
-    public Board detectar(Board lastBoard, boolean podeSerPedraPreta, boolean podeSerPedraBranca) {
-        long tempoEntrou             = System.currentTimeMillis();
-        double[][] coresMedias       = new double[3][imagemDoTabuleiro.channels()];
-        int[] contadores             = new int[3];
+    public Board detect(Board lastBoard, boolean canBeBlackStone, boolean canBeWhiteStone) {
+        long startTime           = System.currentTimeMillis();
+        double[][] averageColors = new double[3][boardImage.channels()];
+        int[] counters           = new int[3];
 
         snapshot = new StringBuilder();
 
-        encontrarCoresMedias(lastBoard, coresMedias, contadores);
+        getAverageColors(lastBoard, averageColors, counters);
 
         List<MoveHypothesis> hipotesesDeJogadasEncontradas = new ArrayList<>();
 
-        for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
-            for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
+        for (int i = 0; i < boardDimension; ++i) {
+            for (int j = 0; j < boardDimension; ++j) {
 
 //                Log.i(TestsActivity.TAG, "(" + i + ", " + j + ")\n");
                 snapshot.append(String.format("(%1$2d, %2$2d)", i, j) + "\n");
 
-                // Ignora as interseções das jogadas que já foram feitas
+                // Ignores the intersections of moves that were already made
                 if (lastBoard.getPosition(i, j) != Board.EMPTY) continue;
 
-                double[] corAoRedorDaPosicao = recuperarCorMediaNaPosicao(i, j);
+                double[] colorAroundPosition = calculateAverageColorOnPosition(i, j);
 
-                double[][] coresNasPosicoesLivresAdjacentes = new double[4][];
-                coresNasPosicoesLivresAdjacentes[0] = (i > 0) ? lastBoard.getPosition(i - 1, j) == Board.EMPTY ? recuperarCorMediaNaPosicao(i - 1, j) : null : null;
-                coresNasPosicoesLivresAdjacentes[1] = (j < dimensaoDoTabuleiro - 1) ? lastBoard.getPosition(i, j + 1) == Board.EMPTY ? recuperarCorMediaNaPosicao(i, j + 1) : null : null;
-                coresNasPosicoesLivresAdjacentes[2] = (i < dimensaoDoTabuleiro - 1) ? lastBoard.getPosition(i + 1, j) == Board.EMPTY ? recuperarCorMediaNaPosicao(i + 1, j) : null : null;
-                coresNasPosicoesLivresAdjacentes[3] = (j > 0) ? lastBoard.getPosition(i, j - 1) == Board.EMPTY ? recuperarCorMediaNaPosicao(i, j - 1) : null : null;
+                double[][] colorsOnEmptyAdjacentPositions = new double[4][];
+                colorsOnEmptyAdjacentPositions[0] = (i > 0) ? lastBoard.getPosition(i - 1, j) == Board.EMPTY ? calculateAverageColorOnPosition(i - 1, j) : null : null;
+                colorsOnEmptyAdjacentPositions[1] = (j < boardDimension - 1) ? lastBoard.getPosition(i, j + 1) == Board.EMPTY ? calculateAverageColorOnPosition(i, j + 1) : null : null;
+                colorsOnEmptyAdjacentPositions[2] = (i < boardDimension - 1) ? lastBoard.getPosition(i + 1, j) == Board.EMPTY ? calculateAverageColorOnPosition(i + 1, j) : null : null;
+                colorsOnEmptyAdjacentPositions[3] = (j > 0) ? lastBoard.getPosition(i, j - 1) == Board.EMPTY ? calculateAverageColorOnPosition(i, j - 1) : null : null;
 
-/*                Log.d(TestsActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(corAoRedorDaPosicao));
-                Log.d(TestsActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminancia(corAoRedorDaPosicao));
-                Log.d(TestsActivity.TAG, "Variância ao redor de (" + i + ", " + j + ") = " + variancia(corAoRedorDaPosicao));*/
-                snapshot.append("    Cor média ao redor  = " + printColor(corAoRedorDaPosicao) + "\n");
-                snapshot.append("    Luminancia ao redor = " + luminancia(corAoRedorDaPosicao) + "\n");
-                snapshot.append("    Variância ao redor  = " + variancia(corAoRedorDaPosicao) + "\n");
+/*                Log.d(TestsActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(colorAroundPosition));
+                Log.d(TestsActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminance(colorAroundPosition));
+                Log.d(TestsActivity.TAG, "Variância ao redor de (" + i + ", " + j + ") = " + variance(colorAroundPosition));*/
+                snapshot.append("    Average color around = " + printColor(colorAroundPosition) + "\n");
+                snapshot.append("    Luminance around     = " + luminance(colorAroundPosition) + "\n");
+                snapshot.append("    Variance around      = " + variance(colorAroundPosition) + "\n");
                 snapshot.append("    ---\n");
 
-                MoveHypothesis hipotese = hipoteseDeCor5(corAoRedorDaPosicao, coresMedias, contadores, coresNasPosicoesLivresAdjacentes);
-                hipotese.row = i;
-                hipotese.column = j;
+                MoveHypothesis hypothesis = calculateColorHypothesis5(colorAroundPosition, averageColors, counters, colorsOnEmptyAdjacentPositions);
+                hypothesis.row = i;
+                hypothesis.column = j;
 
-                snapshot.append("    Hipótese = " + hipotese.color + " (confiança: " + hipotese.confidence + ")\n");
+                snapshot.append("    Hypothesis = " + hypothesis.color + " (confidence: " + hypothesis.confidence + ")\n");
 
-                if (hipotese.color != Board.EMPTY) {
-                    hipotesesDeJogadasEncontradas.add(hipotese);
+                if (hypothesis.color != Board.EMPTY) {
+                    hipotesesDeJogadasEncontradas.add(hypothesis);
                 }
                 /*
                 Ao invés de filtrar as jogadas por cor antes, vamos filtrá-las depois, acho que faz mais
                 sentido. Pega-se a jogada mais provável e verifica-se se ela é possível.
-                if (hipotese.color != Board.EMPTY) {
-                    if (podeSerPedraPreta && hipotese.color == Board.BLACK_STONE ||
-                            podeSerPedraBranca && hipotese.color == Board.WHITE_STONE) {
-                        hipotesesDeJogadasEncontradas.add(hipotese);
+                if (hypothesis.color != Board.EMPTY) {
+                    if (canBeBlackStone && hypothesis.color == Board.BLACK_STONE ||
+                            canBeWhiteStone && hypothesis.color == Board.WHITE_STONE) {
+                        hipotesesDeJogadasEncontradas.add(hypothesis);
                     }
                 }
                 */
@@ -122,158 +122,158 @@ public class StoneDetector {
             }
         }
 
-        // Escolhe a jogada que obteve maior confiança
-        // IMPORTANTE: Poderia verificar se a diferença de confiança entre as
-        // duas jogadas mais prováveis for muito pequena, desconsiderar ambas,
-        // porque é um sinal que o detector está confuso
+        // Chooses the move that obtained highest confidence
+        // IMPORTANT: Could verify if the difference in confidence between the
+        // two most probable moves is too small, discard both, because that's
+        // a sign that the detector is confused
         
         Move chosenMove = null;
-        double maiorConfianca = 0;
-        for (MoveHypothesis hipotese : hipotesesDeJogadasEncontradas) {
-            if (hipotese.confidence > maiorConfianca) {
-                maiorConfianca = hipotese.confidence;
-                chosenMove = new Move(hipotese.row, hipotese.column, hipotese.color);
+        double biggestConfidence = 0;
+        for (MoveHypothesis hypothesis : hipotesesDeJogadasEncontradas) {
+            if (hypothesis.confidence > biggestConfidence) {
+                biggestConfidence = hypothesis.confidence;
+                chosenMove = new Move(hypothesis.row, hypothesis.column, hypothesis.color);
             }
         }
 
-        if (chosenMove != null && (podeSerPedraPreta && chosenMove.color == Board.BLACK_STONE ||
-                podeSerPedraBranca && chosenMove.color == Board.WHITE_STONE)) {
-            snapshot.append("Jogada escolhida = " + chosenMove + " com confiança " + maiorConfianca + "\n");
+        if (chosenMove != null && (canBeBlackStone && chosenMove.color == Board.BLACK_STONE ||
+                canBeWhiteStone && chosenMove.color == Board.WHITE_STONE)) {
+            snapshot.append("Chosen move = " + chosenMove + " with confidence " + biggestConfidence + "\n");
         }
         else {
-            snapshot.append("Nenhuma jogada detectada.\n");
+            snapshot.append("No move detected.\n");
             chosenMove = null;
         }
 
-        Log.d(TestsActivity.TAG, "TEMPO (detectar()): " + (System.currentTimeMillis() - tempoEntrou));
+        Log.d(TestsActivity.TAG, "TIME (detect()): " + (System.currentTimeMillis() - startTime));
         return lastBoard.generateNewBoardWith(chosenMove);
     }
 
-    private void encontrarCoresMedias(Board lastBoard, double[][] coresMedias, int[] contadores) {
-        long tempoEntrou = System.currentTimeMillis();
-        contadores[Board.EMPTY] = 0;
-        contadores[Board.BLACK_STONE] = 0;
-        contadores[Board.WHITE_STONE] = 0;
+    private void getAverageColors(Board lastBoard, double[][] averageColors, int[] counters) {
+        long startTime = System.currentTimeMillis();
+        counters[Board.EMPTY] = 0;
+        counters[Board.BLACK_STONE] = 0;
+        counters[Board.WHITE_STONE] = 0;
 
-        for (int i = 0; i < dimensaoDoTabuleiro; ++i) {
-            for (int j = 0; j < dimensaoDoTabuleiro; ++j) {
-                int corNaPosicao = lastBoard.getPosition(i, j);
-                contadores[corNaPosicao]++;
-                double[] mediaDeCorNaPosicao = recuperarCorMediaNaPosicao(i, j);
+        for (int i = 0; i < boardDimension; ++i) {
+            for (int j = 0; j < boardDimension; ++j) {
+                int colorOnPosition = lastBoard.getPosition(i, j);
+                counters[colorOnPosition]++;
+                double[] averageColorOnPosition = calculateAverageColorOnPosition(i, j);
 
-                for (int k = 0; k < imagemDoTabuleiro.channels(); ++k) {
-                    coresMedias[corNaPosicao][k] += mediaDeCorNaPosicao[k];
+                for (int k = 0; k < boardImage.channels(); ++k) {
+                    averageColors[colorOnPosition][k] += averageColorOnPosition[k];
                 }
             }
         }
-        Log.d(TestsActivity.TAG, "TEMPO (detectar() (1)): " + (System.currentTimeMillis() - tempoEntrou));
+        Log.d(TestsActivity.TAG, "TIME (detect() (1)): " + (System.currentTimeMillis() - startTime));
 
         for (int i = 0; i < 3; ++i) {
-            if (contadores[i] > 0) {
-                for (int j = 0; j < imagemDoTabuleiro.channels(); ++j) {
-                    coresMedias[i][j] /= contadores[i];
+            if (counters[i] > 0) {
+                for (int j = 0; j < boardImage.channels(); ++j) {
+                    averageColors[i][j] /= counters[i];
                 }
-//                Log.d(TestsActivity.TAG, "Cor média[" + i + "] = " + printColor(coresMedias[i]));
-//                Log.d(TestsActivity.TAG, "Luminancia[" + i + "] = " + luminancia(coresMedias[i]));
-                snapshot.append("Cor média (");
+//                Log.d(TestsActivity.TAG, "Cor média[" + i + "] = " + printColor(averageColors[i]));
+//                Log.d(TestsActivity.TAG, "Luminancia[" + i + "] = " + luminance(averageColors[i]));
+                snapshot.append("Average color (");
                 if (i == Board.EMPTY) {
-                    snapshot.append("interseções livres");
+                    snapshot.append("empty intersections");
                 }
                 else if (i == Board.BLACK_STONE) {
-                    snapshot.append("pedras pretas");
+                    snapshot.append("black stones");
                 }
                 else if (i == Board.WHITE_STONE) {
-                    snapshot.append("pedras brancas");
+                    snapshot.append("white stones");
                 }
-                snapshot.append(") = " + printColor(coresMedias[i]) + "\n");
-                snapshot.append("    Luminancia = " + luminancia(coresMedias[i]) + "\n");
-                snapshot.append("    Variância = " + variancia(coresMedias[i]) + "\n");
+                snapshot.append(") = " + printColor(averageColors[i]) + "\n");
+                snapshot.append("    Luminance = " + luminance(averageColors[i]) + "\n");
+                snapshot.append("    Variance = " + variance(averageColors[i]) + "\n");
             }
         }
     }
 
-    private double luminancia(double cor[]) {
+    private double luminance(double cor[]) {
         return 0.299 * cor[0] + 0.587 * cor[1] + 0.114 * cor[2];
     }
 
-    private MoveHypothesis hipoteseDeCor5(double[] cor, double[][] coresMedias, int[] contadores, double[][] coresNasPosicoesAdjacentes) {
+    private MoveHypothesis calculateColorHypothesis5(double[] cor, double[][] coresMedias, int[] contadores, double[][] coresNasPosicoesAdjacentes) {
         double[] preto = {10.0, 10.0, 10.0, 255.0};
 
-        double luminanciaSendoVerificada = luminancia(cor);
-        double varianciaSendoVerificada = variancia(cor);
-        double distanciaParaPreto = distanciaDeCor(cor, preto);
-        double diferencaDeLuminanciaParaOsVizinhos = diferencaDeLuminancia(cor, coresNasPosicoesAdjacentes);
-        snapshot.append("    Diferença de luminância para as posições adjacentes vazias = " + diferencaDeLuminanciaParaOsVizinhos + "\n");
+        double luminanceBeingChecked = luminance(cor);
+        double varianceBeingChecked = variance(cor);
+        double distanceToBlack = getColorDistance(cor, preto);
+        double luminanceDifferenceToNeighbors = calculateLuminanceDifference(cor, coresNasPosicoesAdjacentes);
+        snapshot.append("    Luminance difference to adjacent empty positions = " + luminanceDifferenceToNeighbors + "\n");
 
-        double distanciaParaMediaIntersecoes = 999;
-        double distanciaParaLuminanciaIntersecoes = 999;
-        double distanciaParaVarianciaIntersecoes = 999;
+        double distanceToIntersectionAverage = 999;
+        double distanceToIntersectionsLuminance = 999;
+        double distanceToIntersectionVariance = 999;
         if (contadores[Board.EMPTY] > 0) {
-            distanciaParaMediaIntersecoes = distanciaDeCor(cor, coresMedias[Board.EMPTY]);
-            distanciaParaLuminanciaIntersecoes = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.EMPTY])) ;
-            distanciaParaVarianciaIntersecoes = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.EMPTY]));
+            distanceToIntersectionAverage = getColorDistance(cor, coresMedias[Board.EMPTY]);
+            distanceToIntersectionsLuminance = Math.abs(luminanceBeingChecked - luminance(coresMedias[Board.EMPTY])) ;
+            distanceToIntersectionVariance = Math.abs(varianceBeingChecked - variance(coresMedias[Board.EMPTY]));
         }
-        double distanciaParaMediaPecasPretas = 999;
-        double distanciaParaLuminanciaPecasPretas = 999;
-        double distanciaParaVarianciaPecasPretas = 999;
+        double distanceToBlackStonesAverage = 999;
+        double distanceToBlackStonesLuminance = 999;
+        double distanceToBlackStonesVariance = 999;
         if (contadores[Board.BLACK_STONE] > 0) {
-            distanciaParaMediaPecasPretas = distanciaDeCor(cor, coresMedias[Board.BLACK_STONE]);
-            distanciaParaLuminanciaPecasPretas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.BLACK_STONE]));
-            distanciaParaVarianciaPecasPretas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.BLACK_STONE]));
+            distanceToBlackStonesAverage = getColorDistance(cor, coresMedias[Board.BLACK_STONE]);
+            distanceToBlackStonesLuminance = Math.abs(luminanceBeingChecked - luminance(coresMedias[Board.BLACK_STONE]));
+            distanceToBlackStonesVariance = Math.abs(varianceBeingChecked - variance(coresMedias[Board.BLACK_STONE]));
         }
-        double distanciaParaMediaPecasBrancas = 999;
-        double distanciaParaLuminanciaPecasBrancas = 999;
-        double distanciaParaVarianciaPecasBrancas = 999;
+        double distanceToWhiteStonesAverage = 999;
+        double distanceToWhiteStonesLuminance = 999;
+        double distanceToWhiteStonesVariance = 999;
         if (contadores[Board.WHITE_STONE] > 0) {
-            distanciaParaMediaPecasBrancas = distanciaDeCor(cor, coresMedias[Board.WHITE_STONE]);
-            distanciaParaLuminanciaPecasBrancas = Math.abs(luminanciaSendoVerificada - luminancia(coresMedias[Board.WHITE_STONE]));
-            distanciaParaVarianciaPecasBrancas = Math.abs(varianciaSendoVerificada - variancia(coresMedias[Board.WHITE_STONE]));
+            distanceToWhiteStonesAverage = getColorDistance(cor, coresMedias[Board.WHITE_STONE]);
+            distanceToWhiteStonesLuminance = Math.abs(luminanceBeingChecked - luminance(coresMedias[Board.WHITE_STONE]));
+            distanceToWhiteStonesVariance = Math.abs(varianceBeingChecked - variance(coresMedias[Board.WHITE_STONE]));
         }
 
-        double distanciaParaIntersecoes = distanciaParaMediaIntersecoes + distanciaParaLuminanciaIntersecoes + distanciaParaVarianciaIntersecoes;
-        double distanciaParaPretas      = distanciaParaMediaPecasPretas + distanciaParaLuminanciaPecasPretas + distanciaParaVarianciaPecasPretas;
-        double distanciaParaBrancas     = distanciaParaMediaPecasBrancas + distanciaParaLuminanciaPecasBrancas + distanciaParaVarianciaPecasBrancas;
+        double distanceToIntersections = distanceToIntersectionAverage + distanceToIntersectionsLuminance + distanceToIntersectionVariance;
+        double distanceToBlackStones   = distanceToBlackStonesAverage + distanceToBlackStonesLuminance + distanceToBlackStonesVariance;
+        double distanceToWhiteStones   = distanceToWhiteStonesAverage + distanceToWhiteStonesLuminance + distanceToWhiteStonesVariance;
 
-        snapshot.append("    Distância para média das pedras pretas    = " + distanciaParaMediaPecasPretas + "\n");
-        snapshot.append("    Distancia para luminância das pretas      = " + distanciaParaLuminanciaPecasPretas + "\n");
-        snapshot.append("    Distancia para variancia das pretas       = " + distanciaParaVarianciaPecasPretas + "\n");
-        snapshot.append("    Distância para pretas                     = " + distanciaParaPretas + "\n");
-        snapshot.append("    Distância para média das pedras brancas   = " + distanciaParaMediaPecasBrancas + "\n");
-        snapshot.append("    Distancia para luminância das brancas     = " + distanciaParaLuminanciaPecasBrancas + "\n");
-        snapshot.append("    Distancia para variancia das brancas      = " + distanciaParaVarianciaPecasBrancas + "\n");
-        snapshot.append("    Distância para brancas                    = " + distanciaParaBrancas + "\n");
-        snapshot.append("    Distância para média das interseções      = " + distanciaParaMediaIntersecoes + "\n");
-        snapshot.append("    Distancia para luminância das interseçoes = " + distanciaParaLuminanciaIntersecoes + "\n");
-        snapshot.append("    Distancia para variancia das interseçoes  = " + distanciaParaVarianciaIntersecoes + "\n");
-        snapshot.append("    Distância para interseções                = " + distanciaParaIntersecoes + "\n");
+        snapshot.append("    Distance to black stones average    = " + distanceToBlackStonesAverage + "\n");
+        snapshot.append("    Distance to black stones luminance  = " + distanceToBlackStonesLuminance + "\n");
+        snapshot.append("    Distance to black stones variance   = " + distanceToBlackStonesVariance + "\n");
+        snapshot.append("    Distance to black stones            = " + distanceToBlackStones + "\n");
+        snapshot.append("    Distance to white stones average    = " + distanceToWhiteStonesAverage + "\n");
+        snapshot.append("    Distance to white stones luminance  = " + distanceToWhiteStonesLuminance + "\n");
+        snapshot.append("    Distance to white stones variance   = " + distanceToWhiteStonesVariance + "\n");
+        snapshot.append("    Distance to white stones            = " + distanceToWhiteStones + "\n");
+        snapshot.append("    Distance to intersections average   = " + distanceToIntersectionAverage + "\n");
+        snapshot.append("    Distance to intersections luminance = " + distanceToIntersectionsLuminance + "\n");
+        snapshot.append("    Distance to intersections variance  = " + distanceToIntersectionVariance + "\n");
+        snapshot.append("    Distance to intersections           = " + distanceToIntersections + "\n");
 
         if (contadores[Board.BLACK_STONE] == 0 && contadores[Board.WHITE_STONE] == 0) {
-            if (diferencaDeLuminanciaParaOsVizinhos < -30) {
+            if (luminanceDifferenceToNeighbors < -30) {
                 return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
-            if (distanciaParaPreto < 50) {
+            if (distanceToBlack < 50) {
                 return new MoveHypothesis(Board.BLACK_STONE, 0.9);
             }
-            if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
+            if (distanceToBlack < distanceToIntersectionAverage) {
                 return new MoveHypothesis(Board.BLACK_STONE, 0.7);
             }
             return new MoveHypothesis(Board.EMPTY, 1);
         }
 
         if (contadores[Board.WHITE_STONE] == 0) {
-            if (diferencaDeLuminanciaParaOsVizinhos < -30) {
+            if (luminanceDifferenceToNeighbors < -30) {
                 return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
-            if (distanciaParaPreto < 50) {
+            if (distanceToBlack < 50) {
                 return new MoveHypothesis(Board.BLACK_STONE, 0.9);
             }
-            if (distanciaParaPreto < distanciaParaMediaIntersecoes) {
+            if (distanceToBlack < distanceToIntersectionAverage) {
                 return new MoveHypothesis(Board.BLACK_STONE, 0.7);
             }
-            if (diferencaDeLuminanciaParaOsVizinhos > 30) {
+            if (luminanceDifferenceToNeighbors > 30) {
                 return new MoveHypothesis(Board.WHITE_STONE, 1);
             }
-            if (diferencaDeLuminanciaParaOsVizinhos > 15) {
+            if (luminanceDifferenceToNeighbors > 15) {
                 return new MoveHypothesis(Board.WHITE_STONE, 0.9);
             }
             // Estes valores para pedras brancas precisariam ser revistos
@@ -283,85 +283,85 @@ public class StoneDetector {
             return new MoveHypothesis(Board.EMPTY, 1);
         }
 
-        // Esta condição foi adicionada porque quando uma pedra preta era jogada de forma inválida
-        // (após outra pedra preta e não sendo pedra de handicap) acontecia algo inusitado: as
-        // posições ao redor da pedra preta eram vistas como pedras brancas devido à diferença de
-        // contraste. Verificar se as interseções se parecem com interseções vazias antes de
-        // verificar se se parecem com pedras brancas resolve esse problema.
-        if (distanciaParaMediaIntersecoes < 20) {
+        // This condition was added because when an invalid black stone was played (after another
+        // black stone and not as a handicap stone) something unexpected happened: the positions
+        // around the black stone were seen as white stones because of the difference in contrast.
+        // Verifying if the positions look like empty intersections before verifying if they look
+        // like white stones solves this problem.
+        if (distanceToIntersectionAverage < 20) {
             return new MoveHypothesis(Board.EMPTY, 1);
         }
-        if (distanciaParaPreto < 30 || diferencaDeLuminanciaParaOsVizinhos < -30) {
-            if (distanciaParaPretas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaPretas > 100) {
+        if (distanceToBlack < 30 || luminanceDifferenceToNeighbors < -30) {
+            if (distanceToBlackStones < distanceToIntersections && distanceToIntersections - distanceToBlackStones > 100) {
                 return new MoveHypothesis(Board.BLACK_STONE, 1);
             }
         }
-/*        if (diferencaDeLuminanciaParaOsVizinhos > 30) {
-            // O 0.99 é só para os casos em que uma pedra preta é colocada mas uma pedra branca é detectada
-            // erroneamente. Com esta confiança em 0.99, a pedra preta tem prioridade.
+/*        if (luminanceDifferenceToNeighbors > 30) {
+            // The 0.99 is just for cases when a black stone is played but a white sotne is detected
+            // erroneously. With this 0.99 confidence, the black stone has priority.
             return new MoveHypothesis(Board.WHITE_STONE, 0.99);
         }*/
-        if (diferencaDeLuminanciaParaOsVizinhos > 15) {
+        if (luminanceDifferenceToNeighbors > 15) {
             // Esta verificação é importante, por isso resolvi deixar apenas esta condição de > 15 e tirar a de cima
-            if (distanciaParaBrancas < distanciaParaIntersecoes && distanciaParaIntersecoes - distanciaParaBrancas > 100) {
+            if (distanceToWhiteStones < distanceToIntersections && distanceToIntersections - distanceToWhiteStones > 100) {
                 return new MoveHypothesis(Board.WHITE_STONE, 0.99);
             }
         }
 
-        double[] probabilidadeDeSer = new double[3];
+        double[] probabilityOfBeing = new double[3];
 
-        probabilidadeDeSer[Board.BLACK_STONE] = 1 - (distanciaParaPretas);
-        probabilidadeDeSer[Board.WHITE_STONE] = 1 - (distanciaParaBrancas);
-        probabilidadeDeSer[Board.EMPTY] = 1 - (distanciaParaIntersecoes);
+        probabilityOfBeing[Board.BLACK_STONE] = 1 - (distanceToBlackStones);
+        probabilityOfBeing[Board.WHITE_STONE] = 1 - (distanceToWhiteStones);
+        probabilityOfBeing[Board.EMPTY] = 1 - (distanceToIntersections);
 
-        snapshot.append("    Probabilidade de ser pedra preta  = " + probabilidadeDeSer[Board.BLACK_STONE] + "\n");
-        snapshot.append("    Probabilidade de ser pedra branca = " + probabilidadeDeSer[Board.WHITE_STONE] + "\n");
-        snapshot.append("    Probabilidade de ser vazio        = " + probabilidadeDeSer[Board.EMPTY] + "\n");
+        snapshot.append("    Probability of being a black stone = " + probabilityOfBeing[Board.BLACK_STONE] + "\n");
+        snapshot.append("    Probability of being a white stone = " + probabilityOfBeing[Board.WHITE_STONE] + "\n");
+        snapshot.append("    Probability of being empty         = " + probabilityOfBeing[Board.EMPTY] + "\n");
 
-        if (probabilidadeDeSer[Board.BLACK_STONE] > probabilidadeDeSer[Board.WHITE_STONE] &&
-                probabilidadeDeSer[Board.BLACK_STONE] > probabilidadeDeSer[Board.EMPTY]) {
+        if (probabilityOfBeing[Board.BLACK_STONE] > probabilityOfBeing[Board.WHITE_STONE] &&
+                probabilityOfBeing[Board.BLACK_STONE] > probabilityOfBeing[Board.EMPTY]) {
 
-            if (Math.abs(probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.EMPTY]) < 100) {
+            if (Math.abs(probabilityOfBeing[Board.BLACK_STONE] - probabilityOfBeing[Board.EMPTY]) < 100) {
                 return new MoveHypothesis(Board.EMPTY, 0.5);
             }
 
-            double diferencas = probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.WHITE_STONE];
-            diferencas += probabilidadeDeSer[Board.BLACK_STONE] - probabilidadeDeSer[Board.EMPTY];
-            snapshot.append("    Hipótese de ser pedra preta com diferenças de " + (diferencas / 2) + "\n");
+            double diferencas = probabilityOfBeing[Board.BLACK_STONE] - probabilityOfBeing[Board.WHITE_STONE];
+            diferencas += probabilityOfBeing[Board.BLACK_STONE] - probabilityOfBeing[Board.EMPTY];
+            snapshot.append("    Hypothesis of being black stone with difference " + (diferencas / 2) + "\n");
             return new MoveHypothesis(Board.BLACK_STONE, diferencas / 2);
         }
 
-        if (probabilidadeDeSer[Board.WHITE_STONE] > probabilidadeDeSer[Board.BLACK_STONE] &&
-                probabilidadeDeSer[Board.WHITE_STONE] > probabilidadeDeSer[Board.EMPTY]) {
+        if (probabilityOfBeing[Board.WHITE_STONE] > probabilityOfBeing[Board.BLACK_STONE] &&
+                probabilityOfBeing[Board.WHITE_STONE] > probabilityOfBeing[Board.EMPTY]) {
 
-            // Esta possível pedra branca está quase indistinguível de uma interseção vazia.
-            // Para diminuir os falsos positivos, consideramos que é uma interseção bazia.
-            if (Math.abs(probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.EMPTY]) < 100) {
+            // This possible white stone is almost indistinguishable from an empty intersection.
+            // To reduce false positives, we consider it's an empty intersection.
+            if (Math.abs(probabilityOfBeing[Board.WHITE_STONE] - probabilityOfBeing[Board.EMPTY]) < 100) {
                 return new MoveHypothesis(Board.EMPTY, 0.5);
             }
 
-            double diferencas = probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.BLACK_STONE];
-            diferencas += probabilidadeDeSer[Board.WHITE_STONE] - probabilidadeDeSer[Board.EMPTY];
-            snapshot.append("    Hipótese de ser pedra branca com diferenças de " + (diferencas / 2) + "\n");
-            return new MoveHypothesis(Board.WHITE_STONE, diferencas / 2);
+            double differences = probabilityOfBeing[Board.WHITE_STONE] - probabilityOfBeing[Board.BLACK_STONE];
+            differences += probabilityOfBeing[Board.WHITE_STONE] - probabilityOfBeing[Board.EMPTY];
+            snapshot.append("    Hypothesis of being a white stone with differences " + (differences / 2) + "\n");
+            return new MoveHypothesis(Board.WHITE_STONE, differences / 2);
         }
 
         return new MoveHypothesis(Board.EMPTY, 1);
     }
 
-    private double diferencaDeLuminancia(double cor[], double corNasPosicoesAdjacentes[][]) {
-        double diferenca = 0;
-        double luminanciaDoCentro = luminancia(cor);
-        int numeroVizinhosValidos = 0;
+    private double calculateLuminanceDifference(double color[], double colorsOnAdjacentPositions[][]) {
+        double difference = 0;
+        double centerLuminance = luminance(color);
+        int numberOfValidNeighbors = 0;
         for (int i = 0; i < 4; ++i) {
-            if (corNasPosicoesAdjacentes[i] != null) {
-                double luminancia = luminancia(corNasPosicoesAdjacentes[i]);
-                diferenca += (luminanciaDoCentro - luminancia);
-                numeroVizinhosValidos++;
+            if (colorsOnAdjacentPositions[i] != null) {
+                double luminancia = luminance(colorsOnAdjacentPositions[i]);
+                difference += (centerLuminance - luminancia);
+                numberOfValidNeighbors++;
             }
         }
-        if (numeroVizinhosValidos > 0) {
-            return diferenca / (double)numeroVizinhosValidos;
+        if (numberOfValidNeighbors > 0) {
+            return difference / (double)numberOfValidNeighbors;
         }
         return 0;
     }
@@ -375,76 +375,77 @@ public class StoneDetector {
         return saida.toString();
     }
 
-    private double variancia(double cor[]) {
-        double media = (cor[0] + cor[1] + cor[2]) / 3;
-        double diferencas[] = {cor[0] - media, cor[1] - media, cor[2] - media};
-        return (diferencas[0] * diferencas[0] +
-                diferencas[1] * diferencas[1] +
-                diferencas[2] * diferencas[2]) / 3;
+    private double variance(double color[]) {
+        double average = (color[0] + color[1] + color[2]) / 3;
+        double differences[] = {color[0] - average, color[1] - average, color[2] - average};
+        return (differences[0] * differences[0] +
+                differences[1] * differences[1] +
+                differences[2] * differences[2]) / 3;
     }
 
     // TODO: Transformar hipóteses de recuperação de cor em classes separadas
-    private double[] recuperarCorMediaNaPosicao(int linha, int coluna) {
+    private double[] calculateAverageColorOnPosition(int row, int column) {
 
-        int y = linha * (int)imagemDoTabuleiro.size().width / (dimensaoDoTabuleiro - 1);
-        int x = coluna * (int)imagemDoTabuleiro.size().height / (dimensaoDoTabuleiro - 1);
+        int y = row * (int) boardImage.size().width / (boardDimension - 1);
+        int x = column * (int) boardImage.size().height / (boardDimension - 1);
 
-        double[] color = recuperarMediaDeCores(y, x);
-//        double[] color = recuperarMediaGaussianaDeCores(imagemDoTabuleiro, linha, coluna);
+        double[] color = calculateAverageColors(y, x);
+//        double[] color = recuperarMediaGaussianaDeCores(boardImage, row, column);
         return color;
     }
 
     /**
-     * Recupera a cor media ao redor de uma posiçao na imagem
+     * Calculates the average color around a position in the image
      *
      * @param y
      * @param x
      * @return
      */
-    private double[] recuperarMediaDeCores(int y, int x) {
+    private double[] calculateAverageColors(int y, int x) {
 //        long tempoEntrou = System.currentTimeMillis();
 
         /**
-         * A imagem do tabuleiro ortogonal tem 500x500 pixels de dimensão.
-         * Este cálculo pega mais ou menos o tamanho de pouco menos de metade de uma pedra na imagem do
-         * tabuleiro ortogonal.
+
+         * The othogonal board image has a size of 500x500 pixels.
+         * This calculation returns more or less the size of a little less than half of a stone in
+         * the orthogonal board image.
          * 9x9 -> 25
          * 13x13 -> 17
          * 19x19 -> 11
-         * 
-         * Antes o raio sendo utilizado era de 8 pixels. Em um tabuleiro 9x9 em uma imagme de 500x500
-         * pixels, um raio de 8 pixels, em uma interseção que tem o ponto do hoshi, o detector quase
-         * achava que havia uma pedra preta ali.
+         *
+         * Before, the radius used was 8 pixels. In a 9x9 board on a 500x500 image, a radius of 8px,
+         * on an intersection that has the hoshi point, the detector almost thought there was a black
+         * stone there.
          */ 
         //int radius = 500 / (partida.getBoardDimension() - 1) * 0.33;
         int radius = 0;
-        if (dimensaoDoTabuleiro == 9) {
+        if (boardDimension == 9) {
             radius = 21;
         }
-        else if (dimensaoDoTabuleiro == 13) {
+        else if (boardDimension == 13) {
             radius = 14;
         }
-        else if (dimensaoDoTabuleiro == 19) {
+        else if (boardDimension == 19) {
             radius = 9;
         }
 
-        // Não é um círculo, mas pelo speedup, acho que compensa pegar a média
-        // de cores assim
-        Mat roi = imagemDoTabuleiro.submat(
+        // It's not a circle, but with the speedup gain, I think it's worth it to calculate the
+        // average of colors this way
+        Mat roi = boardImage.submat(
                 Math.max(y - radius, 0),
-                Math.min(y + radius, imagemDoTabuleiro.height()),
+                Math.min(y + radius, boardImage.height()),
                 Math.max(x - radius, 0),
-                Math.min(x + radius, imagemDoTabuleiro.width())
+                Math.min(x + radius, boardImage.width())
         );
         Scalar mediaScalar = Core.mean(roi);
 
-        double[] corMedia = new double[imagemDoTabuleiro.channels()];
+        double[] corMedia = new double[boardImage.channels()];
         for (int i = 0; i < mediaScalar.val.length; ++i) {
             corMedia[i] = mediaScalar.val[i];
         }
 
 //        Log.i(TestsActivity.TAG, "Cor média ao redor de (" + x + ", " + y + ") = " + printColor(corMedia));
-//        Log.d(TestsActivity.TAG, "TEMPO (recuperarMediaDeCores()): " + (System.currentTimeMillis() - tempoEntrou));
+//        Log.d(TestsActivity.TAG, "TEMPO (calculateAverageColors()): " + (System.currentTimeMillis() - tempoEntrou));
         return corMedia;
     }
 
@@ -488,38 +489,38 @@ public class StoneDetector {
     */
 
     /**
-     * Verifica se uma determinada cor está mais próxima de uma pedra preta ou branca.
+     * Checks if a certain color is closer to a black or white stone.
      *
-     * @param cor Cor a ser verificada
-     * @param corMediaDoTabuleiro Cor média da imagem do tabuleiro
+     * @param color Cor a ser verificada
+     * @param averageBoardColor Cor média da imagem do tabuleiro
      * @return Pedra preta, branca, ou vazio
      */
-    private int hipoteseDeCor(double[] cor, double[] corMediaDoTabuleiro) {
-        double[] preto = {0.0, 0.0, 0.0, 255.0};
-        double[] branco = {255.0, 255.0, 255.0, 255.0};
-        double distanciaParaPreto = distanciaDeCor(cor, preto);
-        double distanciaParaBranco = distanciaDeCor(cor, branco);
-        double distanciaParaCorMedia = distanciaDeCor(cor, corMediaDoTabuleiro);
+    private int calculateColorHypothesis(double[] color, double[] averageBoardColor) {
+        double[] black = {0.0, 0.0, 0.0, 255.0};
+        double[] white = {255.0, 255.0, 255.0, 255.0};
+        double distanceToBlack = getColorDistance(color, black);
+        double distanceToWhite = getColorDistance(color, white);
+        double distanceToAverageColor = getColorDistance(color, averageBoardColor);
 
-        // Testando outras hipóteses
-        if (distanciaParaPreto < 80 || distanciaParaPreto < distanciaParaCorMedia) {
+        // Testing other hypothesis
+        if (distanceToBlack < 80 || distanceToBlack < distanceToAverageColor) {
             return Board.BLACK_STONE;
         }
-//        else if (cor[2] >= 150) {
-        else if (cor[2] >= corMediaDoTabuleiro[2] * 1.35) {
+//        else if (color[2] >= 150) {
+        else if (color[2] >= averageBoardColor[2] * 1.35) {
             return Board.WHITE_STONE;
         }
         else if (true) {
             return Board.EMPTY;
         }
 
-        // Se a distância para a média for menor que um certo threshold, muito provavelmente é uma
-        // intersecção vazia
-        if (distanciaParaCorMedia < 120) {
+        // If the distance to the average color is below a certain threshold, it's very probable
+        // that it's an empty intersection
+        if (distanceToAverageColor < 120) {
             return Board.EMPTY;
         }
 
-        if (distanciaParaPreto < distanciaParaBranco) {
+        if (distanceToBlack < distanceToWhite) {
             return Board.BLACK_STONE;
         }
         else {
@@ -527,7 +528,7 @@ public class StoneDetector {
         }
     }
 
-    private double distanciaDeCor(double[] cor1, double[] cor2) {
+    private double getColorDistance(double[] cor1, double[] cor2) {
         double distancia = 0;
         for (int i = 0; i < Math.min(cor1.length, cor2.length); ++i) {
             distancia += Math.abs(cor1[i] - cor2[i]);
@@ -536,22 +537,22 @@ public class StoneDetector {
     }
 
     /**
-     * Retorna a cor media do tabuleiro.
-     * 
-     * ESTA COR MUDA CONFORME O JOGO PROGRIDE E CONFORME A ILUMINAÇÃO MUDA.
+     * Returns the average color of the board
      *
-     * @param imagemDoTabuleiro
+     * THIS COLOR CHANGES AS THE GAME PROGRESSES AND AS THE AMBIENT ILLUMINATION CHANGES.
+     *
+     * @param boardImage
      * @return
      */
-    private double[] corMediaDoTabuleiro(Mat imagemDoTabuleiro) {
-        Scalar mediaScalar = Core.mean(imagemDoTabuleiro);
+    private double[] calculateAverageColorOfBoard(Mat boardImage) {
+        Scalar scalarAverage = Core.mean(boardImage);
 
-        double[] media = new double[imagemDoTabuleiro.channels()];
-        for (int i = 0; i < mediaScalar.val.length; ++i) {
-            media[i] = mediaScalar.val[i];
+        double[] average = new double[boardImage.channels()];
+        for (int i = 0; i < scalarAverage.val.length; ++i) {
+            average[i] = scalarAverage.val[i];
         }
 
-        return media;
+        return average;
     }
 
 }

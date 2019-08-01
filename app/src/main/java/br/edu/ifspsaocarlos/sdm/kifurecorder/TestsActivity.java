@@ -263,10 +263,10 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
                 // Detecção das pedras
                 StoneDetector stoneDetector = new StoneDetector();
-                stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getBoardDimension());
-                stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+                stoneDetector.setBoardDimension(initialBoardDetector.getBoardDimension());
+                stoneDetector.setBoardImage(imagemDoTabuleiroCorrigido);
 
-                Board board = stoneDetector.detectar();
+                Board board = stoneDetector.detect();
                 if (board != null && board.equals(casosDeTeste[indiceImagem - 1].getBoard())) {
 //                    Drawer.drawBoard(imagemFonte, board, 0, 500, 400);
                     Log.i(TAG, "Caso de teste #" + indiceImagem + " passou!");
@@ -333,10 +333,10 @@ public class TestsActivity extends Activity implements CameraBridgeViewBase.CvCa
 
         // Detecção das pedras
         StoneDetector stoneDetector = new StoneDetector();
-        stoneDetector.setDimensaoDoTabuleiro(initialBoardDetector.getBoardDimension());
-        stoneDetector.setImagemDoTabuleiro(imagemDoTabuleiroCorrigido);
+        stoneDetector.setBoardDimension(initialBoardDetector.getBoardDimension());
+        stoneDetector.setBoardImage(imagemDoTabuleiroCorrigido);
 
-        Board board = stoneDetector.detectar();
+        Board board = stoneDetector.detect();
         if (board != null) {
             Drawer.drawBoard(imagemFonte, board, 0, 500, 400, null);
         }

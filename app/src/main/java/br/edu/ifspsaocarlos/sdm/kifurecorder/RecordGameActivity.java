@@ -140,7 +140,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         String komi             = i.getStringExtra("komi");
         dimensaoDoTabuleiro     = i.getIntExtra("dimensaoDoTabuleiro", -1);
         int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
-        stoneDetector.setDimensaoDoTabuleiro(dimensaoDoTabuleiro);
+        stoneDetector.setBoardDimension(dimensaoDoTabuleiro);
 
         game = new Game(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
         lastDetectedBoard = new Board(dimensaoDoTabuleiro);
@@ -327,9 +327,9 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         // int larguraImagem = (int)tabuleiroOrtogonal.size().width;
         // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        stoneDetector.setImagemDoTabuleiro(tabuleiroOrtogonal);
+        stoneDetector.setBoardImage(tabuleiroOrtogonal);
 
-        Board board = stoneDetector.detectar(
+        Board board = stoneDetector.detect(
                 game.getLastBoard(),
                 game.canNextMoveBe(Board.BLACK_STONE),
                 game.canNextMoveBe(Board.WHITE_STONE)
