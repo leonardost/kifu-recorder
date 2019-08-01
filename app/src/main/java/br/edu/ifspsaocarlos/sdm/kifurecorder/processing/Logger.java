@@ -172,9 +172,9 @@ public class Logger {
         }
     }
 
-    public void takeSnapshot(Mat cameraFrame, Mat ortogonalBoard) {
+    public void takeSnapshot(Mat cameraFrame, Mat orthogonalBoard) {
         fileHelper.writePngImage(cameraFrame, Imgproc.COLOR_RGBA2BGR, generateImageFilename("snapshot_camera"));
-        fileHelper.writePngImage(ortogonalBoard, Imgproc.COLOR_RGBA2BGR, generateImageFilename("snapshot_ortogonal_board"));
+        fileHelper.writePngImage(orthogonalBoard, Imgproc.COLOR_RGBA2BGR, generateImageFilename("snapshot_orthogonal_board"));
     }
 
 }
