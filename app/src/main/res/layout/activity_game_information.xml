@@ -14,7 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
-        android:id="@+id/edtJogadorPretas"
+        android:id="@+id/edtBlackPlayer"
         android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -23,7 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
-        android:id="@+id/edtJogadorBrancas"
+        android:id="@+id/edtWhitePlayer"
         android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
@@ -38,7 +38,7 @@
         android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/btnDetectarTabuleiro"
+        android:id="@+id/btnDetectBoard"
         android:text="@string/btn_detectar_tabuleiro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

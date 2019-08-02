@@ -29,10 +29,10 @@ public class GameInformationActivity extends Activity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game_information);
 
-        edtBlackPlayer = (EditText) findViewById(R.id.edtJogadorPretas);
-        edtWhitePlayer = (EditText) findViewById(R.id.edtJogadorBrancas);
+        edtBlackPlayer = (EditText) findViewById(R.id.edtBlackPlayer);
+        edtWhitePlayer = (EditText) findViewById(R.id.edtWhitePlayer);
         edtkomi = (EditText) findViewById(R.id.edtKomi);
-        btnDetectBoard = (Button) findViewById(R.id.btnDetectarTabuleiro);
+        btnDetectBoard = (Button) findViewById(R.id.btnDetectBoard);
         btnDetectBoard.setOnClickListener(this);
 
         edtBlackPlayer.setText("");
@@ -43,7 +43,7 @@ public class GameInformationActivity extends Activity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnDetectarTabuleiro:
+            case R.id.btnDetectBoard:
                 if (edtBlackPlayer.getText().toString().trim().equals("")) {
                     edtBlackPlayer.requestFocus();
                     return;

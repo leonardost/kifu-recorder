@@ -61,7 +61,7 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 
-        btnFixBoardPosition = (Button) findViewById(R.id.btnFixarTabuleiro);
+        btnFixBoardPosition = (Button) findViewById(R.id.btnFixBoardPosition);
         btnFixBoardPosition.setOnClickListener(this);
         btnFixBoardPosition.setEnabled(false);
 
@@ -141,7 +141,7 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnFixarTabuleiro:
+            case R.id.btnFixBoardPosition:
                 int[] matrix = new int[8];
                 matrix[0] = (int) boardPositionInImage.get(0, 0)[0];
                 matrix[1] = (int) boardPositionInImage.get(0, 0)[1];

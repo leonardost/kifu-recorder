@@ -14,10 +14,10 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_screen);
 
-        TextView lblVersao = (TextView) findViewById(R.id.lblVersao);
-        Button btnIniciarRegistro = (Button) findViewById(R.id.btnIniciarRegistro);
-        Button btnInstrucoes = (Button) findViewById(R.id.btnInstrucoes);
-        Button btnCreditos = (Button) findViewById(R.id.btnCreditos);
+        TextView lblVersao = (TextView) findViewById(R.id.lblVersion);
+        Button btnIniciarRegistro = (Button) findViewById(R.id.btnStartRecord);
+        Button btnInstrucoes = (Button) findViewById(R.id.btnInstructions);
+        Button btnCreditos = (Button) findViewById(R.id.btnCredits);
         lblVersao.setText("v" + BuildConfig.VERSION_NAME);
         btnIniciarRegistro.setOnClickListener(this);
         btnInstrucoes.setOnClickListener(this);
@@ -28,15 +28,15 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
     public void onClick(View v) {
         Intent i;
         switch (v.getId()) {
-            case R.id.btnIniciarRegistro:
+            case R.id.btnStartRecord:
                 i = new Intent(this, GameInformationActivity.class);
                 startActivity(i);
                 break;
-            case R.id.btnInstrucoes:
+            case R.id.btnInstructions:
                 i = new Intent(this, InstructionsActivity.class);
                 startActivity(i);
                 break;
-            case R.id.btnCreditos:
+            case R.id.btnCredits:
                 i = new Intent(this, CreditsActivity.class);
                 startActivity(i);
                 break;

@@ -133,7 +133,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     }
 
     private void initializeCamera() {
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_registro);
+        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_view);
 //        mOpenCvCameraView.setMaxFrameSize(1000, 1000);
         mOpenCvCameraView.setCvCameraViewListener(this);
     }
@@ -173,20 +173,20 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     }
 
     private void initializeUserInterface() {
-        btnUndoLastMove = findViewById(R.id.btnVoltarUltimaJogada);
+        btnUndoLastMove = findViewById(R.id.btnUndoLastMove);
         btnUndoLastMove.setOnClickListener(this);
         btnUndoLastMove.setEnabled(false);
-        btnRotateCounterClockwise = findViewById(R.id.btnRotacionarEsquerda);
+        btnRotateCounterClockwise = findViewById(R.id.btnRotateCounterClockwise);
         btnRotateCounterClockwise.setOnClickListener(this);
-        btnRotateClockwise = findViewById(R.id.btnRotacionarDireita);
+        btnRotateClockwise = findViewById(R.id.btnRotateClockwise);
         btnRotateClockwise.setOnClickListener(this);
-        btnPause = findViewById(R.id.btnPausar);
+        btnPause = findViewById(R.id.btnPause);
         btnPause.setOnClickListener(this);
-        btnFinish = findViewById(R.id.btnFinalizar);
+        btnFinish = findViewById(R.id.btnFinish);
         btnFinish.setOnClickListener(this);
         btnSnapshot = findViewById(R.id.btnSnapshot);
         btnSnapshot.setOnClickListener(this);
-        btnAddMove = findViewById(R.id.btnAdicionarPedra);
+        btnAddMove = findViewById(R.id.btnAddMove);
         btnAddMove.setOnClickListener(this);
         btnToggleCornerTracking = findViewById(R.id.btnToggleCornerTracking);
         btnToggleCornerTracking.setOnClickListener(this);
@@ -515,25 +515,25 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btnVoltarUltimaJogada:
+            case R.id.btnUndoLastMove:
                 areYouSureYouWantToUndoTheLastMove(getString(R.string.btn_voltar_ultima_jogada));
                 break;
-            case R.id.btnRotacionarEsquerda:
+            case R.id.btnRotateCounterClockwise:
                 rotate(-1);
                 break;
-            case R.id.btnRotacionarDireita:
+            case R.id.btnRotateClockwise:
                 rotate(1);
                 break;
-            case R.id.btnPausar:
+            case R.id.btnPause:
                 updatePauseButton();
                 break;
-            case R.id.btnFinalizar:
+            case R.id.btnFinish:
                 areYouSureYouWantToFinishRecording();
                 break;
             case R.id.btnSnapshot:
                 takeSnapshot();
                 break;
-            case R.id.btnAdicionarPedra:
+            case R.id.btnAddMove:
                 addMoveToGameRecord();
                 break;
             case R.id.btnToggleCornerTracking:

@@ -21,23 +21,23 @@
         />
 
     <Button
-        android:id="@+id/btnIniciarRegistro"
+        android:id="@+id/btnStartRecord"
         android:text="@string/btn_iniciar_registro"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
-        android:id="@+id/btnInstrucoes"
+        android:id="@+id/btnInstructions"
         android:text="@string/btn_instrucoes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
-        android:id="@+id/btnCreditos"
+        android:id="@+id/btnCredits"
         android:text="@string/btn_creditos"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/lblVersao"
+        android:id="@+id/lblVersion"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

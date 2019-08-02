@@ -8,7 +8,7 @@
         android:id="@+id/camera_surface_view1" />
 
     <Button
-        android:id="@+id/btnFixarTabuleiro"
+        android:id="@+id/btnFixBoardPosition"
         android:text="@string/btn_fixar_tabuleiro"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

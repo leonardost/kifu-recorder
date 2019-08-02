@@ -5,7 +5,7 @@
     tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.RecordGameActivity">
 
     <org.opencv.android.JavaCameraView
-        android:id="@+id/camera_registro"
+        android:id="@+id/camera_view"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/snapshot" />
             <ImageButton
-                android:id="@+id/btnAdicionarPedra"
+                android:id="@+id/btnAddMove"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/add"/>
@@ -35,12 +35,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageButton
-                android:id="@+id/btnRotacionarEsquerda"
+                android:id="@+id/btnRotateCounterClockwise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/rotate_left" />
             <ImageButton
-                android:id="@+id/btnRotacionarDireita"
+                android:id="@+id/btnRotateClockwise"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/rotate_right" />
@@ -65,18 +65,18 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <ImageButton
-                android:id="@+id/btnVoltarUltimaJogada"
+                android:id="@+id/btnUndoLastMove"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/undo" />
             <ImageButton
-                android:id="@+id/btnPausar"
+                android:id="@+id/btnPause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/play" />
         </LinearLayout>
         <Button
-            android:id="@+id/btnFinalizar"
+            android:id="@+id/btnFinish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_finalizar_registro" />
