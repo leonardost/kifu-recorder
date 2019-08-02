@@ -58,13 +58,14 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     Game game;
     Board lastDetectedBoard;
 
-    int contadorDeJogadas = 0;                 // A cada 5 jogadas feitas a partida é salva automaticamente
-    long tempoLimite = 2000;                   // Tempo que um tabuleiro detectado deve se manter inalterado para que seja considerado pelo detector
+    int moveCounter = 0;
+    // Time during which a detected board must remain equal to be registered by the detector
+    long timeLimit = 2000;
     long timeOfLastBoardDetection;
     long timeSinceLastBoardChange;
     boolean paused = false;
-    long momentoDoUltimoProcessamentoDeImagem;
-    long tempoDesdeUltimoProcessamentoDeImagem;
+    // TODO: Check if this can be replaced by timeSinceLastBoardChange
+    long timeOfLastImageProcessing;
     boolean isCornerTrackingActive = true;
     Mat lastValidOrtogonalBoardImage = null;
     SimilarityCalculatorInterface fingerprintMatching = new FingerprintMatching();
@@ -76,23 +77,27 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     int numberOfFramesWithDissimilarOrtogonalImages = 0;
 
     // Domain objects
-    int dimensaoDoTabuleiro;                   // 9x9, 13x13 ou 19x19
+    // Board dimension can be 9x9, 13x13 or 19x19
+    int boardDimension;
     Corner[] boardCorners;
     Corner[] originalBoardCorners;
     Mat cameraFrame;
-    Mat posicaoDoTabuleiroNaImagem;            // Matriz que contem os cantos do tabuleiro
-    Mat tabuleiroOrtogonal;                    // Imagem do tabuleiro transformado em visão ortogonal
-	MatOfPoint contornoDoTabuleiro;
+    // Contains the board corners
+    Mat boardPositionInImage;
 
-    private ImageButton btnVoltarUltimaJogada;
-    private ImageButton btnRotacionarEsquerda;
-    private ImageButton btnRotacionarDireita;
-    private ImageButton btnPausar;
+    // Board image transformed to orthogonal perspective
+    Mat orthogonalBoard;
+    MatOfPoint boardContour;
+
+    private ImageButton btnUndoLastMove;
+    private ImageButton btnRotateCounterClockwise;
+    private ImageButton btnRotateClockwise;
+    private ImageButton btnPause;
     private ImageButton btnSnapshot;
-    private ImageButton btnAdicionarJogada;
+    private ImageButton btnAddMove;
     private ImageButton btnToggleCornerTracking;
     private ImageButton btnResetBoardPosition;
-    private Button btnFinalizar;
+    private Button btnFinish;
     private SoundPool soundPool;
     private int beepId;
     private CameraBridgeViewBase mOpenCvCameraView;
@@ -124,7 +129,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         initializeUserInterface();
         initializeLogging();
 
-        Log.i(TestsActivity.TAG, "onCreate() finalizado");
+        Log.i(TestsActivity.TAG, "onCreate() finished");
     }
 
     private void initializeCamera() {
@@ -135,30 +140,29 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
     private void initializeProcessing() {
         Intent i = getIntent();
-        String jogadorDePretas  = i.getStringExtra("blackPlayer");
-        String jogadorDeBrancas = i.getStringExtra("whitePlayer");
-        String komi             = i.getStringExtra("komi");
-        dimensaoDoTabuleiro     = i.getIntExtra("boardDimension", -1);
-        int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("boardPositionInImage");
-        stoneDetector.setBoardDimension(dimensaoDoTabuleiro);
+        String blackPlayer = i.getStringExtra("blackPlayer");
+        String whitePlayer = i.getStringExtra("whitePlayer");
+        String komi        = i.getStringExtra("komi");
+        boardDimension = i.getIntExtra("boardDimension", -1);
+        int[] foundBoardCorners = i.getIntArrayExtra("boardPositionInImage");
+        stoneDetector.setBoardDimension(boardDimension);
 
-        game = new Game(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
-        lastDetectedBoard = new Board(dimensaoDoTabuleiro);
+        game = new Game(boardDimension, blackPlayer, whitePlayer, komi);
+        lastDetectedBoard = new Board(boardDimension);
         timeOfLastBoardDetection = SystemClock.elapsedRealtime();
         timeSinceLastBoardChange = 0;
-        momentoDoUltimoProcessamentoDeImagem = SystemClock.elapsedRealtime();
-        tempoDesdeUltimoProcessamentoDeImagem = 0;
+        timeOfLastImageProcessing = SystemClock.elapsedRealtime();
 
         originalBoardCorners = new Corner[4];
-        originalBoardCorners[0] = new Corner(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
-        originalBoardCorners[1] = new Corner(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
-        originalBoardCorners[2] = new Corner(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
-        originalBoardCorners[3] = new Corner(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
+        originalBoardCorners[0] = new Corner(foundBoardCorners[0], foundBoardCorners[1]);
+        originalBoardCorners[1] = new Corner(foundBoardCorners[2], foundBoardCorners[3]);
+        originalBoardCorners[2] = new Corner(foundBoardCorners[4], foundBoardCorners[5]);
+        originalBoardCorners[3] = new Corner(foundBoardCorners[6], foundBoardCorners[7]);
         boardCorners = new Corner[4];
-        boardCorners[0] = new Corner(cantosDoTabuleiroEncontrados[0], cantosDoTabuleiroEncontrados[1]);
-        boardCorners[1] = new Corner(cantosDoTabuleiroEncontrados[2], cantosDoTabuleiroEncontrados[3]);
-        boardCorners[2] = new Corner(cantosDoTabuleiroEncontrados[4], cantosDoTabuleiroEncontrados[5]);
-        boardCorners[3] = new Corner(cantosDoTabuleiroEncontrados[6], cantosDoTabuleiroEncontrados[7]);
+        boardCorners[0] = new Corner(foundBoardCorners[0], foundBoardCorners[1]);
+        boardCorners[1] = new Corner(foundBoardCorners[2], foundBoardCorners[3]);
+        boardCorners[2] = new Corner(foundBoardCorners[4], foundBoardCorners[5]);
+        boardCorners[3] = new Corner(foundBoardCorners[6], foundBoardCorners[7]);
         cornerDetector = new CornerDetector[4];
         for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++) {
             cornerDetector[cornerIndex] = new CornerDetector();
@@ -169,21 +173,21 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     }
 
     private void initializeUserInterface() {
-        btnVoltarUltimaJogada = findViewById(R.id.btnVoltarUltimaJogada);
-        btnVoltarUltimaJogada.setOnClickListener(this);
-        btnVoltarUltimaJogada.setEnabled(false);
-        btnRotacionarEsquerda = findViewById(R.id.btnRotacionarEsquerda);
-        btnRotacionarEsquerda.setOnClickListener(this);
-        btnRotacionarDireita = findViewById(R.id.btnRotacionarDireita);
-        btnRotacionarDireita.setOnClickListener(this);
-        btnPausar = findViewById(R.id.btnPausar);
-        btnPausar.setOnClickListener(this);
-        btnFinalizar = findViewById(R.id.btnFinalizar);
-        btnFinalizar.setOnClickListener(this);
+        btnUndoLastMove = findViewById(R.id.btnVoltarUltimaJogada);
+        btnUndoLastMove.setOnClickListener(this);
+        btnUndoLastMove.setEnabled(false);
+        btnRotateCounterClockwise = findViewById(R.id.btnRotacionarEsquerda);
+        btnRotateCounterClockwise.setOnClickListener(this);
+        btnRotateClockwise = findViewById(R.id.btnRotacionarDireita);
+        btnRotateClockwise.setOnClickListener(this);
+        btnPause = findViewById(R.id.btnPausar);
+        btnPause.setOnClickListener(this);
+        btnFinish = findViewById(R.id.btnFinalizar);
+        btnFinish.setOnClickListener(this);
         btnSnapshot = findViewById(R.id.btnSnapshot);
         btnSnapshot.setOnClickListener(this);
-        btnAdicionarJogada = findViewById(R.id.btnAdicionarPedra);
-        btnAdicionarJogada.setOnClickListener(this);
+        btnAddMove = findViewById(R.id.btnAdicionarPedra);
+        btnAddMove.setOnClickListener(this);
         btnToggleCornerTracking = findViewById(R.id.btnToggleCornerTracking);
         btnToggleCornerTracking.setOnClickListener(this);
         btnResetBoardPosition = findViewById(R.id.btnResetBoardPosition);
@@ -216,14 +220,14 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             cornerPoints[i] = new Point(ponto.x, ponto.y);
         }
 
-        posicaoDoTabuleiroNaImagem = new Mat(4, 1, CvType.CV_32FC2);
-        posicaoDoTabuleiroNaImagem.put(0, 0,
+        boardPositionInImage = new Mat(4, 1, CvType.CV_32FC2);
+        boardPositionInImage.put(0, 0,
                 cornerPoints[0].x, cornerPoints[0].y,
                 cornerPoints[1].x, cornerPoints[1].y,
                 cornerPoints[2].x, cornerPoints[2].y,
                 cornerPoints[3].x, cornerPoints[3].y);
 
-        contornoDoTabuleiro = new MatOfPoint(cornerPoints);
+        boardContour = new MatOfPoint(cornerPoints);
     }
 
     @Override
@@ -297,37 +301,37 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         if (state == STATE_LOOKING_FOR_BOARD) {
             logger.addToLog("Board is not inside contour");
             logger.addToLog("");
-            if (tabuleiroOrtogonal != null) {
-                tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+            if (orthogonalBoard != null) {
+                orthogonalBoard.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
-            Drawer.drawLostBoardContour(originalImage, contornoDoTabuleiro);
+            Drawer.drawLostBoardContour(originalImage, boardContour);
             Drawer.drawBoard(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
 
         // Throttling, processes twice per second
-        if (System.currentTimeMillis() - momentoDoUltimoProcessamentoDeImagem < 500) {
-            if (tabuleiroOrtogonal != null) {
-                tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+        if (System.currentTimeMillis() - timeOfLastImageProcessing < 500) {
+            if (orthogonalBoard != null) {
+                orthogonalBoard.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
             }
-            Drawer.drawBoardContour(originalImage, contornoDoTabuleiro);
+            Drawer.drawBoardContour(originalImage, boardContour);
             Drawer.drawBoard(originalImage, game.getLastBoard(), 0, 500, 400, game.getLastMove());
             logger.log();
             return originalImage;
         }
-        else momentoDoUltimoProcessamentoDeImagem = System.currentTimeMillis();
+        else timeOfLastImageProcessing = System.currentTimeMillis();
 
-        tabuleiroOrtogonal = ImageUtils.transformOrthogonally(originalImage, posicaoDoTabuleiroNaImagem);
-        logger.setOrtogonalBoardImage(tabuleiroOrtogonal.clone());
+        orthogonalBoard = ImageUtils.transformOrthogonally(originalImage, boardPositionInImage);
+        logger.setOrtogonalBoardImage(orthogonalBoard.clone());
 
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // TODO: Verificar qual o tamanho da imagem do tabuleiro ortogonal aqui!!!
-        //       Isso traz implicações para o raio calculado no método de calcular a cor média ao redor de uma posição
-        // int larguraImagem = (int)tabuleiroOrtogonal.size().width;
-        // int alturaImagem = (int)tabuleiroOrtogonal.size().height;
+        // TODO: Check the size of the orthogonal board image here
+        //       This affects the radius size when calculating the average color around an intersection
+        // int imageWidth = (int)orthogonalBoard.size().width;
+        // int imageHeight = (int)orthogonalBoard.size().height;
         ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        stoneDetector.setBoardImage(tabuleiroOrtogonal);
+        stoneDetector.setBoardImage(orthogonalBoard);
 
         Board board = stoneDetector.detect(
                 game.getLastBoard(),
@@ -343,7 +347,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             if (lastDetectedBoard.equals(board)) {
                 timeSinceLastBoardChange += SystemClock.elapsedRealtime() - timeOfLastBoardDetection;
                 timeOfLastBoardDetection = SystemClock.elapsedRealtime();
-                if (timeSinceLastBoardChange > tempoLimite && game.addMoveIfItIsValid(board)) {
+                if (timeSinceLastBoardChange > timeLimit && game.addMoveIfItIsValid(board)) {
                     newMoveWasAdded();
                 }
             } else {
@@ -355,16 +359,16 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         lastDetectedBoard = board;
 
-        Drawer.drawBoardContour(originalImage, contornoDoTabuleiro);
+        Drawer.drawBoardContour(originalImage, boardContour);
         logger.setCameraImageWithBoardContour(originalImage.clone());
 
-        // Desenha o tabuleiro ortogonal na tela
-        if (tabuleiroOrtogonal != null) {
-            tabuleiroOrtogonal.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
+        // Draw the orthogonal board on the screen
+        if (orthogonalBoard != null) {
+            orthogonalBoard.copyTo(originalImage.rowRange(0, 500).colRange(0, 500));
         }
 
         if (paused) {
-            // Quando está pausado, desenha a saída atual do detector de pedras (útil para debugar)
+            // When it's paused, draws stone detector's current output (useful for debugging)
             Drawer.drawBoard(originalImage, board, 0, 500, 400, null);
         }
         else {
@@ -396,12 +400,12 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             }
         }
 
-        Mat ortogonalBoardImage = wereAllCornersFound
+        Mat orthogonalBoardImage = wereAllCornersFound
             ? ImageUtils.generateOrthogonalBoardImage(image, possibleNewCorners)
             : null;
 
-        if (wereAllCornersFound && boardDetector.isBoardContainedIn(ortogonalBoardImage)) {
-            logger.addToLog("Board is inside countour");
+        if (wereAllCornersFound && boardDetector.isBoardContainedIn(orthogonalBoardImage)) {
+            logger.addToLog("Board is inside contour");
             int numberOfCornersThatMoved = getNumberOfCornersThatMoved(possibleNewCorners, boardCorners);
             logger.addToLog("Number of corners that moved: " + numberOfCornersThatMoved);
             int numberOfEmptyCornersThatMoved = getNumberOfEmptyCornersThatMoved(possibleNewCorners, boardCorners);
@@ -430,17 +434,17 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 }
             }
 
-            Mat ortogonalBoardImage2 = ImageUtils.generateOrthogonalBoardImage(image, possibleNewCorners);
-            double similarity = lastValidOrtogonalBoardImage != null ? fingerprintMatching.calculateSimilatiryBetween(lastValidOrtogonalBoardImage, ortogonalBoardImage2) : -1;
-            logger.addToLog("Similarity between new ortogonal board image to last valid one = " + similarity);
-            logger.setOrtogonalBoardImage2(ortogonalBoardImage2);
+            Mat orthogonalBoardImage2 = ImageUtils.generateOrthogonalBoardImage(image, possibleNewCorners);
+            double similarity = lastValidOrtogonalBoardImage != null ? fingerprintMatching.calculateSimilatiryBetween(lastValidOrtogonalBoardImage, orthogonalBoardImage2) : -1;
+            logger.addToLog("Similarity between new orthogonal board image to last valid one = " + similarity);
+            logger.setOrtogonalBoardImage2(orthogonalBoardImage2);
 
-            if (logger.getFrameNumber() <= 3 || numberOfFramesWithDissimilarOrtogonalImages >= 5 || fingerprintMatching.areImagesSimilar(lastValidOrtogonalBoardImage, ortogonalBoardImage2)) {
+            if (logger.getFrameNumber() <= 3 || numberOfFramesWithDissimilarOrtogonalImages >= 5 || fingerprintMatching.areImagesSimilar(lastValidOrtogonalBoardImage, orthogonalBoardImage2)) {
                 // This condition should be time based and not frame based
                 if (numberOfFramesWithDissimilarOrtogonalImages >= 5) {
-                    logger.addToLog("Forcing ortogonal image to be similar");
+                    logger.addToLog("Forcing orthogonal image to be similar");
                 } else {
-                    logger.addToLog("New ortogonal board image is similar to last valid one");
+                    logger.addToLog("New orthogonal board image is similar to last valid one");
                 }
                 for (int i = 0; i < 4; i++) {
                     if (!possibleNewCorners[i].isStone) {
@@ -469,10 +473,10 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                     cornerDetector[i].setCorner(possibleNewCorners[i]);
                 }
                 numberOfFramesWithDissimilarOrtogonalImages = 0;
-                lastValidOrtogonalBoardImage = ortogonalBoardImage2.clone();
+                lastValidOrtogonalBoardImage = orthogonalBoardImage2.clone();
                 logger.setLastValidOrtogonalBoardImage(lastValidOrtogonalBoardImage);
             } else {
-                logger.addToLog("New ortogonal board image is NOT similar to last valid one");
+                logger.addToLog("New orthogonal board image is NOT similar to last valid one");
                 numberOfFramesWithDissimilarOrtogonalImages++;
             }
 
@@ -480,7 +484,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             state = STATE_RUNNING;
         } else {
             state = STATE_LOOKING_FOR_BOARD;
-            logger.addToLog("Board is NOT inside countour");
+            logger.addToLog("Board is NOT inside contour");
             logger.addToLog("were all corners found = " + wereAllCornersFound);
         }
 
@@ -530,7 +534,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                 takeSnapshot();
                 break;
             case R.id.btnAdicionarPedra:
-                adicionarJogadaAoRegistro();
+                addMoveToGameRecord();
                 break;
             case R.id.btnToggleCornerTracking:
                 toggleCornerTracking();
@@ -546,7 +550,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnPausar.setImageResource(paused ? R.drawable.play : R.drawable.pause);
+                btnPause.setImageResource(paused ? R.drawable.play : R.drawable.pause);
             }
         });
 	}
@@ -570,7 +574,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     }
 
     private void takeSnapshot() {
-        logger.takeSnapshot(cameraFrame, tabuleiroOrtogonal);
+        logger.takeSnapshot(cameraFrame, orthogonalBoard);
         Toast.makeText(RecordGameActivity.this, R.string.toast_save_snapshot, Toast.LENGTH_SHORT).show();
     }
 
@@ -622,10 +626,9 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             .show();
     }
 
-	/**
-	 * Salva o arquivo da partida e o log no armazenamento secundário. Se o
-	 * parâmetro 'sair' for verdadeiro, finaliza o registro depois de salvar.
-	 */
+    /**
+     * Saves the game record and log in secondary storage.
+     */
 	private void saveGameRecordOnDiskAndExit() {
         saveGameRecordOnDisk();
 
@@ -636,7 +639,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
 	private void saveGameRecordOnDisk() {
         if (fileHelper.saveGameFile(game)) {
-            // Isto tem que rodar na thread de UI porque a activity é fechada após o toast ser mostrado
+            // This has to run in the UI thread because the activity may be closed after the toast is shown
             runOnUiThread(new Runnable() {
                 public void run() {
 //                    Toast.makeText(RecordGameActivity.this, "Partida salva no arquivo: " + arquivoDeRegistro.getName() + ".", Toast.LENGTH_LONG).show();
@@ -645,29 +648,29 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         }
     }
 
-    // TODO: Verificar se isto está sendo chamado
+    // TODO: Check if this is being called
     @Override
     public void onBackPressed() {
         Log.d(TestsActivity.TAG, "RecordGameActivity.onBackPressed()");
 	    areYouSureYouWantToFinishRecording();
     }
 
-    private void adicionarJogadaAoRegistro() {
-        AlertDialog.Builder dialogo = new AlertDialog.Builder(this);
+    private void addMoveToGameRecord() {
+        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
 
         final EditText input = new EditText(RecordGameActivity.this);
 
-        dialogo.setTitle(R.string.dialog_adicionar_jogada)
+        dialog.setTitle(R.string.dialog_adicionar_jogada)
             .setMessage(getString(R.string.dialog_adicionar_jogada))
             .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    Move adicionadaManualmente = processarJogadaManual(input.getText().toString());
-                    Board newBoard = game.getLastBoard().generateNewBoardWith(adicionadaManualmente);
+                    Move manuallyAddedMove = processManualMove(input.getText().toString());
+                    Board newBoard = game.getLastBoard().generateNewBoardWith(manuallyAddedMove);
                     if (game.addMoveIfItIsValid(newBoard)) {
                         newMoveWasAdded();
                         game.updateNumberOfManualAdditions();
-                        logger.addToLog("Move " + adicionadaManualmente + " was manually added");
+                        logger.addToLog("Move " + manuallyAddedMove + " was manually added");
                     }
                 }
             })
@@ -676,18 +679,18 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
             .show();
     }
     
-    private Move processarJogadaManual(String textoJogada) {
-		textoJogada = textoJogada.trim();
-		if (textoJogada.length() != 3) return null;
-		textoJogada = textoJogada.toLowerCase();
-		int cor = textoJogada.charAt(0) == 'b' ? Board.BLACK_STONE : Board.WHITE_STONE;
-		int linha = textoJogada.charAt(1) - 'a';
-		int coluna = textoJogada.charAt(2) - 'a';
-		return new Move(linha, coluna, cor);
+    private Move processManualMove(String moveString) {
+		moveString = moveString.trim();
+		if (moveString.length() != 3) return null;
+		moveString = moveString.toLowerCase();
+		int color = moveString.charAt(0) == 'b' ? Board.BLACK_STONE : Board.WHITE_STONE;
+		int row = moveString.charAt(1) - 'a';
+		int column = moveString.charAt(2) - 'a';
+		return new Move(row, column, color);
 	}
 
     private void newMoveWasAdded() {
-        contadorDeJogadas++;
+        moveCounter++;
         soundPool.play(beepId, 1, 1, 0, 0, 1);
         saveGameRecordOnDisk();
         updateUndoButton();
@@ -697,7 +700,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 		runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                btnVoltarUltimaJogada.setEnabled(game.getNumberOfMoves() > 0);
+                btnUndoLastMove.setEnabled(game.getNumberOfMoves() > 0);
             }
         });
 	}
