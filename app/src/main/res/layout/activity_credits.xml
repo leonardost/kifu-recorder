@@ -11,7 +11,7 @@
     tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.CreditsActivity">
 
     <TextView
-        android:text="@string/creditos_titulo"
+        android:text="@string/credits_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -19,7 +19,7 @@
         android:paddingTop="32dp"
         android:paddingBottom="32dp" />
     <TextView
-        android:text="@string/desenvolvimento"
+        android:text="@string/development"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,7 +27,7 @@
         android:paddingTop="8dp" />
 
     <TextView
-        android:text="@string/titulo_politica_de_privacidade"
+        android:text="@string/privacy_policy_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -36,21 +36,21 @@
         android:paddingBottom="32dp" />
 
     <TextView
-        android:text="@string/politica_de_privacidade1"
+        android:text="@string/privacy_policy1"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="fill_horizontal"
         android:paddingTop="8dp" />
     <TextView
-        android:text="@string/politica_de_privacidade2"
+        android:text="@string/privacy_policy2"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="fill_horizontal"
         android:paddingTop="16dp" />
     <TextView
-        android:text="@string/politica_de_privacidade3"
+        android:text="@string/privacy_policy3"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

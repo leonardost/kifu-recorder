@@ -9,7 +9,7 @@
 
     <Button
         android:id="@+id/btnFixBoardPosition"
-        android:text="@string/btn_fixar_tabuleiro"
+        android:text="@string/btn_fix_board_position"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="12dp"
@@ -19,7 +19,7 @@
         />
 
     <TextView
-        android:text="@string/lbl_instrucoes"
+        android:text="@string/lbl_instructions"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_vertical_margin"

@@ -31,14 +31,14 @@
             android:screenOrientation="landscape" />
         <activity
             android:name=".GameInformationActivity"
-            android:label="@string/title_activity_informacoes_da_partida" />
+            android:label="@string/title_activity_game_information" />
         <activity
             android:name=".DetectBoardActivity"
-            android:label="@string/title_activity_detectar_tabuleiro"
+            android:label="@string/title_activity_detect_board"
             android:screenOrientation="landscape" />
         <activity
             android:name=".RecordGameActivity"
-            android:label="@string/title_activity_registrar_partida"
+            android:label="@string/title_activity_record_game"
             android:screenOrientation="landscape" />
         <activity android:name=".InstructionsActivity" />
         <activity android:name=".PrivacyPolicyActivity" />

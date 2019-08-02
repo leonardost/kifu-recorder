@@ -79,7 +79,7 @@
             android:id="@+id/btnFinish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/btn_finalizar_registro" />
+            android:text="@string/btn_finish_record" />
     </LinearLayout>
 
 </FrameLayout>

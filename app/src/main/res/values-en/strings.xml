@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="btn_iniciar_registro">Start recording</string>
-    <string name="btn_testes">Tests</string>
-    <string name="btn_instrucoes">Instructions</string>
-    <string name="btn_politica_de_privacidade">Privacy policy</string>
-    <string name="instrucoes_titulo">Instructions</string>
-    <string name="titulo_politica_de_privacidade">Privacy Policy</string>
-    <string name="lbl_jogador_pretas">Black player</string>
-    <string name="lbl_jogador_brancas">White player</string>
-    <string name="btn_detectar_tabuleiro">Detect board</string>
-    <string name="lbl_instrucoes">When the red border encloses the board, click OK</string>
-    <string name="btn_passar_a_vez">Pass</string>
-    <string name="btn_voltar_ultima_jogada">Undo</string>
-    <string name="btn_pausar">Pause</string>
-    <string name="btn_pausar_continuar">Continue</string>
-    <string name="btn_finalizar_registro">Finish</string>
-    <string name="btn_visualizar_registro">Visualize register</string>
-    <string name="btn_rotacionar_esquerda">Counterclockwise</string>
-    <string name="btn_rotacionar_direita">Clockwise</string>
-    <string name="dialog_tem_certeza">Are you sure?</string>
-    <string name="dialog_voltar_ultima_jogada">Do you want to undo the last move?</string>
-    <string name="dialog_finalizar_registro">Do you want to finish the recording?</string>
-    <string name="dialog_adicionar_jogada">Add move to game</string>
-    <string name="sim">Yes</string>
-    <string name="nao">No</string>
-    <string name="instrucoes_paragrafo1">Fix you cellphone in a way that its camera has complete vision of the Go board. The higher the vision angle, the better.</string>
-    <string name="instrucoes_paragrafo2">Initially,  the board position is detected. Next, the app will start detecting moves. When a move is detected, the app emits a beep.</string>
-    <string name="instrucoes_paragrafo3">If a wrong move was detected, click on the \"undo\" button on the interface and let the app try again.</string>
-    <string name="instrucoes_paragrafo4">Your game will be saved in a folder called \"kifu_recorder\" in your mobile devices\'s filesystem.</string>
+    <string name="btn_start_recording">Start recording</string>
+    <string name="btn_tests">Tests</string>
+    <string name="btn_instructions">Instructions</string>
+    <string name="btn_privacy_policy">Privacy policy</string>
+    <string name="instructions_title">Instructions</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="lbl_black_player">Black player</string>
+    <string name="lbl_white_player">White player</string>
+    <string name="btn_detect_board">Detect board</string>
+    <string name="lbl_instructions">When the red border encloses the board, click OK</string>
+    <string name="btn_pass_turn">Pass</string>
+    <string name="btn_undo_last_move">Undo</string>
+    <string name="btn_pause">Pause</string>
+    <string name="btn_pause_continue">Continue</string>
+    <string name="btn_finish_record">Finish</string>
+    <string name="btn_view_record">Visualize register</string>
+    <string name="btn_rotate_counter_clockwise">Counterclockwise</string>
+    <string name="btn_rotate_clockwise">Clockwise</string>
+    <string name="dialog_are_you_sure">Are you sure?</string>
+    <string name="dialog_undo_last_move">Do you want to undo the last move?</string>
+    <string name="dialog_finish_recording">Do you want to finish the recording?</string>
+    <string name="dialog_add_move">Add move to game</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="instructions_paragraph1">Fix you cellphone in a way that its camera has complete vision of the Go board. The higher the vision angle, the better.</string>
+    <string name="instructions_paragraph2">Initially,  the board position is detected. Next, the app will start detecting moves. When a move is detected, the app emits a beep.</string>
+    <string name="instructions_paragraph3">If a wrong move was detected, click on the \"undo\" button on the interface and let the app try again.</string>
+    <string name="instructions_paragraph4">Your game will be saved in a folder called \"kifu_recorder\" in your mobile devices\'s filesystem.</string>
 
-    <string name="instrucoes_novidades1">
+    <string name="instructions_news1">
         WHAT\'S NEW IN VERSION 1.2.0
     </string>
-    <string name="instrucoes_novidades2">
+    <string name="instructions_news2">
         From this version on, the app allows small camera and board movements. However, this is still
         an experimental feature and errors might occur in the process. If the board contour strays too
         far from its real position, use the "Reset board position" button:
     </string>
-    <string name="instrucoes_novidades3">
+    <string name="instructions_news3">
         If you think board position tracking is not working well, it can be deactivated by pressing
         the "Toggle board tracking" button:
     </string>
 
-    <string name="politica_de_privacidade1">Kifu Recorder is a free app that uses your mobile device\'s camera to record Go games and only that. No personal information of the user is collected, stored or distributed in any form or means. The detected games and screenshots are stored in the mobile device itself, being the user\'s concern to take care of them.</string>
-    <string name="politica_de_privacidade2">This privacy policy can be updated in future versions of the app.</string>
-    <string name="politica_de_privacidade3">"If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com "</string>
-    <string name="toast_permissao_camera">Permission to access the camera was denied. This app needs to use the camera to work.</string>
-    <string name="creditos_titulo">Development</string>
-    <string name="desenvolvimento">This project was initially developed as a conclusion project for IFSP\'s São Carlos campus\'s specialization course in Systems Development for Mobile Devices. It is open-source and its code can be found at https://github.com/leonardost/kifu-recorder/.</string>
-    <string name="btn_creditos">Credits</string>
+    <string name="privacy_policy1">Kifu Recorder is a free app that uses your mobile device\'s camera to record Go games and only that. No personal information of the user is collected, stored or distributed in any form or means. The detected games and screenshots are stored in the mobile device itself, being the user\'s concern to take care of them.</string>
+    <string name="privacy_policy2">This privacy policy can be updated in future versions of the app.</string>
+    <string name="privacy_policy3">"If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com "</string>
+    <string name="toast_camera_permission">Permission to access the camera was denied. This app needs to use the camera to work.</string>
+    <string name="credits_title">Development</string>
+    <string name="development">This project was initially developed as a conclusion project for IFSP\'s São Carlos campus\'s specialization course in Systems Development for Mobile Devices. It is open-source and its code can be found at https://github.com/leonardost/kifu-recorder/.</string>
+    <string name="btn_credits">Credits</string>
     <string name="toast_activate_corner_tracking">Activated board tracking</string>
     <string name="toast_deactivate_corner_tracking">Inactivated board tracking</string>
     <string name="toast_restore_original_corner_positions">Restored original board position</string>

@@ -10,7 +10,7 @@
     tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.GameInformationActivity">
 
     <TextView
-        android:text="@string/lbl_jogador_pretas"
+        android:text="@string/lbl_black_player"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <TextView
-        android:text="@string/lbl_jogador_brancas"
+        android:text="@string/lbl_white_player"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <EditText
@@ -39,7 +39,7 @@
 
     <Button
         android:id="@+id/btnDetectBoard"
-        android:text="@string/btn_detectar_tabuleiro"
+        android:text="@string/btn_detect_board"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

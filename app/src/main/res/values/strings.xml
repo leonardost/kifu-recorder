@@ -3,100 +3,100 @@
     <string name="name" translatable="false">Kifu-recorder</string>
 
     <string name="title_activity_initial_screen" translatable="false">TelaInicialActivity</string>
-    <string name="title_activity_informacoes_da_partida" translatable="false">InformacoesDaPartidaActivity</string>
-    <string name="title_activity_detectar_tabuleiro" translatable="false">DetectarTabuleiroActivity</string>
-    <string name="title_activity_registrar_partida" translatable="false">RegistrarPartidaActivity</string>
+    <string name="title_activity_game_information" translatable="false">InformacoesDaPartidaActivity</string>
+    <string name="title_activity_detect_board" translatable="false">DetectarTabuleiroActivity</string>
+    <string name="title_activity_record_game" translatable="false">RegistrarPartidaActivity</string>
 
-    <string name="titulo" translatable="false">Kifu Recorder</string>
-    <string name="btn_iniciar_registro">Iniciar registro de partida</string>
-    <string name="btn_testes">Testes</string>
-    <string name="btn_instrucoes">Instruções</string>
-    <string name="btn_creditos">Créditos</string>
-    <string name="btn_politica_de_privacidade">Política de privacidade</string>
+    <string name="title" translatable="false">Kifu Recorder</string>
+    <string name="btn_start_recording">Iniciar registro de partida</string>
+    <string name="btn_tests">Testes</string>
+    <string name="btn_instructions">Instruções</string>
+    <string name="btn_credits">Créditos</string>
+    <string name="btn_privacy_policy">Política de privacidade</string>
     <string name="lbl_copyright" translatable="false">(c) 2019 LST</string>
 
-    <string name="instrucoes_titulo">Instruções</string>
-    <string name="instrucoes_paragrafo1">
+    <string name="instructions_title">Instruções</string>
+    <string name="instructions_paragraph1">
         Fixe seu celular de forma que sua câmera tenha uma visão compelta do tabuleiro de Go.
         Quanto maior o ângulo de visão, melhor.
     </string>
-    <string name="instrucoes_paragrafo2">
+    <string name="instructions_paragraph2">
         Inicialmente, é feita a detecção do tabuleiro. Em seguida, o aplicativo irá iniciar
         a detecção das jogadas. Quando uma jogada é detectada, o app emite um bipe sonoro.
     </string>
-    <string name="instrucoes_paragrafo3">
+    <string name="instructions_paragraph3">
         Se uma jogada errada foi detectada, clique no botão "voltar" na interface e deixe o
         aplicativo tentar detectar novamente.
     </string>
-    <string name="instrucoes_paragrafo4">
+    <string name="instructions_paragraph4">
         Sua partida será salva em uma pasta chamada "kifu_recorder" no sistema de arquivos do
         seu dispositivo móvel.
     </string>
 
-    <string name="instrucoes_novidades1">
+    <string name="instructions_news1">
         NOVIDADES DA VERSÃO 1.2.0
     </string>
-    <string name="instrucoes_novidades2">
+    <string name="instructions_news2">
         A partir desta versão, o aplicativo permite pequenas movimentações da câmera e/ou do
         tabuleiro. Contudo, essa feature ainda é experimental e erros podem ocorrer nesse processo.
         Se a borda do tabuleiro ficar muito fora da posição real, use o botão "Resetar posição do tabuleiro":
     </string>
-    <string name="instrucoes_novidades3">
+    <string name="instructions_news3">
         Se achar que o tracking da posição do tabuleiro está insatisfatório, ele pode ser desligado
         apertando o botão "Desativar tracking do taubleiro":
     </string>
 
-    <string name="creditos_titulo">Desenvolvimento</string>
-    <string name="desenvolvimento">
+    <string name="credits_title">Desenvolvimento</string>
+    <string name="development">
         Este projeto foi desenvolvido inicialmente como projeto de conclusão do curso de
         Especialização em Desenvolvimento de Sistemas para Dispositivos Móveis do IFSP, campus
         São Carlos. Ele é open-source e seu código pode ser encontrado em
         https://github.com/leonardost/kifu-recorder/.
     </string>
 
-    <string name="titulo_politica_de_privacidade">Política de Privacidade</string>
-    <string name="politica_de_privacidade1">
+    <string name="privacy_policy_title">Política de Privacidade</string>
+    <string name="privacy_policy1">
         O Kifu Recorder é um app gratuito que utiliza a câmera de seu dispositivo móvel para o
         registro de partidas de Go e apenas isso. Nenhuma informação pessoal do usuário é coletada,
         armazenada ou distribuída de qualquer forma. As partidas detectadas e capturas de tela são
         armazenadas no próprio dispositivo móvel, cabendo ao usuário cuidar delas.
     </string>
-    <string name="politica_de_privacidade2">
+    <string name="privacy_policy2">
         Esta política de privacidade pode sofrer alterações em versões futuras do aplicativo.
     </string>
-    <string name="politica_de_privacidade3">
+    <string name="privacy_policy3">
         Em caso de dúvidas sobre esta política de privacidade, contate o desenvolvedor em
         kifurecorder@gmail.com.
     </string>
 
-    <string name="lbl_jogador_pretas">Jogador de pretas</string>
-    <string name="lbl_jogador_brancas">Jogador de brancas</string>
+    <string name="lbl_black_player">Jogador de pretas</string>
+    <string name="lbl_white_player">Jogador de brancas</string>
     <string name="lbl_komi" translatable="false">Komi</string>
-    <string name="toast_permissao_camera">Permissão negada para acessar a câmera. Este aplicativo necessita da câmera para funcionar.</string>
+    <string name="toast_camera_permission">Permissão negada para acessar a câmera. Este aplicativo necessita da câmera para funcionar.</string>
 
-    <string name="btn_detectar_tabuleiro">Detectar tabuleiro</string>
-    <string name="lbl_instrucoes">Quando a borda vermelha enquadrar o tabuleiro, toque em OK</string>
-    <string name="btn_fixar_tabuleiro" translatable="false">OK</string>
+    <string name="btn_detect_board">Detectar tabuleiro</string>
+    <string name="lbl_instructions">Quando a borda vermelha enquadrar o tabuleiro, toque em OK</string>
+    <string name="btn_fix_board_position" translatable="false">OK</string>
 
-    <string name="btn_passar_a_vez">Passar</string>
-    <string name="btn_voltar_ultima_jogada">Voltar</string>
-    <string name="btn_pausar">Pausar</string>
-    <string name="btn_pausar_continuar">Continuar</string>
-    <string name="btn_finalizar_registro">Finalizar</string>
-    <string name="btn_visualizar_registro">Visualizar registro</string>
-    <string name="btn_rotacionar_esquerda">Esq 90o</string>
-    <string name="btn_rotacionar_direita">Dir 90o</string>
+    <string name="btn_pass_turn">Passar</string>
+    <string name="btn_undo_last_move">Voltar</string>
+    <string name="btn_pause">Pausar</string>
+    <string name="btn_pause_continue">Continuar</string>
+    <string name="btn_finish_record">Finalizar</string>
+    <string name="btn_view_record">Visualizar registro</string>
+    <string name="btn_rotate_counter_clockwise">Esq 90o</string>
+    <string name="btn_rotate_clockwise">Dir 90o</string>
 
-    <string name="dialog_tem_certeza">Tem certeza?</string>
-    <string name="dialog_voltar_ultima_jogada">Deseja voltar a última jogada?</string>
-    <string name="dialog_finalizar_registro">Deseja finalizar o registro da partida?</string>
-    <string name="dialog_adicionar_jogada">Adicionar jogada à partida</string>
+    <string name="dialog_are_you_sure">Tem certeza?</string>
+    <string name="dialog_undo_last_move">Deseja voltar a última jogada?</string>
+    <string name="dialog_finish_recording">Deseja finalizar o registro da partida?</string>
+    <string name="dialog_add_move">Adicionar jogada à partida</string>
     <string name="toast_activate_corner_tracking">Tracking do tabuleiro ativado</string>
     <string name="toast_deactivate_corner_tracking">Tracking do tabuleiro desativado</string>
     <string name="toast_restore_original_corner_positions">Posição original do tabuleiro restaurada</string>
     <string name="toast_save_snapshot">Snapshot salva</string>
 
-    <string name="sim">Sim</string>
-    <string name="nao">Não</string>
+    <string name="yes">Sim</string>
+    <string name="no">Não</string>
 
 </resources>

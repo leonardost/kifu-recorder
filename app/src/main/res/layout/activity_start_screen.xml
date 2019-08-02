@@ -11,7 +11,7 @@
 
     <!-- http://stackoverflow.com/questions/7651912/android-center-textview-horizontally-in-linearlayout -->
     <TextView
-        android:text="@string/titulo"
+        android:text="@string/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -22,17 +22,17 @@
 
     <Button
         android:id="@+id/btnStartRecord"
-        android:text="@string/btn_iniciar_registro"
+        android:text="@string/btn_start_recording"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
         android:id="@+id/btnInstructions"
-        android:text="@string/btn_instrucoes"
+        android:text="@string/btn_instructions"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <Button
         android:id="@+id/btnCredits"
-        android:text="@string/btn_creditos"
+        android:text="@string/btn_credits"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 

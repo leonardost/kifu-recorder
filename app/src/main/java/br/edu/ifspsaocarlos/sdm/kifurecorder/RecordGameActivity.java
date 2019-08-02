@@ -516,7 +516,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnUndoLastMove:
-                areYouSureYouWantToUndoTheLastMove(getString(R.string.btn_voltar_ultima_jogada));
+                areYouSureYouWantToUndoTheLastMove(getString(R.string.btn_undo_last_move));
                 break;
             case R.id.btnRotateCounterClockwise:
                 rotate(-1);
@@ -557,9 +557,9 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
     private void areYouSureYouWantToUndoTheLastMove(String mensagem) {
         new AlertDialog.Builder(this)
-                .setTitle(R.string.dialog_tem_certeza)
+                .setTitle(R.string.dialog_are_you_sure)
                 .setMessage(mensagem)
-                .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         Move removida = game.undoLastMove();
@@ -569,7 +569,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                         logger.addToLog("Undoing last move " + removida);
                     }
                 })
-                .setNegativeButton(R.string.nao, null)
+                .setNegativeButton(R.string.no, null)
                 .show();
     }
 
@@ -614,15 +614,15 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
     private void areYouSureYouWantToFinishRecording() {
         new AlertDialog.Builder(this)
-            .setTitle(R.string.dialog_tem_certeza)
-            .setMessage(getString(R.string.dialog_finalizar_registro))
-            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+            .setTitle(R.string.dialog_are_you_sure)
+            .setMessage(getString(R.string.dialog_finish_recording))
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     saveGameRecordOnDiskAndExit();
                 }
             })
-            .setNegativeButton(R.string.nao, null)
+            .setNegativeButton(R.string.no, null)
             .show();
     }
 
@@ -660,9 +660,9 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
         final EditText input = new EditText(RecordGameActivity.this);
 
-        dialog.setTitle(R.string.dialog_adicionar_jogada)
-            .setMessage(getString(R.string.dialog_adicionar_jogada))
-            .setPositiveButton(R.string.sim, new DialogInterface.OnClickListener() {
+        dialog.setTitle(R.string.dialog_add_move)
+            .setMessage(getString(R.string.dialog_add_move))
+            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     Move manuallyAddedMove = processManualMove(input.getText().toString());
@@ -674,7 +674,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
                     }
                 }
             })
-            .setNegativeButton(R.string.nao, null)
+            .setNegativeButton(R.string.no, null)
             .setView(input)
             .show();
     }

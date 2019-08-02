@@ -11,7 +11,7 @@
     tools:context="br.edu.ifspsaocarlos.sdm.kifurecorder.InstructionsActivity">
 
     <TextView
-        android:text="@string/instrucoes_titulo"
+        android:text="@string/instructions_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -20,14 +20,14 @@
         android:paddingBottom="32dp" />
 
     <TextView
-        android:text="@string/instrucoes_paragrafo1"
+        android:text="@string/instructions_paragraph1"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="fill_horizontal"
         android:paddingTop="8dp" />
     <TextView
-        android:text="@string/instrucoes_paragrafo2"
+        android:text="@string/instructions_paragraph2"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -38,10 +38,10 @@
         android:layout_height="wrap_content"
         android:gravity="fill_horizontal"
         android:paddingTop="16dp"
-        android:text="@string/instrucoes_paragrafo3"
+        android:text="@string/instructions_paragraph3"
         android:textColor="@android:color/white" />
     <TextView
-        android:text="@string/instrucoes_paragrafo4"
+        android:text="@string/instructions_paragraph4"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -49,14 +49,14 @@
         android:paddingTop="16dp" />
 
     <TextView
-        android:text="@string/instrucoes_novidades1"
+        android:text="@string/instructions_news1"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="fill_horizontal"
         android:paddingTop="32dp"/>
     <TextView
-        android:text="@string/instrucoes_novidades2"
+        android:text="@string/instructions_news2"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -68,7 +68,7 @@
         android:layout_gravity="center"
         android:src="@drawable/reset_board_position"/>
     <TextView
-        android:text="@string/instrucoes_novidades3"
+        android:text="@string/instructions_news3"
         android:textColor="@android:color/white"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

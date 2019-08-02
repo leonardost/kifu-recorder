@@ -96,7 +96,7 @@ public class GameInformationActivity extends Activity implements View.OnClickLis
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startDetectBoardAcitivity();
             } else {
-                Toast.makeText(GameInformationActivity.this, getResources().getString(R.string.toast_permissao_camera), Toast.LENGTH_SHORT).show();
+                Toast.makeText(GameInformationActivity.this, getResources().getString(R.string.toast_camera_permission), Toast.LENGTH_SHORT).show();
             }
         }
     }
