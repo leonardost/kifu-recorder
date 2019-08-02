@@ -120,7 +120,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registrar_partida);
+        setContentView(R.layout.activity_game_recording);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         state = STATE_RUNNING;
 

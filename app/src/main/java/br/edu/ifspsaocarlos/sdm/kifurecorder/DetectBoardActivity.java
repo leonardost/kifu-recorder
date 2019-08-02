@@ -55,7 +55,7 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_detectar_tabuleiro);
+        setContentView(R.layout.activity_detect_board);
 
         mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.camera_surface_view1);
         mOpenCvCameraView.setCvCameraViewListener(this);

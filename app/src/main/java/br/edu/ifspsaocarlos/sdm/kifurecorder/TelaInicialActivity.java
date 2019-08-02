@@ -12,7 +12,7 @@ public class TelaInicialActivity extends Activity implements View.OnClickListene
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_tela_inicial);
+        setContentView(R.layout.activity_start_screen);
 
         TextView lblVersao = (TextView) findViewById(R.id.lblVersao);
         Button btnIniciarRegistro = (Button) findViewById(R.id.btnIniciarRegistro);

@@ -27,7 +27,7 @@ public class GameInformationActivity extends Activity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_informacoes_da_partida);
+        setContentView(R.layout.activity_game_information);
 
         edtBlackPlayer = (EditText) findViewById(R.id.edtJogadorPretas);
         edtWhitePlayer = (EditText) findViewById(R.id.edtJogadorBrancas);
