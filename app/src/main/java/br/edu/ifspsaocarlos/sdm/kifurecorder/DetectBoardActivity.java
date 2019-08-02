@@ -24,16 +24,16 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.boardDetector.BoardDetec
 public class DetectBoardActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {
 
     private CameraBridgeViewBase mOpenCvCameraView;
-    private Button btnFixarTabuleiro;
+    private Button btnFixBoardPosition;
 
-    private int dimensaoDoTabuleiro;
-    private Mat posicaoDoTabuleiroNaImagem = null;
-    private MatOfPoint contornoDoTabuleiro;
+    private int boardDimension;
+    private Mat boardPositionInImage = null;
+    private MatOfPoint boardContour;
     InitialBoardDetector initialBoardDetector;
     BoardDetector boardDetector;
 
-    private String jogadorDePretas;
-    private String jogadorDeBrancas;
+    private String blackPlayer;
+    private String whitePlayer;
     private String komi;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -61,16 +61,16 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
         mOpenCvCameraView.setCvCameraViewListener(this);
         mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
 
-        btnFixarTabuleiro = (Button) findViewById(R.id.btnFixarTabuleiro);
-        btnFixarTabuleiro.setOnClickListener(this);
-        btnFixarTabuleiro.setEnabled(false);
+        btnFixBoardPosition = (Button) findViewById(R.id.btnFixarTabuleiro);
+        btnFixBoardPosition.setOnClickListener(this);
+        btnFixBoardPosition.setEnabled(false);
 
         initialBoardDetector = new InitialBoardDetector(true);
         boardDetector = new BoardDetector();
 
         Intent i = getIntent();
-        jogadorDePretas = i.getStringExtra("jogadorDePretas");
-        jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
+        blackPlayer = i.getStringExtra("blackPlayer");
+        whitePlayer = i.getStringExtra("whitePlayer");
         komi = i.getStringExtra("komi");
     }
 
@@ -107,58 +107,57 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 //        return inputFrame.rgba();
 
-        Mat imagemFonte = inputFrame.rgba();
+        Mat inputImage = inputFrame.rgba();
 
-        initialBoardDetector.setImage(imagemFonte.clone());
-        initialBoardDetector.setPreviewImage(imagemFonte);
+        initialBoardDetector.setImage(inputImage.clone());
+        initialBoardDetector.setPreviewImage(inputImage);
         if (initialBoardDetector.process()) {
-            posicaoDoTabuleiroNaImagem =
-                    initialBoardDetector.getPositionOfBoardInImage();
-            contornoDoTabuleiro = converterParaMatOfPoint(posicaoDoTabuleiroNaImagem);
-            dimensaoDoTabuleiro = initialBoardDetector.getBoardDimension();
+            boardPositionInImage = initialBoardDetector.getPositionOfBoardInImage();
+            boardContour = convertToMatOfPoint(boardPositionInImage);
+            boardDimension = initialBoardDetector.getBoardDimension();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    btnFixarTabuleiro.setEnabled(true);
+                    btnFixBoardPosition.setEnabled(true);
                 }
             });
         }
-        else if (contornoDoTabuleiro != null) {
-            Drawer.drawBoardContour(imagemFonte, contornoDoTabuleiro);
+        else if (boardContour != null) {
+            Drawer.drawBoardContour(inputImage, boardContour);
         }
 
-        return imagemFonte;
+        return inputImage;
     }
 
-    private MatOfPoint converterParaMatOfPoint(Mat posicaoDoTabuleiroNaImagem) {
-        Point[] cantos = { new Point(posicaoDoTabuleiroNaImagem.get(0, 0)[0], posicaoDoTabuleiroNaImagem.get(0, 0)[1]),
-                new Point(posicaoDoTabuleiroNaImagem.get(1, 0)[0], posicaoDoTabuleiroNaImagem.get(1, 0)[1]),
-                new Point(posicaoDoTabuleiroNaImagem.get(2, 0)[0], posicaoDoTabuleiroNaImagem.get(2, 0)[1]),
-                new Point(posicaoDoTabuleiroNaImagem.get(3, 0)[0], posicaoDoTabuleiroNaImagem.get(3, 0)[1])
+    private MatOfPoint convertToMatOfPoint(Mat boardPositionInImage) {
+        Point[] corners = { new Point(boardPositionInImage.get(0, 0)[0], boardPositionInImage.get(0, 0)[1]),
+                new Point(boardPositionInImage.get(1, 0)[0], boardPositionInImage.get(1, 0)[1]),
+                new Point(boardPositionInImage.get(2, 0)[0], boardPositionInImage.get(2, 0)[1]),
+                new Point(boardPositionInImage.get(3, 0)[0], boardPositionInImage.get(3, 0)[1])
         };
-        contornoDoTabuleiro = new MatOfPoint(cantos);
-        return contornoDoTabuleiro;
+        boardContour = new MatOfPoint(corners);
+        return boardContour;
     }
 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btnFixarTabuleiro:
-                int[] matriz = new int[8];
-                matriz[0] = (int)posicaoDoTabuleiroNaImagem.get(0, 0)[0];
-                matriz[1] = (int)posicaoDoTabuleiroNaImagem.get(0, 0)[1];
-                matriz[2] = (int)posicaoDoTabuleiroNaImagem.get(1, 0)[0];
-                matriz[3] = (int)posicaoDoTabuleiroNaImagem.get(1, 0)[1];
-                matriz[4] = (int)posicaoDoTabuleiroNaImagem.get(2, 0)[0];
-                matriz[5] = (int)posicaoDoTabuleiroNaImagem.get(2, 0)[1];
-                matriz[6] = (int)posicaoDoTabuleiroNaImagem.get(3, 0)[0];
-                matriz[7] = (int)posicaoDoTabuleiroNaImagem.get(3, 0)[1];
+                int[] matrix = new int[8];
+                matrix[0] = (int) boardPositionInImage.get(0, 0)[0];
+                matrix[1] = (int) boardPositionInImage.get(0, 0)[1];
+                matrix[2] = (int) boardPositionInImage.get(1, 0)[0];
+                matrix[3] = (int) boardPositionInImage.get(1, 0)[1];
+                matrix[4] = (int) boardPositionInImage.get(2, 0)[0];
+                matrix[5] = (int) boardPositionInImage.get(2, 0)[1];
+                matrix[6] = (int) boardPositionInImage.get(3, 0)[0];
+                matrix[7] = (int) boardPositionInImage.get(3, 0)[1];
 
                 Intent i = new Intent(this, RecordGameActivity.class);
-                i.putExtra("jogadorDePretas", jogadorDePretas);
-                i.putExtra("jogadorDeBrancas", jogadorDeBrancas);
+                i.putExtra("blackPlayer", blackPlayer);
+                i.putExtra("whitePlayer", whitePlayer);
                 i.putExtra("komi", komi);
-                i.putExtra("posicaoDoTabuleiroNaImagem", matriz);
-                i.putExtra("dimensaoDoTabuleiro", dimensaoDoTabuleiro);
+                i.putExtra("boardPositionInImage", matrix);
+                i.putExtra("boardDimension", boardDimension);
                 startActivity(i);
                 break;
         }

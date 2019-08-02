@@ -135,11 +135,11 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 
     private void initializeProcessing() {
         Intent i = getIntent();
-        String jogadorDePretas  = i.getStringExtra("jogadorDePretas");
-        String jogadorDeBrancas = i.getStringExtra("jogadorDeBrancas");
+        String jogadorDePretas  = i.getStringExtra("blackPlayer");
+        String jogadorDeBrancas = i.getStringExtra("whitePlayer");
         String komi             = i.getStringExtra("komi");
-        dimensaoDoTabuleiro     = i.getIntExtra("dimensaoDoTabuleiro", -1);
-        int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("posicaoDoTabuleiroNaImagem");
+        dimensaoDoTabuleiro     = i.getIntExtra("boardDimension", -1);
+        int[] cantosDoTabuleiroEncontrados = i.getIntArrayExtra("boardPositionInImage");
         stoneDetector.setBoardDimension(dimensaoDoTabuleiro);
 
         game = new Game(dimensaoDoTabuleiro, jogadorDePretas, jogadorDeBrancas, komi);
