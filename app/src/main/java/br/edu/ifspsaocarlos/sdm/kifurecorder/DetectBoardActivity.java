@@ -18,7 +18,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.Point;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Drawer;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.InitialBoardDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.initialBoardDetector.InitialBoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.boardDetector.BoardDetector;
 
 public class DetectBoardActivity extends Activity implements CameraBridgeViewBase.CvCameraViewListener2, View.OnClickListener {

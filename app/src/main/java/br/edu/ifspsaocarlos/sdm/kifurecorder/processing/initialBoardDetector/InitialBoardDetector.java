@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder.processing;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processing.initialBoardDetector;
 
 import android.util.Log;
 
@@ -12,6 +12,8 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Drawer;
 
 /**
  * Detects the position of a Go board in an image and its dimension (9x9, 13x13 or 19x19).

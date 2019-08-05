@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder.processing;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processing.initialBoardDetector;
 
 import org.opencv.core.CvType;
 import org.opencv.core.MatOfPoint;

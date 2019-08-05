@@ -11,6 +11,7 @@ import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.initialBoardDetector.QuadrilateralHierarchy;
 
 /**
  * Responsible for drawing images.
