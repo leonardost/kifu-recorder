@@ -723,7 +723,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 	private void resetCornersToTheirOriginalPositions() {
 	    logger.addToLog("Resetting corners to their original positions");
 	    for (int i = 0; i < 4; i++) {
-	        boardCorners[i].set(originalBoardCorners[i]);
+	        boardCorners[i].copy(originalBoardCorners[i]);
         }
         Toast.makeText(
             RecordGameActivity.this,

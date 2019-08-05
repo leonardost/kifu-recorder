@@ -154,8 +154,13 @@ public class FileHelper {
             try {
                 FileInputStream fis = new FileInputStream(arquivo);
                 ObjectInputStream ois = new ObjectInputStream(fis);
-                game = (Game) ois.readObject();
-                boardCorners = (Corner[]) ois.readObject();
+
+                game.copy((Game) ois.readObject());
+                Corner[] savedCorners = (Corner[]) ois.readObject();
+                for (int i = 0; i < 4; i++) {
+                    boardCorners[i].copy(savedCorners[i]);
+                }
+
                 ois.close();
                 fis.close();
                 Log.i("KifuRecorder", "Partida recuperada.");

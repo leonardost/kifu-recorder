@@ -35,7 +35,7 @@ public class Corner {
         return position.y;
     }
 
-    public void set(Corner corner) {
+    public void copy(Corner corner) {
         position.x = corner.position.x;
         position.y = corner.position.y;
         displacementToRealCorner.x = corner.displacementToRealCorner.x;

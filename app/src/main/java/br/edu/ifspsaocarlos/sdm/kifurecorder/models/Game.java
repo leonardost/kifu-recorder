@@ -41,6 +41,17 @@ public class Game implements Serializable {
         numberOfManualAdditions = 0;
     }
 
+    public void copy(Game game) {
+        boardDimension = game.boardDimension;
+        blackPlayer = game.blackPlayer;
+        whitePlayer = game.whitePlayer;
+        komi = game.komi;
+        moves = game.moves; // I think there's no problem just copying the reference here
+        boards = game.boards;
+        numberOfUndoes = game.numberOfUndoes;
+        numberOfManualAdditions = game.numberOfManualAdditions;
+    }
+
     public int getBoardDimension() {
         return boardDimension;
     }
