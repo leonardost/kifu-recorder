@@ -9,7 +9,6 @@ import org.opencv.core.Scalar;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
 
@@ -77,7 +76,7 @@ public class StoneDetector {
         for (int i = 0; i < boardDimension; ++i) {
             for (int j = 0; j < boardDimension; ++j) {
 
-//                Log.i(TestsActivity.TAG, "(" + i + ", " + j + ")\n");
+//                Log.i("KifuRecorder", "(" + i + ", " + j + ")\n");
                 snapshot.append(String.format("(%1$2d, %2$2d)", i, j) + "\n");
 
                 // Ignores the intersections of moves that were already made
@@ -91,9 +90,9 @@ public class StoneDetector {
                 colorsOnEmptyAdjacentPositions[2] = (i < boardDimension - 1) ? lastBoard.getPosition(i + 1, j) == Board.EMPTY ? calculateAverageColorOnPosition(i + 1, j) : null : null;
                 colorsOnEmptyAdjacentPositions[3] = (j > 0) ? lastBoard.getPosition(i, j - 1) == Board.EMPTY ? calculateAverageColorOnPosition(i, j - 1) : null : null;
 
-/*                Log.d(TestsActivity.TAG, "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(colorAroundPosition));
-                Log.d(TestsActivity.TAG, "Luminancia ao redor de (" + i + ", " + j + ") = " + luminance(colorAroundPosition));
-                Log.d(TestsActivity.TAG, "Variância ao redor de (" + i + ", " + j + ") = " + variance(colorAroundPosition));*/
+/*                Log.d("KifuRecorder", "Cor média ao redor de (" + i + ", " + j + ") = " + printColor(colorAroundPosition));
+                Log.d("KifuRecorder", "Luminancia ao redor de (" + i + ", " + j + ") = " + luminance(colorAroundPosition));
+                Log.d("KifuRecorder", "Variância ao redor de (" + i + ", " + j + ") = " + variance(colorAroundPosition));*/
                 snapshot.append("    Average color around = " + printColor(colorAroundPosition) + "\n");
                 snapshot.append("    Luminance around     = " + luminance(colorAroundPosition) + "\n");
                 snapshot.append("    Variance around      = " + variance(colorAroundPosition) + "\n");
@@ -145,7 +144,7 @@ public class StoneDetector {
             chosenMove = null;
         }
 
-        Log.d(TestsActivity.TAG, "TIME (detect()): " + (System.currentTimeMillis() - startTime));
+        Log.d("KifuRecorder", "TIME (detect()): " + (System.currentTimeMillis() - startTime));
         return lastBoard.generateNewBoardWith(chosenMove);
     }
 
@@ -166,15 +165,15 @@ public class StoneDetector {
                 }
             }
         }
-        Log.d(TestsActivity.TAG, "TIME (detect() (1)): " + (System.currentTimeMillis() - startTime));
+        Log.d("KifuRecorder", "TIME (detect() (1)): " + (System.currentTimeMillis() - startTime));
 
         for (int i = 0; i < 3; ++i) {
             if (counters[i] > 0) {
                 for (int j = 0; j < boardImage.channels(); ++j) {
                     averageColors[i][j] /= counters[i];
                 }
-//                Log.d(TestsActivity.TAG, "Cor média[" + i + "] = " + printColor(averageColors[i]));
-//                Log.d(TestsActivity.TAG, "Luminancia[" + i + "] = " + luminance(averageColors[i]));
+//                Log.d("KifuRecorder", "Cor média[" + i + "] = " + printColor(averageColors[i]));
+//                Log.d("KifuRecorder", "Luminancia[" + i + "] = " + luminance(averageColors[i]));
                 snapshot.append("Average color (");
                 if (i == Board.EMPTY) {
                     snapshot.append("empty intersections");
@@ -444,8 +443,8 @@ public class StoneDetector {
             corMedia[i] = mediaScalar.val[i];
         }
 
-//        Log.i(TestsActivity.TAG, "Cor média ao redor de (" + x + ", " + y + ") = " + printColor(corMedia));
-//        Log.d(TestsActivity.TAG, "TEMPO (calculateAverageColors()): " + (System.currentTimeMillis() - tempoEntrou));
+//        Log.i("KifuRecorder", "Cor média ao redor de (" + x + ", " + y + ") = " + printColor(corMedia));
+//        Log.d("KifuRecorder", "TEMPO (calculateAverageColors()): " + (System.currentTimeMillis() - tempoEntrou));
         return corMedia;
     }
 
@@ -478,7 +477,7 @@ public class StoneDetector {
             color[i] /= contador;
         }
 
-//        Log.i(TestsActivity.TAG, printColor(color));
+//        Log.i("KifuRecorder", printColor(color));
 
         return color;
     }

@@ -41,7 +41,7 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
-                    Log.i(TestsActivity.TAG, "OpenCV loaded successfully");
+                    Log.i("KifuRecorder", "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
                     break;
                 default:
@@ -86,10 +86,10 @@ public class DetectBoardActivity extends Activity implements CameraBridgeViewBas
     public void onResume() {
         super.onResume();
         if (!OpenCVLoader.initDebug()) {
-            Log.d(TestsActivity.TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            Log.d("KifuRecorder", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
         } else {
-            Log.d(TestsActivity.TAG, "OpenCV library found inside package. Using it!");
+            Log.d("KifuRecorder", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }

@@ -107,7 +107,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         public void onManagerConnected(int status) {
             switch (status) {
                 case LoaderCallbackInterface.SUCCESS:
-                    Log.i(TestsActivity.TAG, "OpenCV loaded successfully");
+                    Log.i("KifuRecorder", "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
                     break;
                 default:
@@ -129,7 +129,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
         initializeUserInterface();
         initializeLogging();
 
-        Log.i(TestsActivity.TAG, "onCreate() finished");
+        Log.i("KifuRecorder", "onCreate() finished");
     }
 
     private void initializeCamera() {
@@ -240,7 +240,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     @Override
     public void onPause() {
         super.onPause();
-        Log.d(TestsActivity.TAG, "RecordGameActivity.onPause");
+        Log.d("KifuRecorder", "RecordGameActivity.onPause");
         fileHelper.storeGameTemporarily(game, boardCorners);
         if (mOpenCvCameraView != null) {
             mOpenCvCameraView.disableView();
@@ -257,10 +257,10 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     public void onResume() {
         super.onResume();
         if (!OpenCVLoader.initDebug()) {
-            Log.d(TestsActivity.TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
+            Log.d("KifuRecorder", "Internal OpenCV library not found. Using OpenCV Manager for initialization");
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
         } else {
-            Log.d(TestsActivity.TAG, "OpenCV library found inside package. Using it!");
+            Log.d("KifuRecorder", "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
         }
     }
@@ -632,7 +632,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
 	private void saveGameRecordOnDiskAndExit() {
         saveGameRecordOnDisk();
 
-        Intent intent = new Intent(getApplicationContext(), TelaInicialActivity.class);
+        Intent intent = new Intent(getApplicationContext(), InitialActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
 	}
@@ -651,7 +651,7 @@ public class RecordGameActivity extends Activity implements CameraBridgeViewBase
     // TODO: Check if this is being called
     @Override
     public void onBackPressed() {
-        Log.d(TestsActivity.TAG, "RecordGameActivity.onBackPressed()");
+        Log.d("KifuRecorder", "RecordGameActivity.onBackPressed()");
 	    areYouSureYouWantToFinishRecording();
     }
 

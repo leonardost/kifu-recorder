@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.BuildConfig;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
 
 /**
  * Represents a complete game, with the sequence of boards and moves that were made.
@@ -63,7 +62,7 @@ public class Game implements Serializable {
 
         boards.add(board);
         moves.add(playedMove);
-        Log.i(TestsActivity.TAG, "Adding board " + board + " (move " + playedMove.sgf() + ") to the game.");
+        Log.i("KifuRecorder", "Adding board " + board + " (move " + playedMove.sgf() + ") to the game.");
         return true;
     }
 
@@ -167,7 +166,7 @@ public class Game implements Serializable {
         StringBuilder sgf = new StringBuilder();
         writeHeader(sgf);
         for (Move move : moves) {
-            Log.i(TestsActivity.TAG, "Building SGF - move " + move.sgf());
+            Log.i("KifuRecorder", "Building SGF - move " + move.sgf());
             sgf.append(move.sgf());
         }
         sgf.append(")");

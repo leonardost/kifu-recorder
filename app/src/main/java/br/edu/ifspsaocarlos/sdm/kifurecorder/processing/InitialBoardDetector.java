@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
-
 /**
  * Detects the position of a Go board in an image and its dimension (9x9, 13x13 or 19x19).
  */
@@ -63,7 +61,7 @@ public class InitialBoardDetector {
         List<MatOfPoint> contours = detectContours(imageWithBordersInEvidence);
 
         if (contours.isEmpty()) {
-            Log.i(TestsActivity.TAG, "> Image processing: contours were not found.");
+            Log.i("KifuRecorder", "> Image processing: contours were not found.");
             return false;
         }
 
@@ -73,7 +71,7 @@ public class InitialBoardDetector {
         List<MatOfPoint> quadrilaterals = detectQuadrilaterals(contours);
 
         if (quadrilaterals.isEmpty()) {
-            Log.i(TestsActivity.TAG, "> Image processing: quadrilaterals were not found.");
+            Log.i("KifuRecorder", "> Image processing: quadrilaterals were not found.");
             return false;
         }
 
@@ -83,7 +81,7 @@ public class InitialBoardDetector {
         MatOfPoint boardQuadrilateral = detectBoard(quadrilaterals);
 
         if (boardQuadrilateral == null) {
-            Log.i(TestsActivity.TAG, "> Image processing: board quadrilateral was not found.");
+            Log.i("KifuRecorder", "> Image processing: board quadrilateral was not found.");
             return false;
         }
 
@@ -95,7 +93,7 @@ public class InitialBoardDetector {
         averageArea /= quadrilateralHierarchy.hierarchy.get(boardQuadrilateral).size();
         double boardArea = Imgproc.contourArea(boardQuadrilateral);
         double ratio = averageArea / boardArea;
-//        Log.d(TestsActivity.TAG, "Razão entre a área dos quadrados internos e a área do tabuleiro = " + ratio);
+//        Log.d("KifuRecorder", "Razão entre a área dos quadrados internos e a área do tabuleiro = " + ratio);
 
         // Determines the dimension of the board according to the ratio between the area of the
         // internal quadrilaterals and the area of the board quadrilateral
@@ -127,7 +125,7 @@ public class InitialBoardDetector {
         for (int i = 0; i < positionOfBoardInImage.rows(); ++i) {
             for (int j = 0; j < positionOfBoardInImage.cols(); ++j) {
                 double[] valor = positionOfBoardInImage.get(i, j);
-                Log.d(TestsActivity.TAG, "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
+                Log.d("KifuRecorder", "(" + i + ", " + j + ") = " + valor[0] + ", " + valor[1]);
             }
         }
         */

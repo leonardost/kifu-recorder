@@ -7,21 +7,21 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class TelaInicialActivity extends Activity implements View.OnClickListener {
+public class InitialActivity extends Activity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start_screen);
 
-        TextView lblVersao = (TextView) findViewById(R.id.lblVersion);
-        Button btnIniciarRegistro = (Button) findViewById(R.id.btnStartRecord);
-        Button btnInstrucoes = (Button) findViewById(R.id.btnInstructions);
-        Button btnCreditos = (Button) findViewById(R.id.btnCredits);
-        lblVersao.setText("v" + BuildConfig.VERSION_NAME);
-        btnIniciarRegistro.setOnClickListener(this);
-        btnInstrucoes.setOnClickListener(this);
-        btnCreditos.setOnClickListener(this);
+        TextView lblVersion = findViewById(R.id.lblVersion);
+        Button btnStartRecording = findViewById(R.id.btnStartRecord);
+        Button btnInstructions = findViewById(R.id.btnInstructions);
+        Button btnCredits = findViewById(R.id.btnCredits);
+        lblVersion.setText("v" + BuildConfig.VERSION_NAME);
+        btnStartRecording.setOnClickListener(this);
+        btnInstructions.setOnClickListener(this);
+        btnCredits.setOnClickListener(this);
     }
 
     @Override

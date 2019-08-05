@@ -17,7 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.TestsActivity;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Game;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Corner;
 
@@ -48,7 +47,7 @@ public class FileHelper {
         if (!gameRecordLogFolder.exists() && !gameRecordLogFolder.mkdirs()) {
             // TODO: Throw an exception
 //            Toast.makeText(RecordGameActivity.this, "ERRO: Diretório " + gameRecordLogFolder.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
-            Log.e(TestsActivity.TAG, "Folder " + gameRecordLogFolder.toString() + " could not be created, check your device's storage configuration.");
+            Log.e("KifuRecorder", "Folder " + gameRecordLogFolder.toString() + " could not be created, check your device's storage configuration.");
         }
     }
 
@@ -105,7 +104,7 @@ public class FileHelper {
                 fos.flush();
                 fos.close();
 
-                Log.i(TestsActivity.TAG, "Game saved: " + gameFile.getName());
+                Log.i("KifuRecorder", "Game saved: " + gameFile.getName());
                 return true;
             }
             catch (IOException e) {
@@ -117,7 +116,7 @@ public class FileHelper {
 //        else {
 //            // TODO: Throw exception
 ////            Toast.makeText(RecordGameActivity.this, "ERRO: Armazenamento externo nao disponivel.", Toast.LENGTH_LONG).show();
-////            Log.e(TestsActivity.TAG, "Armazenamento externo não disponível.");
+////            Log.e("KifuRecorder", "Armazenamento externo não disponível.");
 //            return false
 //        }
     }
@@ -137,14 +136,14 @@ public class FileHelper {
                 oos.writeObject(cantosDoTabuleiro);
                 oos.close();
                 fos.close();
-                Log.i(TestsActivity.TAG, "Game temporarily saved in " + file.getName());
+                Log.i("KifuRecorder", "Game temporarily saved in " + file.getName());
             }
             catch (IOException e) {
                 e.printStackTrace();
             }
         }
         else {
-            Log.e(TestsActivity.TAG, "External storage not available to store temporary game state.");
+            Log.e("KifuRecorder", "External storage not available to store temporary game state.");
         }
     }
 
@@ -159,7 +158,7 @@ public class FileHelper {
                 boardCorners = (Corner[]) ois.readObject();
                 ois.close();
                 fis.close();
-                Log.i(TestsActivity.TAG, "Partida recuperada.");
+                Log.i("KifuRecorder", "Partida recuperada.");
             }
             catch (IOException e) {
                 e.printStackTrace();
@@ -169,7 +168,7 @@ public class FileHelper {
             }
         }
         else {
-            Log.e(TestsActivity.TAG, "External storage not available to restore temporary game state.");
+            Log.e("KifuRecorder", "External storage not available to restore temporary game state.");
         }
     }
 
