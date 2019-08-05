@@ -30,7 +30,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Board;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Game;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.models.Move;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Drawer;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.StoneDetector;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.stoneDetector.StoneDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Logger;
