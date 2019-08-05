@@ -47,7 +47,7 @@ public class FileHelper {
         if (!gameRecordLogFolder.exists() && !gameRecordLogFolder.mkdirs()) {
             // TODO: Throw an exception
 //            Toast.makeText(RecordGameActivity.this, "ERRO: Diretório " + gameRecordLogFolder.toString() + " não criado, verifique as configurações de armazenamento de seu dispositivo.", Toast.LENGTH_LONG).show();
-            Log.e("KifuRecorder", "Folder " + gameRecordLogFolder.toString() + " could not be created, check your device's storage configuration.");
+            Log.e("KifuRecorder", "Folder " + gameRecordLogFolder.toString() + " could not be created, check your device's available space and storage configuration.");
         }
     }
 
