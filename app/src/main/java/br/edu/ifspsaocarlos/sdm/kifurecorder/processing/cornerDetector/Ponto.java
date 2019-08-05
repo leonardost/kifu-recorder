@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder.processing;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector;
 
 public class Ponto {
     public int x;

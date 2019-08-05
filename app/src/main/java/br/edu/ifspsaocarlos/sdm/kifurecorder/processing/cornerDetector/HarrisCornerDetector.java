@@ -8,9 +8,6 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.PointCluster;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Ponto;
-
 public class HarrisCornerDetector implements CornerDetectorInterface {
 
     private int imageIndex;

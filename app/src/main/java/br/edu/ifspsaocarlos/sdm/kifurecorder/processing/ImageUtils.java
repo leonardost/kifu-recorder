@@ -7,6 +7,7 @@ import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Corner;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Ponto;
 
 public class ImageUtils {
 

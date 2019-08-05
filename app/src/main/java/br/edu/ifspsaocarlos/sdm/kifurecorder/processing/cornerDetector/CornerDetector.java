@@ -12,7 +12,6 @@ import java.util.List;
 
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Logger;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Ponto;
 
 public class CornerDetector {
 

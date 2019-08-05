@@ -2,8 +2,6 @@ package br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector;
 
 import org.opencv.core.RotatedRect;
 
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Ponto;
-
 public class Corner {
     public Ponto position;
     public Ponto displacementToRealCorner;

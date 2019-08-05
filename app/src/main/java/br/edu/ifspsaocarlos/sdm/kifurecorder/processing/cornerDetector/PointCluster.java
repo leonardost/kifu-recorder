@@ -1,4 +1,4 @@
-package br.edu.ifspsaocarlos.sdm.kifurecorder.processing;
+package br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -35,7 +35,7 @@ import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.FileHelper;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.ImageUtils;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Logger;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.LoggingConfiguration;
-import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.Ponto;
+import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Ponto;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.boardDetector.BoardDetector;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.Corner;
 import br.edu.ifspsaocarlos.sdm.kifurecorder.processing.cornerDetector.CornerDetector;
