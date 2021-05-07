@@ -1,0 +1,17 @@
+Política de Privacidade
+=======================
+
+O Kifu Recorder é um app gratuito que utiliza a câmera de seu dispositivo móvel para o registro de partidas de Go e apenas isso. Nenhuma informação pessoal do usuário é coletada, armazenada ou distribuída de qualquer forma. As partidas detectadas e capturas de tela são armazenadas no próprio dispositivo móvel, cabendo ao usuário cuidar delas.
+
+Esta política de privacidade pode sofrer alterações em versões futuras do aplicativo.
+
+Em caso de dúvidas sobre esta política de privacidade, contate o desenvolvedor em kifurecorder@gmail.com.
+
+Privacy Policy
+==============
+
+Kifu Recorder is a free app that uses your mobile device's camera to record Go games and only that. No personal information of the user is collected, stored or distributed in any form. The detected games and screenshots are stored in the mobile device itself, being the user's concern to take care of them.
+
+This privacy policy can be updated in future versions of the app.
+
+If you have any questions about this privacy policy, contact the developer at kifurecorder@gmail.com.
